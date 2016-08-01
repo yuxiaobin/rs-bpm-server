@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfInstanceMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 INST_ID AS instId, WF_ID AS wfId, WF_STATUS AS wfStatus, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+	</sql>
+
+</mapper>

@@ -1,0 +1,9 @@
+.close_span{
+    border: 1px solid #2e6f9a;
+    border-radius: 8px;
+    opacity: 0.8;
+    cursor: pointer;
+    display: inline;
+    /* width: 20px; */
+    padding: 0 4px
+}

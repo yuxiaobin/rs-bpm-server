@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfInstHistMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 HIST_ID AS histId, INST_ID AS instId, WF_ID AS wfId, TASK_ID AS taskId, OPT_USER AS optUser, OPT_TYPE AS optType, OPT_SEQ AS optSeq, NEXT_ASSIGNER AS nextAssigner, STATUS, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+	</sql>
+
+</mapper>

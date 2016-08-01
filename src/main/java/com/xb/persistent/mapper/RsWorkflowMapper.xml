@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.RsWorkflowMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 RS_WF_ID AS rsWfId, RS_WF_NAME AS rsWfName, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+	</sql>
+
+</mapper>

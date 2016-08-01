@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfTaskMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 TASK_ID AS taskId, WF_ID AS wfId, TASK_PG_ID AS taskPgId, TASK_TYPE AS taskType, TASK_DESCP AS taskDescp, POS_TOP AS posTop, POS_LEFT AS posLeft, ASSIGN_USERS AS assignUsers, ASSIGN_GROUPS AS assignGroups, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+	</sql>
+
+	<resultMap id="taskInboxResultMap" type="com.xb.vo.TaskVO">
+	  <id property="id" column="user_id" />
+	  <result property="instHist.histId" column="hist_id"/>
+	  <result property="instHist.wfId" column="wf_id"/>
+	  <result property="instHist.optUser" column="opt_user"/>
+	  <result property="instHist.optType" column="opt_type"/>
+	  <result property="instHist.optSeq" column="opt_seq"/>
+	  <result property="instHist.nextAssigner" column="next_assigner"/>
+	  <result property="instHist.STATUS" column="status"/>
+	  <result property="instHist.createdDt" column="created_dt"/>
+	  
+	  <result property="task.taskPgId" column="task_pg_id"/>
+	  <result property="task.taskType" column="task_type"/>
+	  <result property="task.assignUsers" column="assign_users"/>
+	  <result property="task.assignGroups" column="assign_groups"/>
+	  <result property="task.taskDescp" column="task_descp"/>
+	</resultMap>
+	
+	<select id="getTasksInbox"  resultMap="taskInboxResultMap">
+select hist.hist_id, hist.wf_id, hist.opt_user, hist.opt_type,
+hist.opt_seq, hist.next_assigner, hist.status, hist.created_dt,
+task.task_pg_id, task.task_type, task.task_descp, task.assign_users, task.assign_groups
+from WF_INST_HIST hist, WF_TASK task
+  where hist.TASK_ID = task.TASK_ID
+  and hist.status='I' and (hist.next_assigner is null or hist.next_assigner=#{userId})
+</select>
+</mapper>
