@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.xb.persistent.mapper.WfInstHistMapper;
 import com.xb.persistent.WfInstHist;
 import com.xb.service.IWfInstHistService;
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.baomidou.framework.service.impl.SuperServiceImpl;
  *
  */
 @Service
-public class WfInstHistServiceImpl extends SuperServiceImpl<WfInstHistMapper, WfInstHist> implements IWfInstHistService {
+public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, WfInstHist> implements IWfInstHistService {
 
 
 }

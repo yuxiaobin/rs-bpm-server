@@ -7,16 +7,17 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.baomidou.mybatisplus.mapper.AutoMapper;
+import com.baomidou.mybatisplus.mapper.CommonMapper;
 
 /**
  *
  * WfTask 表数据库控制层接口
  *
  */
-public interface WfTaskMapper extends AutoMapper<WfTask> {
+public interface WfTaskMapper extends CommonMapper<WfTask> {
 	
 	public List<TaskVO> getTasksInbox(@Param("userId") String userId);
 
+	public List<WfTask> getTaskListWithStatus(@Param("instId") String instId);
 
 }

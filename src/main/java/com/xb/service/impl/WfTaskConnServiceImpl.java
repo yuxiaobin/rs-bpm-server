@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.xb.persistent.mapper.WfTaskConnMapper;
 import com.xb.persistent.WfTaskConn;
 import com.xb.service.IWfTaskConnService;
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.baomidou.framework.service.impl.SuperServiceImpl;
  *
  */
 @Service
-public class WfTaskConnServiceImpl extends SuperServiceImpl<WfTaskConnMapper, WfTaskConn> implements IWfTaskConnService {
+public class WfTaskConnServiceImpl extends CommonServiceImpl<WfTaskConnMapper, WfTaskConn> implements IWfTaskConnService {
 
 
 }

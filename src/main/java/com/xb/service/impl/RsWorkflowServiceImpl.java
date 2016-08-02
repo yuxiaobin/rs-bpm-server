@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.persistent.RsModule;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfDef;
@@ -34,7 +34,7 @@ import com.xb.vo.WFDetailVO;
  *
  */
 @Service
-public class RsWorkflowServiceImpl extends SuperServiceImpl<RsWorkflowMapper, RsWorkflow> implements IRsWorkflowService {
+public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, RsWorkflow> implements IRsWorkflowService {
 
 	@Autowired
 	IWfDefService wfDefService;
@@ -57,14 +57,10 @@ public class RsWorkflowServiceImpl extends SuperServiceImpl<RsWorkflowMapper, Rs
 	 */
 	@Transactional
 	public void createWF4Module(ModuleVO module, WFDetailVO wfDetail) {
-		RsModule modParm = new RsModule();
-		modParm.setModId(module.getModuleId());
-		RsModule rsModule = rsModuleService.selectOne(modParm);
+		RsModule rsModule = rsModuleService.selectById(module.getModuleId());
 		RsWorkflow rsWf = null;
 		if(!StringUtils.isEmpty(rsModule.getRsWfId())){
-			RsWorkflow parm = new RsWorkflow();
-			parm.setRsWfId(rsModule.getRsWfId());
-			rsWf = this.selectOne(parm);
+			rsWf = this.selectById(rsModule.getRsWfId());
 		}else{
 			rsWf = new RsWorkflow();
 			rsWf.setRsWfName("Workflow for "+module.getModuleName());
@@ -119,9 +115,7 @@ public class RsWorkflowServiceImpl extends SuperServiceImpl<RsWorkflowMapper, Rs
 	 */
 	public WFDetailVO getWF4Module(String moduleId, String wfId) {
 		WFDetailVO result = new WFDetailVO();
-		RsModule modParm = new RsModule();
-		modParm.setModId(moduleId);
-		RsModule rsModule = rsModuleService.selectOne(modParm);
+		RsModule rsModule = rsModuleService.selectById(moduleId);
 		if (rsModule == null) {
 			return result;
 		}
@@ -140,9 +134,7 @@ public class RsWorkflowServiceImpl extends SuperServiceImpl<RsWorkflowMapper, Rs
 		
 		WfDef wfDef  = null;
 		if(wfId!=null){
-			WfDef wfDefParm = new WfDef();
-			wfDefParm.setWfId(wfId);
-			wfDef = wfDefService.selectOne(wfDefParm);
+			wfDef = wfDefService.selectById(wfId);
 		}
 		if(wfDef==null){
 			WfDef wfDefParm = new WfDef();
@@ -156,12 +148,10 @@ public class RsWorkflowServiceImpl extends SuperServiceImpl<RsWorkflowMapper, Rs
 		result.setWfDef(wfDef);
 		WfTask taskParm = new WfTask();
 		taskParm.setWfId(wfDef.getWfId());
-		List<WfTask> taskList = wfTaskService.selectList(taskParm);
 		WfTaskConn connParm = new WfTaskConn();
 		connParm.setWfId(wfDef.getWfId());
-		List<WfTaskConn>connList = wfTaskConnService.selectList(connParm);
-		result.setTasks(taskList);
-		result.setConns(connList);
+		result.setTasks(wfTaskService.selectList(taskParm));
+		result.setConns(wfTaskConnService.selectList(connParm));
 		return result;
 	}
 	

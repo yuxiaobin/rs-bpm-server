@@ -154,8 +154,7 @@ public class WFController extends BaseController {
 		if(wfId=="init"){
 			wfId = null;
 		}
-		WFDetailVO wfDtl = wfService.getWF4Module(moduleId,wfId);
-		JSONObject result = WfDataUtil.generateWfJson(wfDtl);
+		JSONObject result = WfDataUtil.generateWfJson(wfService.getWF4Module(moduleId,wfId));
 		result.put("role", session.getAttribute(SESSION_USERINFO));
 		return result;
 	}
@@ -241,7 +240,7 @@ public class WFController extends BaseController {
 	}
 	
 	@RequestMapping(value="/history/{histId}", method=RequestMethod.GET )
-	public String viewTaksHist(@PathVariable String histId, HttpServletRequest req){
+	public String viewTaskHist(@PathVariable String histId, HttpServletRequest req){
 		WfInstHist histParm = new WfInstHist();
 		histParm.setHistId(histId);
 		WfInstHist hist = instHistService.selectOne(histParm);
@@ -266,7 +265,7 @@ public class WFController extends BaseController {
 	
 	@RequestMapping(value="/history/{histId}", method=RequestMethod.POST )
 	@ResponseBody
-	public Object updateTaksHist(@PathVariable String histId,@RequestBody JSONObject obj, HttpSession session){
+	public Object updateTaskHist(@PathVariable String histId,@RequestBody JSONObject obj, HttpSession session){
 		String userId = (String) session.getAttribute(SESSION_USERINFO);
 		String opt = obj.getString("opt");
 		taskService.processTask(histId, userId, opt);
@@ -297,5 +296,16 @@ public class WFController extends BaseController {
 //		return "/";
 		req.setAttribute("role", userId);
 		return "wf-modules-view";
+	}
+	
+	@RequestMapping(value="/view/status/{histId}",method=RequestMethod.GET )
+	@ResponseBody
+	public Object getWfStatus(@PathVariable String histId, HttpSession session){
+		if(StringUtils.isEmpty(histId)){
+			return "";
+		}
+		JSONObject result = WfDataUtil.generateWfJson(taskService.getWFStatus(histId));
+		result.put("role", session.getAttribute(SESSION_USERINFO));
+		return result;
 	}
 }

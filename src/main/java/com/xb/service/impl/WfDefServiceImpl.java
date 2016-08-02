@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.xb.persistent.mapper.WfDefMapper;
 import com.xb.persistent.WfDef;
 import com.xb.service.IWfDefService;
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.baomidou.framework.service.impl.SuperServiceImpl;
  *
  */
 @Service
-public class WfDefServiceImpl extends SuperServiceImpl<WfDefMapper, WfDef> implements IWfDefService {
+public class WfDefServiceImpl extends CommonServiceImpl<WfDefMapper, WfDef> implements IWfDefService {
 
 
 }

@@ -87,10 +87,8 @@ jsPlumb.ready(function () {
         Container: "canvas"
     });
 
-//    instance.registerConnectionType("basic", { anchor:"Continuous", connector:"StateMachine" });
     window.jsp = instance;
     var canvas = document.getElementById("canvas");
-    var windows = jsPlumb.getSelector(".statemachine-demo .w");
     // bind a click listener to each connection; the connection is deleted. you could of course
     // just do this: jsPlumb.bind("click", jsPlumb.detach), but I wanted to make it clear what was
     // happening.
@@ -98,16 +96,6 @@ jsPlumb.ready(function () {
         console.log(c);
         //instance.detach(c);
     });
-
-//    var basicType = {
-//        connector: "StateMachine",
-//        paintStyle: { strokeStyle: "red", lineWidth: 4 },
-//        hoverPaintStyle: { strokeStyle: "blue" },
-//        overlays: [
-//            "Arrow"
-//        ]
-//    };
-//    instance.registerConnectionType("basic", basicType);
 
     // this is the paint style for the connecting lines..
     var connectorPaintStyle = {
@@ -132,6 +120,7 @@ jsPlumb.ready(function () {
     // just the new connection - see the documentation for a full list of what is included in 'info'.
     // this listener sets the connection's internal
     // id as the label overlay's text.
+    //TODO: add validation for usertype only have one connection out;conditionType max 2 out
     instance.bind("connection", function (info) {
         //info.connection.getOverlay("label").setLabel(info.connection.id);//display connection label
         var connection_id = info.connection.id;
@@ -173,9 +162,6 @@ jsPlumb.ready(function () {
     var initNode = function(el,type) {
         // initialise draggable elements.
         instance.draggable(el,{containment:"parent"});
-        if(type==""){
-
-        }
         instance.makeSource(el, {
             filter: ".ep",
             anchor: "Continuous",
@@ -271,71 +257,16 @@ jsPlumb.ready(function () {
                             initEmptyWF();
                         }
                     });
-                    var role_ = msg.role;
-                    if("staff"==role_){
-                        if(typeof(latestFlag)=="undefined" || latestFlag=="false"){
-                            $("#startWf").css("display","none")
-                        }else {
-                            $("#startWf").css("display", "")
-                                .on("click", function () {
-                                    $.ajax({
-                                        type: "POST",
-                                        url: basePath + "/wf/start/" + moduleId,
-                                        success: function (msg) {
-                                            console.log("save wf successfully");
-                                            alert(msg.message);
-                                        },
-                                        error: function (err) {
-                                            alert(err);
-                                        }
-                                    });
-                                });
-                        }
-                    }else if("manager"==role_){
-                        $("#approveWf").css("display","")
-                            .on("click",function(){
-                                $.ajax({
-                                    type: "POST",
-                                    url: basePath+"/wf/history/"+histId,
-                                    data:JSON.stringify({opt:"AP"}),
-                                    headers: { 'Content-Type': "application/json" },
-                                    success: function (msg) {
-                                        console.log("save wf successfully");
-                                        alert(msg.message);
-                                    },
-                                    error:function(msg){
-                                        alert(msg.message);
-                                    }
-                                });
-                            });
-                        $("#rejectWf").css("display","")
-                            .on("click",function(){
-                                $.ajax({
-                                    type: "POST",
-                                    url: basePath+"/wf/history/"+histId,
-                                    data:JSON.stringify({opt:"RJ"}),
-                                    headers: { 'Content-Type': "application/json" },
-                                    success: function (msg) {
-                                        console.log("save wf successfully");
-                                        alert(msg.message);
-                                    },
-                                    error:function(msg){
-                                        alert(msg.message);
-                                    }
-                                });
-                            });
-                    }
-                    /******/
-                    if(typeof(editableFlag)=="undefined"){
-                        editableFlag = true;
-                    }
-                    if(!editableFlag){
-                        $("#canvas .w").each(function(){
-                            var id_ = $(this).attr("id");
-                            instance.setElementDraggable(id_, false);
-                        });
-                        $(".menu-task").draggable('disable');
-                    }
+//                    if(typeof(editableFlag)=="undefined"){
+//                        editableFlag = true;
+//                    }
+//                    if(!editableFlag){
+//                        $("#canvas .w").each(function(){
+//                            var id_ = $(this).attr("id");
+//                            instance.setElementDraggable(id_, false);
+//                        });
+//                        $(".menu-task").draggable('disable');
+//                    }
                 }
             }
         );

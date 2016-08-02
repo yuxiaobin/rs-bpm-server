@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.xb.persistent.mapper.WfInstanceMapper;
 import com.xb.persistent.WfInstance;
 import com.xb.service.IWfInstanceService;
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.baomidou.framework.service.impl.SuperServiceImpl;
  *
  */
 @Service
-public class WfInstanceServiceImpl extends SuperServiceImpl<WfInstanceMapper, WfInstance> implements IWfInstanceService {
+public class WfInstanceServiceImpl extends CommonServiceImpl<WfInstanceMapper, WfInstance> implements IWfInstanceService {
 
 
 }

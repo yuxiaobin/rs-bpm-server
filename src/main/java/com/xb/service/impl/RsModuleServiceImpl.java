@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.xb.persistent.mapper.RsModuleMapper;
 import com.xb.persistent.RsModule;
 import com.xb.service.IRsModuleService;
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.baomidou.framework.service.impl.SuperServiceImpl;
  *
  */
 @Service
-public class RsModuleServiceImpl extends SuperServiceImpl<RsModuleMapper, RsModule> implements IRsModuleService {
+public class RsModuleServiceImpl extends CommonServiceImpl<RsModuleMapper, RsModule> implements IRsModuleService {
 
 
 }

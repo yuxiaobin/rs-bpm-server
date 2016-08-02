@@ -69,7 +69,7 @@ public class MybatisPlusGenerator {
         //cg.setConfigIdType(ConfigIdType.STRING);
 
 //        cg.setSaveDir("D:/workspace2/Test2/src/main/java");// 生成文件保存位置
-        cg.setSaveDir("D:/workspace2/Test/src/main/java");// 生成文件保存位置
+        cg.setSaveDir("D:/test123/src/main/java");// 生成文件保存位置
 		/*
          * 设置数据库字段是否为驼峰命名，驼峰 true 下划线分割 false
 		 */

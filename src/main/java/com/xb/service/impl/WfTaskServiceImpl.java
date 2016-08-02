@@ -10,9 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.common.WFConstants;
 import com.xb.persistent.RsModule;
+import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfDef;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
@@ -20,12 +21,14 @@ import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.mapper.WfTaskMapper;
 import com.xb.service.IRsModuleService;
+import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskConnService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskVO;
+import com.xb.vo.WFDetailVO;
 
 /**
  *
@@ -33,7 +36,7 @@ import com.xb.vo.TaskVO;
  *
  */
 @Service
-public class WfTaskServiceImpl extends SuperServiceImpl<WfTaskMapper, WfTask> implements IWfTaskService {
+public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> implements IWfTaskService {
 	
 	private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
@@ -47,6 +50,8 @@ public class WfTaskServiceImpl extends SuperServiceImpl<WfTaskMapper, WfTask> im
 	IRsModuleService moduleService;
 	@Autowired
 	IWfDefService wfDefService;
+	@Autowired
+	IRsWorkflowService rsWfService;
 	
 	public List<TaskVO> getTasksInbox(String userId){
 		return baseMapper.getTasksInbox(userId);
@@ -54,9 +59,7 @@ public class WfTaskServiceImpl extends SuperServiceImpl<WfTaskMapper, WfTask> im
 	
 	@Transactional
 	public void startWF4Module(String moduleId, String currUserId){
-		RsModule modParm = new RsModule();
-		modParm.setModId(moduleId);
-		RsModule rsModule = moduleService.selectOne(modParm);
+		RsModule rsModule = moduleService.selectById(moduleId);
 		if (rsModule == null) {
 			return;
 		}
@@ -100,37 +103,42 @@ public class WfTaskServiceImpl extends SuperServiceImpl<WfTaskMapper, WfTask> im
 
 	@Transactional
 	public void processTask(String histId, String userId, String opt){
-		WfInstHist histParm = new WfInstHist();
-		histParm.setHistId(histId);
-		WfInstHist histCurr = histService.selectOne(histParm);
+		WfInstHist histCurr = histService.selectById(histId);
 		histCurr.setSTATUS(WFConstants.WFStatus.DONE);
 		histService.updateById(histCurr);
-		
-		WfTaskConn connParm = new WfTaskConn();
-		connParm.setSourceTaskId(histCurr.getTaskId());
-		//for user task source, should only have one connection
-		WfTaskConn conn = taskConnService.selectOne(connParm);
-		if(conn==null){
-			System.err.println("no conn record for taksId="+histCurr.getTaskId()+", workflow over");
-			return;
+		String nextTaskId = "";
+		WfTask taskNext = null;
+		if(WFConstants.OptTypes.REJECT.equals(histCurr.getOptType())){
+			WfTaskConn connParm = new WfTaskConn();
+			connParm.setTargetTaskId(histCurr.getTaskId());
+			//for user task source, should only have one connection
+			WfTaskConn conn = taskConnService.selectOne(connParm);
+			nextTaskId = conn.getSourceTaskId();
+			taskNext = baseMapper.selectById(nextTaskId);
+		}else{
+			WfTaskConn connParm = new WfTaskConn();
+			connParm.setSourceTaskId(histCurr.getTaskId());
+			//for user task source, should only have one connection
+			WfTaskConn conn = taskConnService.selectOne(connParm);
+			if(conn==null){
+				System.err.println("no conn record for taksId="+histCurr.getTaskId()+", workflow over");
+				return;
+			}
+			nextTaskId = conn.getTargetTaskId();
+			taskNext = this.selectById(nextTaskId);
 		}
-		String targetTaskId = conn.getTargetTaskId();
-		WfTask taskParm = new WfTask();
-		taskParm.setTaskId(targetTaskId);
-		WfTask taskNext = this.selectOne(taskParm);
 		
 		WfInstHist histNext = new WfInstHist();
 		histNext.setInstId(histCurr.getInstId());
 		histNext.setOptSeq(histCurr.getOptSeq()+1);
-		histNext.setOptType(opt);//AP:Approve, RJ:Reject
+		histNext.setOptType(opt);//AP:Approve, RJ:Reject, RQ:Request
 		histNext.setOptUser(userId);
 		histNext.setSTATUS(WFConstants.WFStatus.IN_PROCESS);
 		histNext.setWfId(histCurr.getWfId());
+		histNext.setTaskId(taskNext.getTaskId());
 		if(WFConstants.OptTypes.REJECT.equals(opt)){
-			histNext.setTaskId(conn.getSourceTaskId());
 			histNext.setNextAssigner(histCurr.getOptUser());
 		}else{
-			histNext.setTaskId(taskNext.getTaskId());
 			histNext.setNextAssigner(taskNext.getAssignUsers());
 		}
 		histService.insert(histNext);
@@ -142,55 +150,78 @@ public class WfTaskServiceImpl extends SuperServiceImpl<WfTaskMapper, WfTask> im
 		/*
 		 * 条件节点的判断先不做//TODO:
 		 */
-		WfTaskConn connParm = new WfTaskConn();
-		connParm.setSourceTaskId(currHist.getTaskId());
-		//for user task source, should only have one connection
-		WfTaskConn conn = taskConnService.selectOne(connParm);
-		if(conn==null){
-			System.err.println("no conn record for taksId="+currHist.getTaskId()+", workflow over");
-			return;
-		}
-		WfTask taskParm = new WfTask();
-		taskParm.setTaskId(conn.getTargetTaskId());
-		WfTask taskNext = this.selectOne(taskParm);
-		if(taskNext==null){
-			System.out.println("prepareNextTask====nextTask is "+taskNext);
-			return;
-		}
-		
-		WfInstance instParm = new WfInstance();
-		instParm.setInstId(currHist.getInstId());
-		WfInstance inst = instService.selectOne(instParm);
-		inst.setCurrTaskId(taskNext.getTaskId());
-		
+		WfInstance inst = instService.selectById(currHist.getInstId());
 		if(WFConstants.OptTypes.REJECT.equals(currHist.getOptType())){
-			System.out.println("task is rejected, auto route to requester");
+			WfTaskConn connParm = new WfTaskConn();
+			connParm.setTargetTaskId(currHist.getTaskId());
+			//for user task source, should only have one connection
+			WfTaskConn conn = taskConnService.selectOne(connParm);
+			WfTask taskPrev = this.selectById(conn.getSourceTaskId());
+			inst.setCurrTaskId(taskPrev.getTaskId());
 			instService.updateById(inst);
-			return;
 		}
-		if(WFConstants.TaskTypes.E.getTypeCode().equals(taskNext.getTaskType())){
-			currHist.setSTATUS(WFConstants.WFStatus.DONE);
-			histService.updateById(currHist);
-			inst.setWfStatus(WFConstants.WFStatus.DONE);
+		else{
+			WfTaskConn connParm = new WfTaskConn();
+			connParm.setSourceTaskId(currHist.getTaskId());
+			//for user task source, should only have one connection
+			WfTaskConn conn = taskConnService.selectOne(connParm);
+			if(conn==null){
+				System.err.println("no conn record for taksId="+currHist.getTaskId()+", workflow over");
+				return;
+			}
+			WfTask taskNext = this.selectById(conn.getTargetTaskId());
+			if(taskNext==null){
+				System.out.println("prepareNextTask====nextTask is "+taskNext);
+				return;
+			}
+			inst.setCurrTaskId(taskNext.getTaskId());
+			if(WFConstants.TaskTypes.E.getTypeCode().equals(taskNext.getTaskType())){
+				currHist.setSTATUS(WFConstants.WFStatus.DONE);
+				histService.updateById(currHist);
+				inst.setWfStatus(WFConstants.WFStatus.DONE);
+				System.out.println("update instance to Done status");
+			}
 			instService.updateById(inst);
-			System.out.println("update instance to Done status");
-			return;
 		}
 		
 	}
 	
-	//TODO:
-	public void checkNextStepJob(final WfInstance inst, final WfInstHist hist){
-		/*final IWfTaskService f_taskService = this;
-		final IWfTaskConnService f_connService = taskConnService;
-		executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				WfTaskConn conn = new WfTaskConn();
-				conn.setSourceTaskId(hist.getTaskId());
-				f_connService.selectList(conn);
-//				f_connService.selectOne(entity)
+	/**
+	 * 获取当前工作流状态
+	 * @param histId
+	 * @return
+	 */
+	public WFDetailVO getWFStatus(String histId){
+		WFDetailVO result = new WFDetailVO();
+		WfInstHist hist = histService.selectById(histId);
+		WfDef wfDef = wfDefService.selectById(hist.getWfId());
+		result.setWfDef(wfDef);
+		RsWorkflow rsWf = rsWfService.selectById(wfDef.getRsWfId());
+		
+		if (rsWf == null) {
+			return result;
+		}
+		result.setRsWF(rsWf);
+		RsModule modParm = new RsModule();
+		modParm.setRsWfId(rsWf.getRsWfId());
+		RsModule rsModule = moduleService.selectOne(modParm);
+		if(rsModule==null){
+			System.out.println("getWFStatus===rsModule is null for rsWfId="+rsWf.getRsWfId());
+			return result;
+		}
+		result.setModule(rsModule);
+		List<WfTask> taskList = baseMapper.getTaskListWithStatus(hist.getInstId());
+		WfInstance instance = instService.selectById(hist.getInstId());
+		if(WFConstants.WFStatus.DONE.equals(instance.getWfStatus())){
+			for(WfTask task:taskList){
+				task.setProcessedFlag("Y");
 			}
-		});*/
+		}
+		result.setTasks(taskList);
+		
+		WfTaskConn connParm = new WfTaskConn();
+		connParm.setWfId(wfDef.getWfId());
+		result.setConns(taskConnService.selectList(connParm));
+		return result;
 	}
 }

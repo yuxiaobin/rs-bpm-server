@@ -12,6 +12,8 @@ import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
 import com.xb.vo.WFDetailVO;
 
+import httl.util.StringUtils;
+
 public class WfDataUtil {
 	
 	/****************************generate json from object******************************/
@@ -42,6 +44,13 @@ public class WfDataUtil {
 			pos.put("top", task.getPosTop());
 			pos.put("left", task.getPosLeft());
 			record.put("position", pos);
+			String status = "";
+			if(!StringUtils.isEmpty(task.getCurrTaskId())){
+				status = "PEND";
+			}else if(!StringUtils.isEmpty(task.getProcessedFlag())){
+				status = "PROC";
+			}
+			record.put("status", status);
 			array.add(record);
 		}
 		return array;

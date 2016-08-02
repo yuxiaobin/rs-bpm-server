@@ -59,14 +59,27 @@ public class WfTask extends CUBaseTO implements Serializable {
 	 * 用来标识是否该task被执行过
 	 */
 	@TableField(exist = false)
-	private String doneFlag;
+	private String processedFlag;
+	/**
+	 * 用来标识是否当前task是WF正在pending的那个task
+	 */
+	@TableField(exist = false)
+	private String currTaskId;
 	
-	public String getDoneFlag() {
-		return doneFlag;
+	public String getProcessedFlag() {
+		return processedFlag;
 	}
 
-	public void setDoneFlag(String doneFlag) {
-		this.doneFlag = doneFlag;
+	public void setProcessedFlag(String processedFlag) {
+		this.processedFlag = processedFlag;
+	}
+
+	public String getCurrTaskId() {
+		return currTaskId;
+	}
+
+	public void setCurrTaskId(String currTaskId) {
+		this.currTaskId = currTaskId;
 	}
 
 	public String getTaskId() {

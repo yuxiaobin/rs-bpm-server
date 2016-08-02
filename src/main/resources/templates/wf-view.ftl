@@ -16,10 +16,8 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <script>
         var basePath = "${base.contextPath}";
-        var editableFlag = false;
-        var wfId = "${wfId}";
         <#if latestFlag?exists>
-        var latestFlag = "${latestFlag}";
+            var latestFlag = "${latestFlag}";
         </#if>
         <#if histId?exists>
             var histId = "${histId}";
@@ -50,6 +48,7 @@
     <div>
         <!--<input type="button" value="Remove All" id="removeAll">-->
         <input type="button" value="Start Workflow" id="startWf" style="display: none">
+        <input type="button" value="Request Again" id="reSubmitWf" style="display: none">
         <input type="button" value="Approve" id="approveWf" style="display: none">
         <input type="button" value="Reject" id="rejectWf" style="display: none">
     </div>
@@ -102,11 +101,8 @@
 
 <script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
 <script src="${base.contextPath}/static/js/jquery-ui.js"></script>
-<script src="${base.contextPath}/static/js/jquery.ui.dialog.js"></script>
-<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>
 <!--  demo code -->
-<script src="${base.contextPath}/static/js/rs-bpm.js"></script>
-<script src="${base.contextPath}/static/js/activity-edit/properties.js"></script>
+<script src="${base.contextPath}/static/js/rs-bpm-view.js"></script>
 
 <!-- <script src="demo-list.js"></script>-->
 </body>

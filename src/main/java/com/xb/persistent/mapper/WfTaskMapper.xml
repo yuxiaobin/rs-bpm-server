@@ -8,7 +8,6 @@
 	</sql>
 
 	<resultMap id="taskInboxResultMap" type="com.xb.vo.TaskVO">
-	  <id property="id" column="user_id" />
 	  <result property="instHist.histId" column="hist_id"/>
 	  <result property="instHist.wfId" column="wf_id"/>
 	  <result property="instHist.optUser" column="opt_user"/>
@@ -33,4 +32,33 @@ from WF_INST_HIST hist, WF_TASK task
   where hist.TASK_ID = task.TASK_ID
   and hist.status='I' and (hist.next_assigner is null or hist.next_assigner=#{userId})
 </select>
+
+	<resultMap id="getTaskListWithStatusResultMap" type="com.xb.persistent.WfTask">
+	  <result property="taskId" column="task_id"/>
+	  <result property="wfId" column="wf_id"/>
+	  <result property="taskPgId" column="task_pg_id"/>
+	  <result property="taskType" column="task_type"/>
+	  <result property="taskDescp" column="task_descp"/>
+	  <result property="posTop" column="pos_top"/>
+	  <result property="posLeft" column="pos_left"/>
+	  <result property="assignUsers" column="assign_users"/>
+	  
+	  <result property="processedFlag" column="proc_flag"/>
+	  <result property="currTaskId" column="curr_task_id"/>
+	</resultMap>
+	
+	<select id="getTaskListWithStatus"  resultMap="getTaskListWithStatusResultMap">
+select task.*,
+his.proc_flag,inst.CURR_TASK_ID
+from WF_TASK task
+join WF_INSTANCE ins on task.WF_ID = ins.wf_id and ins.inst_id=#{instId}
+left join (select distinct TASK_ID,'Y' as proc_flag from WF_INST_HIST hist where hist.INST_ID=#{instId}) his 
+on his.task_id = task.task_id
+left join WF_INSTANCE inst on inst.WF_ID=task.wf_id and inst.CURR_TASK_ID=task.task_id
+and ins.inst_id = inst.inst_id and inst.WF_STATUS='I'
+
+</select>
+
+
+	
 </mapper>

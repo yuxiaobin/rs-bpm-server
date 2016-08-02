@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.xb.persistent.mapper.WfGroupMapper;
 import com.xb.persistent.WfGroup;
 import com.xb.service.IWfGroupService;
-import com.baomidou.framework.service.impl.SuperServiceImpl;
+import com.baomidou.framework.service.impl.CommonServiceImpl;
 
 /**
  *
@@ -13,7 +13,7 @@ import com.baomidou.framework.service.impl.SuperServiceImpl;
  *
  */
 @Service
-public class WfGroupServiceImpl extends SuperServiceImpl<WfGroupMapper, WfGroup> implements IWfGroupService {
+public class WfGroupServiceImpl extends CommonServiceImpl<WfGroupMapper, WfGroup> implements IWfGroupService {
 
 
 }
