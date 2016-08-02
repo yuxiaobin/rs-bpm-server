@@ -1,7 +1,6 @@
 package com.xb.persistent;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
@@ -56,7 +55,20 @@ public class WfTask extends CUBaseTO implements Serializable {
 	@TableField(value = "ASSIGN_GROUPS")
 	private String assignGroups;
 
+	/**
+	 * 用来标识是否该task被执行过
+	 */
+	@TableField(exist = false)
+	private String doneFlag;
 	
+	public String getDoneFlag() {
+		return doneFlag;
+	}
+
+	public void setDoneFlag(String doneFlag) {
+		this.doneFlag = doneFlag;
+	}
+
 	public String getTaskId() {
 		return this.taskId;
 	}
@@ -127,6 +139,13 @@ public class WfTask extends CUBaseTO implements Serializable {
 
 	public void setAssignGroups(String assignGroups) {
 		this.assignGroups = assignGroups;
+	}
+
+	@Override
+	public String toString() {
+		return "WfTask [taskId=" + taskId + ", wfId=" + wfId + ", taskPgId=" + taskPgId + ", taskType=" + taskType
+				+ ", taskDescp=" + taskDescp + ", posTop=" + posTop + ", posLeft=" + posLeft + ", assignUsers="
+				+ assignUsers + ", assignGroups=" + assignGroups + "]";
 	}
 
 	

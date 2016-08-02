@@ -1,7 +1,6 @@
 package com.xb.persistent;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;

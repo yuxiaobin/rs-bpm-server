@@ -11,12 +11,9 @@ import org.springframework.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.SuperServiceImpl;
-import com.xb.common.WFConstants;
 import com.xb.persistent.RsModule;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfDef;
-import com.xb.persistent.WfInstHist;
-import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.mapper.RsWorkflowMapper;
@@ -166,50 +163,6 @@ public class RsWorkflowServiceImpl extends SuperServiceImpl<RsWorkflowMapper, Rs
 		result.setTasks(taskList);
 		result.setConns(connList);
 		return result;
-	}
-	
-	@Transactional
-	public void startWF4Module(String moduleId, String currUserId){
-		RsModule modParm = new RsModule();
-		modParm.setModId(moduleId);
-		RsModule rsModule = rsModuleService.selectOne(modParm);
-		if (rsModule == null) {
-			return;
-		}
-		if (StringUtils.isEmpty(rsModule.getRsWfId())) {
-			return;
-		}
-		WfDef wfDefParm = new WfDef();
-		wfDefParm.setRsWfId(rsModule.getRsWfId());
-		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
-		if (wfDefList == null || wfDefList.isEmpty()) {
-			return;
-		}
-		String wfId = wfDefList.get(0).getWfId();
-		WfInstance wfInst = new WfInstance();
-		wfInst.setWfId(wfId);
-		wfInst.setWfStatus("I");
-		wfInstService.insert(wfInst);
-		
-		WfTask taskParm = new WfTask();
-		taskParm.setWfId(wfId);
-		List<WfTask> taskList = wfTaskService.selectList(taskParm);
-		WfTask startTask = null;
-		for(WfTask task:taskList){
-			if(WFConstants.TaskTypes.S.getTypeCode().equals(task.getTaskType())){
-				startTask = task;
-				break;
-			}
-		}
-		WfInstHist hist = new WfInstHist();
-		hist.setInstId(wfInst.getInstId());
-		hist.setWfId(wfId);
-		hist.setTaskId(startTask.getTaskId());
-		hist.setOptSeq(1);
-		hist.setOptUser(currUserId);
-		hist.setOptType("R");//R:Request
-		hist.setSTATUS("I");
-		wfInstHistService.insert(hist);
 	}
 	
 }

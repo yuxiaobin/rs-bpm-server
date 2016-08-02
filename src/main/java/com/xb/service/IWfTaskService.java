@@ -15,6 +15,10 @@ public interface IWfTaskService extends ISuperService<WfTask> {
 	
 	public List<TaskVO> getTasksInbox(String userId);
 	
+	public void startWF4Module(String moduleId,String userId);
+	
 	public void processTask(String histId, String userId, String opt);
+	
+	
 
 }

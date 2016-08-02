@@ -32,6 +32,7 @@
                             <th>Operation Seq</th>
                             <th>Assigned User(s)</th>
                             <th>Assigned Group(s)</th>
+                            <th>Opt Time</th>
                             <th>Status</th>
                         </tr>
                         </thead>
@@ -43,7 +44,9 @@
                             <td>{{taskv.instHist.optSeq}}</td>
                             <td>{{taskv.task.assignUsers}}</td>
                             <td>{{taskv.task.assignGroups}}</td>
-                            <td><a href="" ng-click="viewTask(taskv.instHist.histId)">{{taskv.instHist.status}}</a></td>
+                            <td>{{taskv.instHist.createdDt | date:'yyyy-MM-dd hh:mm:ss'}}</td>
+                            <!--{{taskv.instHist.status}}-->
+                            <td><a href="" ng-click="viewTask(taskv.instHist.histId)">TODO</a></td>
                         </tr>
                         </tbody>
                     </table>

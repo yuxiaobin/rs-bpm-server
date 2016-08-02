@@ -1,7 +1,5 @@
 package com.xb.aop;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;

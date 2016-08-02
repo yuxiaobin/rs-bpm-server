@@ -216,7 +216,7 @@ public class WFController extends BaseController {
 			return "";
 		}
 		String userId = (String) session.getAttribute(SESSION_USERINFO);
-		wfService.startWF4Module(moduleId, userId);
+		taskService.startWF4Module(moduleId, userId);
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
 		return result;

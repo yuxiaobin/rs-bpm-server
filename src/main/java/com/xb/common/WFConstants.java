@@ -1,6 +1,17 @@
 package com.xb.common;
 
 public class WFConstants {
+	
+	public static class OptTypes{
+		public static final String REQUEST = "RQ";
+		public static final String APPROVE = "AP";
+		public static final String REJECT = "RJ";
+	}
+	
+	public static class WFStatus{
+		public static final String IN_PROCESS = "I";
+		public static final String DONE = "D";
+	}
 
 	public static enum TaskTypes {
 		S("S", "start-task"), E("E", "end-task"), U("U", "user-task"), C("C", "rs-cond-task");

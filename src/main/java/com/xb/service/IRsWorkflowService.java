@@ -15,6 +15,4 @@ public interface IRsWorkflowService extends ISuperService<RsWorkflow> {
 	public void createWF4Module(ModuleVO module, WFDetailVO wfDetail) ;
 	public WFDetailVO getWF4Module(String moduleId, String wfId);
 	
-	public void startWF4Module(String moduleId,String userId);
-	
 }

@@ -1,7 +1,6 @@
 package com.xb.persistent;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
@@ -31,6 +30,9 @@ public class WfInstance extends CUBaseTO implements Serializable {
 	/**  */
 	@TableField(value = "WF_STATUS")
 	private String wfStatus;
+	/**  */
+	@TableField(value = "CURR_TASK_ID")
+	private String currTaskId;
 
 	
 	public String getInstId() {
@@ -55,6 +57,14 @@ public class WfInstance extends CUBaseTO implements Serializable {
 
 	public void setWfStatus(String wfStatus) {
 		this.wfStatus = wfStatus;
+	}
+
+	public String getCurrTaskId() {
+		return currTaskId;
+	}
+
+	public void setCurrTaskId(String currTaskId) {
+		this.currTaskId = currTaskId;
 	}
 
 }

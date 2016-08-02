@@ -44,6 +44,7 @@ public class MybatisPlusGenerator {
 		return cg;
 	}
 	
+	@SuppressWarnings("unused")
 	private static ConfigGenerator setupOracle(ConfigGenerator cg){
 		cg.setConfigDataSource(ConfigDataSource.ORACLE);
 		cg.setDbDriverName("oracle.jdbc.driver.OracleDriver");

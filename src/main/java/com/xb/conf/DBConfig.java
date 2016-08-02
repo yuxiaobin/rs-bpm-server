@@ -16,7 +16,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import com.baomidou.mybatisplus.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean;
 import com.github.pagehelper.PageHelper;
 

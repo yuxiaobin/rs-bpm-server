@@ -297,7 +297,7 @@ jsPlumb.ready(function () {
                                 $.ajax({
                                     type: "POST",
                                     url: basePath+"/wf/history/"+histId,
-                                    data:JSON.stringify({opt:"A"}),
+                                    data:JSON.stringify({opt:"AP"}),
                                     headers: { 'Content-Type': "application/json" },
                                     success: function (msg) {
                                         console.log("save wf successfully");
@@ -313,7 +313,7 @@ jsPlumb.ready(function () {
                                 $.ajax({
                                     type: "POST",
                                     url: basePath+"/wf/history/"+histId,
-                                    data:JSON.stringify({opt:"R"}),
+                                    data:JSON.stringify({opt:"RJ"}),
                                     headers: { 'Content-Type': "application/json" },
                                     success: function (msg) {
                                         console.log("save wf successfully");
