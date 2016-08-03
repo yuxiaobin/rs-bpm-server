@@ -40,17 +40,17 @@ jsPlumb.ready(function () {
             clone_div.attr("id", div_id).append("<div class=\"ep\" action=\""+rs_type+"\"></div>");
             $(this).append(clone_div);
             clone_div.removeClass("menu-task").removeClass("ui-draggable").css({"top":pos_y, "left":pos_x});
-            clone_div.contextMenu({
-                menu: 'activityMenu'
-            }, function(action, el, pos) {
-                var id_ = $(el).attr("id");
-                if (action == 'edit') {
-                    editActivity(id_);
-                }
-                else if (action == 'delete') {
-                    instance.remove(id_);
-                }
-            }).addClass("user-task");
+//            clone_div.contextMenu({
+//                menu: 'activityMenu'
+//            }, function(action, el, pos) {
+//                var id_ = $(el).attr("id");
+//                if (action == 'edit') {
+//                    editActivity(id_);
+//                }
+//                else if (action == 'delete') {
+//                    instance.remove(id_);
+//                }
+//            }).addClass("user-task");
             initNode(clone_div);
         }
     });
@@ -195,6 +195,21 @@ jsPlumb.ready(function () {
         // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
         // version of this demo to find out about new nodes being added.
         instance.fire("jsPlumbDemoNodeAdded", el);
+        var jqObj = $(el);
+        if(jqObj.hasClass(RS_TYPE_START) || jqObj.hasClass(RS_TYPE_END)){
+            return;
+        }
+        jqObj.contextMenu({
+            menu: 'activityMenu'
+        }, function(action, el, pos) {
+            var id_ = $(el).attr("id");
+            if (action == 'edit') {
+                editActivity(id_);
+            }
+            else if (action == 'delete') {  
+                instance.remove(id_);
+            }
+        }).addClass("user-task");
     };
 
     var newNodeById = function(id,type,descp, x, y) {
