@@ -14,8 +14,8 @@
 <header class="site-header jumbotron">
     <div class="container">
         <div class="row">
-            <div class="col-xs-6">
-                <h1>All Modules</h1>
+            <div class="col-xs-12">
+                <h1>Welcome, Staff Role</h1>
             </div>
         </div>
     </div>
@@ -47,7 +47,7 @@
                             <tbody>
                             <tr ng-repeat="wf in module.wfList">
                                 <td>{{$index+1}}</td>
-                                <td>{{wf.VERSION}}</td>
+                                <td>{{wf.version}}</td>
                                 <td><a href="#" ng-click="viewWfById(wf.wfId)">Workflow Name</a></td>
                             </tr>
                             </tbody>

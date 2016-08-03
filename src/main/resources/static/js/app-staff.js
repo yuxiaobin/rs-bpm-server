@@ -34,6 +34,21 @@ angular.module('app', [ ])
                 });
             return delay.promise;
         };
+        this.getInstHist = function(instId){
+            var delay = $q.defer();
+            var req = {
+                method: 'GET',
+                url: basePath+'/wf/inst/hist/'+instId
+            };
+            $http(req)
+                .success(function(data, status, headers, config){
+                    delay.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                    delay.reject(data);
+                });
+            return delay.promise;
+        }
     }])
     .controller('ctrl', ['$scope','$window', 'wfService', function ($scope,$window, wfService) {
         if(angular.isUndefined(module_task_flag)){
@@ -53,6 +68,14 @@ angular.module('app', [ ])
                 console.error("getAllModules failed");
             });
         }
+        if("hist"==module_task_flag){
+            if(angular.isUndefined(instId)){
+                instId = "";
+            }
+            wfService.getInstHist(instId).then(function(succ){
+                $scope.histList = succ.records;
+            });
+        }
 
 
         $scope.viewWfById = function(wfId){
@@ -66,8 +89,8 @@ angular.module('app', [ ])
             $window.location.href = basePath+"/wf/modules/page";
         }
 
-        $scope.viewTask = function(histId){
-            $window.location.href = basePath+"/wf/history/"+histId;
+        $scope.viewTask = function(instId){
+            $window.location.href = basePath+"/wf/history/"+instId;
         }
 
     }]);

@@ -9,6 +9,7 @@
 
 	<resultMap id="taskInboxResultMap" type="com.xb.vo.TaskVO">
 	  <result property="instHist.histId" column="hist_id"/>
+	  <result property="instHist.instId" column="inst_id"/>
 	  <result property="instHist.wfId" column="wf_id"/>
 	  <result property="instHist.optUser" column="opt_user"/>
 	  <result property="instHist.optType" column="opt_type"/>
@@ -25,7 +26,7 @@
 	</resultMap>
 	
 	<select id="getTasksInbox"  resultMap="taskInboxResultMap">
-select hist.hist_id, hist.wf_id, hist.opt_user, hist.opt_type,
+select hist.hist_id,hist.inst_id, hist.wf_id, hist.opt_user, hist.opt_type,
 hist.opt_seq, hist.next_assigner, hist.status, hist.created_dt,
 task.task_pg_id, task.task_type, task.task_descp, task.assign_users, task.assign_groups
 from WF_INST_HIST hist, WF_TASK task

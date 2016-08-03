@@ -11,7 +11,7 @@
 <header class="site-header jumbotron">
     <div class="container">
         <div class="row">
-            <div class="col-xs-6">
+            <div class="col-xs-12">
                 <h1>Welcome, Manager Role</h1>
             </div>
         </div>
@@ -46,7 +46,7 @@
                             <td>{{taskv.task.assignGroups}}</td>
                             <td>{{taskv.instHist.createdDt | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                             <!--{{taskv.instHist.status}}-->
-                            <td><a href="" ng-click="viewTask(taskv.instHist.histId)">TODO</a></td>
+                            <td><a href="" ng-click="viewTask(taskv.instHist.instId)">TODO</a></td>
                         </tr>
                         </tbody>
                     </table>

@@ -88,11 +88,11 @@ jsPlumb.ready(function () {
 
     var moduleId = $("#moduleId").val();
     var url_ = basePath+"/wf/module/"+moduleId+"/wf/";
-    if(typeof(histId)=="undefined" || histId==""){
+    if(typeof(instId)=="undefined" || instId==""){
         //no need to add wfId
         url_ = url_+"init";
     }else{
-        url_ = basePath+"/wf/view/status/"+histId;
+        url_ = basePath+"/wf/view/status/"+instId;
     }
     $.ajax(
         {
@@ -148,7 +148,7 @@ jsPlumb.ready(function () {
                             .on("click", function () {
                                 $.ajax({
                                     type: "POST",
-                                    url: basePath + "/wf/history/" + histId,
+                                    url: basePath + "/wf/history/" + instId,
                                     data:JSON.stringify({opt:"RQ"}),
                                     headers: { 'Content-Type': "application/json" },
                                     success: function (msg) {
@@ -167,7 +167,7 @@ jsPlumb.ready(function () {
                         .on("click",function(){
                             $.ajax({
                                 type: "POST",
-                                url: basePath+"/wf/history/"+histId,
+                                url: basePath+"/wf/history/"+instId,
                                 data:JSON.stringify({opt:"AP"}),
                                 headers: { 'Content-Type': "application/json" },
                                 success: function (msg) {
@@ -183,7 +183,7 @@ jsPlumb.ready(function () {
                         .on("click",function(){
                             $.ajax({
                                 type: "POST",
-                                url: basePath+"/wf/history/"+histId,
+                                url: basePath+"/wf/history/"+instId,
                                 data:JSON.stringify({opt:"RJ"}),
                                 headers: { 'Content-Type': "application/json" },
                                 success: function (msg) {

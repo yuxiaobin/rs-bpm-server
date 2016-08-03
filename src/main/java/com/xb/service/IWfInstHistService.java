@@ -1,7 +1,9 @@
 package com.xb.service;
 
-import com.xb.persistent.WfInstHist;
+import java.util.List;
+
 import com.baomidou.framework.service.ICommonService;
+import com.xb.persistent.WfInstHist;
 
 /**
  *
@@ -10,5 +12,5 @@ import com.baomidou.framework.service.ICommonService;
  */
 public interface IWfInstHistService extends ICommonService<WfInstHist> {
 
-
+	public List<WfInstHist> viewWfInstHistory(String instId);
 }

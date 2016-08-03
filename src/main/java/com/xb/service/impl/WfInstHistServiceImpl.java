@@ -1,5 +1,7 @@
 package com.xb.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.xb.persistent.mapper.WfInstHistMapper;
@@ -15,5 +17,13 @@ import com.baomidou.framework.service.impl.CommonServiceImpl;
 @Service
 public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, WfInstHist> implements IWfInstHistService {
 
-
+	public List<WfInstHist> viewWfInstHistory(String instId){
+		if(instId==null){
+			System.out.println("viewWfInstHistory=====instId="+instId);
+			return null;
+		}
+		WfInstHist histParm = new WfInstHist();
+		histParm.setInstId(instId);
+		return this.selectList(histParm, "OPT_SEQ desc");
+	}
 }

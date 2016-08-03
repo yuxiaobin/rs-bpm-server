@@ -26,8 +26,8 @@ angular.module('app', [ ])
             console.log("getTaskInbox failed");
         });
 
-        $scope.viewTask = function(histId){
-            $window.location.href = basePath+"/wf/history/"+histId;
+        $scope.viewTask = function(instId){
+            $window.location.href = basePath+"/wf/history/"+instId;
         }
 
     }]);

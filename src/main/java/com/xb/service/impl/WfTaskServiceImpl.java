@@ -102,30 +102,27 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 
 	@Transactional
-	public void processTask(String histId, String userId, String opt){
-		WfInstHist histCurr = histService.selectById(histId);
+	public void processTask(String instId, String userId, String opt){
+		WfInstance inst = instService.selectById(instId);
+		if(inst==null || WFConstants.WFStatus.DONE.equals(inst.getWfStatus())){
+			System.out.println("processTask===== current instance status is DONE,  process is rejected");
+			return;
+		}
+		WfInstHist histParm = new WfInstHist();
+		histParm.setInstId(instId);
+		histParm.setSTATUS(WFConstants.WFStatus.IN_PROCESS);
+		WfInstHist histCurr = histService.selectOne(histParm);
+		if(histCurr==null){
+			System.err.println("processTask====no IN_PROCESS history found for instId"+instId);
+			return;
+		}
 		histCurr.setSTATUS(WFConstants.WFStatus.DONE);
 		histService.updateById(histCurr);
-		String nextTaskId = "";
-		WfTask taskNext = null;
+		WfTask taskCurrNext = null;
 		if(WFConstants.OptTypes.REJECT.equals(histCurr.getOptType())){
-			WfTaskConn connParm = new WfTaskConn();
-			connParm.setTargetTaskId(histCurr.getTaskId());
-			//for user task source, should only have one connection
-			WfTaskConn conn = taskConnService.selectOne(connParm);
-			nextTaskId = conn.getSourceTaskId();
-			taskNext = baseMapper.selectById(nextTaskId);
+			taskCurrNext = baseMapper.selectById(getPrevTaskId(histCurr.getTaskId()));
 		}else{
-			WfTaskConn connParm = new WfTaskConn();
-			connParm.setSourceTaskId(histCurr.getTaskId());
-			//for user task source, should only have one connection
-			WfTaskConn conn = taskConnService.selectOne(connParm);
-			if(conn==null){
-				System.err.println("no conn record for taksId="+histCurr.getTaskId()+", workflow over");
-				return;
-			}
-			nextTaskId = conn.getTargetTaskId();
-			taskNext = this.selectById(nextTaskId);
+			taskCurrNext = this.selectById(getNextTask(histCurr.getTaskId()));
 		}
 		
 		WfInstHist histNext = new WfInstHist();
@@ -135,15 +132,46 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		histNext.setOptUser(userId);
 		histNext.setSTATUS(WFConstants.WFStatus.IN_PROCESS);
 		histNext.setWfId(histCurr.getWfId());
-		histNext.setTaskId(taskNext.getTaskId());
+		histNext.setTaskId(taskCurrNext.getTaskId());
 		if(WFConstants.OptTypes.REJECT.equals(opt)){
-			histNext.setNextAssigner(histCurr.getOptUser());
+			//for rejected task, should get who requested it
+			histParm = new WfInstHist();
+			histParm.setInstId(instId);
+			histParm.setTaskId(getPrevTaskId(histNext.getTaskId()));
+			histParm.setSTATUS(WFConstants.WFStatus.DONE);
+			List<WfInstHist> prevSameTaskHistList = histService.selectList(histParm, "OPT_SEQ desc");
+			if(prevSameTaskHistList!=null && !prevSameTaskHistList.isEmpty()){
+				histNext.setNextAssigner(prevSameTaskHistList.get(0).getOptUser());
+			}else{
+				histNext.setNextAssigner(histCurr.getOptUser());
+			}
 		}else{
-			histNext.setNextAssigner(taskNext.getAssignUsers());
+			histNext.setNextAssigner(taskCurrNext.getAssignUsers());
 		}
 		histService.insert(histNext);
 		prepareNextTask(histNext);
 	}
+	
+	private String getPrevTaskId(String currTaskId){
+		WfTaskConn connParm = new WfTaskConn();
+		connParm.setTargetTaskId(currTaskId);
+		WfTaskConn conn = taskConnService.selectOne(connParm);
+		if(conn!=null){
+			return conn.getSourceTaskId();
+		}
+		return null;
+	}
+	
+	private String getNextTask(String currTaskId){
+		WfTaskConn connParm = new WfTaskConn();
+		connParm.setSourceTaskId(currTaskId);
+		WfTaskConn conn = taskConnService.selectOne(connParm);
+		if(conn!=null){
+			return conn.getTargetTaskId();
+		}
+		return null;
+	}
+		
 	
 	@Transactional
 	public void prepareNextTask(final WfInstHist currHist){
@@ -152,24 +180,12 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		 */
 		WfInstance inst = instService.selectById(currHist.getInstId());
 		if(WFConstants.OptTypes.REJECT.equals(currHist.getOptType())){
-			WfTaskConn connParm = new WfTaskConn();
-			connParm.setTargetTaskId(currHist.getTaskId());
-			//for user task source, should only have one connection
-			WfTaskConn conn = taskConnService.selectOne(connParm);
-			WfTask taskPrev = this.selectById(conn.getSourceTaskId());
+			WfTask taskPrev = this.selectById(getPrevTaskId(currHist.getTaskId()));
 			inst.setCurrTaskId(taskPrev.getTaskId());
 			instService.updateById(inst);
 		}
 		else{
-			WfTaskConn connParm = new WfTaskConn();
-			connParm.setSourceTaskId(currHist.getTaskId());
-			//for user task source, should only have one connection
-			WfTaskConn conn = taskConnService.selectOne(connParm);
-			if(conn==null){
-				System.err.println("no conn record for taksId="+currHist.getTaskId()+", workflow over");
-				return;
-			}
-			WfTask taskNext = this.selectById(conn.getTargetTaskId());
+			WfTask taskNext = this.selectById(getNextTask(currHist.getTaskId()));
 			if(taskNext==null){
 				System.out.println("prepareNextTask====nextTask is "+taskNext);
 				return;
@@ -191,10 +207,10 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	 * @param histId
 	 * @return
 	 */
-	public WFDetailVO getWFStatus(String histId){
+	public WFDetailVO getWFStatus(String instId){
 		WFDetailVO result = new WFDetailVO();
-		WfInstHist hist = histService.selectById(histId);
-		WfDef wfDef = wfDefService.selectById(hist.getWfId());
+		WfInstance instance = instService.selectById(instId);
+		WfDef wfDef = wfDefService.selectById(instance.getWfId());
 		result.setWfDef(wfDef);
 		RsWorkflow rsWf = rsWfService.selectById(wfDef.getRsWfId());
 		
@@ -210,8 +226,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			return result;
 		}
 		result.setModule(rsModule);
-		List<WfTask> taskList = baseMapper.getTaskListWithStatus(hist.getInstId());
-		WfInstance instance = instService.selectById(hist.getInstId());
+		List<WfTask> taskList = baseMapper.getTaskListWithStatus(instance.getInstId());
+		
 		if(WFConstants.WFStatus.DONE.equals(instance.getWfStatus())){
 			for(WfTask task:taskList){
 				task.setProcessedFlag("Y");

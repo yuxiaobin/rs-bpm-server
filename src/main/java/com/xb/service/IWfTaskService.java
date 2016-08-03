@@ -18,12 +18,12 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	
 	public void startWF4Module(String moduleId,String userId);
 	
-	public void processTask(String histId, String userId, String opt);
+	public void processTask(String instId, String userId, String opt);
 	
 	/**
 	 * 获取当前工作流状态
 	 * @param histId
 	 * @return
 	 */
-	public WFDetailVO getWFStatus(String histId);
+	public WFDetailVO getWFStatus(String instId);
 }

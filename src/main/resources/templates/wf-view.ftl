@@ -16,15 +16,16 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <script>
         var basePath = "${base.contextPath}";
+        var module_task_flag = "hist";
         <#if latestFlag?exists>
             var latestFlag = "${latestFlag}";
         </#if>
-        <#if histId?exists>
-            var histId = "${histId}";
+        <#if instId?exists>
+            var instId = "${instId}";
         </#if>
     </script>
 </head>
-<body data-demo-id="statemachine" data-library="dom" class="home-template">
+<body data-demo-id="statemachine" data-library="dom" class="home-template" ng-app="app">
 <header class="site-header">
     <div class="container">
         <div class="row">
@@ -35,28 +36,57 @@
         </div>
     </div>
 </header>
-<div class="jtk-demo-main">
-    <!-- demo -->
-    <div class="rsmenu" style="display:none">
-        <div class="w menu-task" rs-type="user-task"><label>User Task</label></div>
-        <div class="w menu-task rs-cond-task" rs-type="user-task"><div class="task-descp">Condition Node</div></div>
+<main class="packages-list-container" id="all-packages">
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+        <ul class="nav nav-pills nav-justified">
+            <li role="presentation" class="active"><a href="javascript:void(0)" onclick="viewWFTab(this,'wfMain')">Workflow Status</a></li>
+            <li role="presentation"><a href="javascript:void(0)" onclick="viewWFTab(this,'wfHist')">View History</a></li>
+        </ul>
+        </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+    <div class="jtk-demo-main" id="wfMain">
     <div class="rscontainer jtk-demo-canvas canvas-wide statemachine-demo jtk-surface jtk-surface-nopan " id="canvas">
 
     </div>
 
     <div>
         <!--<input type="button" value="Remove All" id="removeAll">-->
-        <input type="button" value="Start Workflow" id="startWf" style="display: none">
-        <input type="button" value="Request Again" id="reSubmitWf" style="display: none">
-        <input type="button" value="Approve" id="approveWf" style="display: none">
-        <input type="button" value="Reject" id="rejectWf" style="display: none">
+        <input type="button" class="btn btn-lg btn-primary" value="Start Workflow" id="startWf" style="display: none">
+        <input type="button" class="btn btn-lg btn-primary" value="Request Again" id="reSubmitWf" style="display: none">
+        <input type="button" class="btn btn-lg btn-primary" value="Approve" id="approveWf" style="display: none">
+        <input type="button" class="btn btn-lg btn-primary" value="Reject" id="rejectWf" style="display: none">
     </div>
 </div>
-
-<div id="context_menu_include">
-
+            </div>
+        </div>
+    <div class="row" style="display:none" id="wfHist" ng-controller="ctrl">
+        <div class="col-md-9">
+    <table class="table" style="width:75%;margin:auto">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Operation User</th>
+            <th>Operation Type</th>
+            <th>Opt Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="hist in histList">
+            <td>{{hist.optSeq}}</td>
+            <td>{{hist.optUser}}</td>
+            <td>{{hist.optType}}</td>
+            <td>{{hist.createdDt | date:'yyyy-MM-dd hh:mm:ss'}}</td>
+        </tr>
+        </tbody>
+    </table>
 </div>
+</div>
+</div>
+</main>
 
 <!-- JS -->
 <!-- support lib for bezier stuff -->
@@ -103,7 +133,23 @@
 <script src="${base.contextPath}/static/js/jquery-ui.js"></script>
 <!--  demo code -->
 <script src="${base.contextPath}/static/js/rs-bpm-view.js"></script>
-
+<script src="${base.contextPath}/static/js/angular.js"></script>
+<script src="${base.contextPath}/static/js/app-staff.js"></script>
 <!-- <script src="demo-list.js"></script>-->
+<script>
+    function viewWFTab(obj,selectedId){
+       var li_ = $(obj).parent();
+        li_.addClass("active");
+        li_.siblings().removeClass("active");
+        if(selectedId=="wfHist"){
+            $("#wfMain").css("display","none");
+            $("#wfHist").css("display","");
+        }else{
+            $("#wfHist").css("display","none");
+            $("#wfMain").css("display","");
+        }
+    }
+
+</script>
 </body>
 </html>
