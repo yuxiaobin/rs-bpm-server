@@ -7,6 +7,13 @@
 </head>
 <body class="home-template" ng-app="app" ng-controller="ctrl">
 <header class="site-header jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Welcome, Admin Role</h1>
+            </div>
+        </div>
+    </div>
     <div class="container-fluid">
         <div class="collapse navbar-collapse">
             <form class="navbar-form navbar-left">

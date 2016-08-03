@@ -19,7 +19,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.persistent.RsModule;
 import com.xb.persistent.WfDef;
-import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.service.IRsModuleService;
 import com.xb.service.IRsWorkflowService;

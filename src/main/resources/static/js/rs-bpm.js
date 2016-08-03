@@ -39,18 +39,18 @@ jsPlumb.ready(function () {
             }
             clone_div.attr("id", div_id).append("<div class=\"ep\" action=\""+rs_type+"\"></div>");
             $(this).append(clone_div);
-            clone_div.removeClass("menu-task").removeClass("ui-draggable").css({"top":pos_y, "left":pos_x});
-//            clone_div.contextMenu({
-//                menu: 'activityMenu'
-//            }, function(action, el, pos) {
-//                var id_ = $(el).attr("id");
-//                if (action == 'edit') {
-//                    editActivity(id_);
-//                }
-//                else if (action == 'delete') {
-//                    instance.remove(id_);
-//                }
-//            }).addClass("user-task");
+            clone_div.removeClass("menu-task").removeClass("ui-draggable").addClass("user-task").css({"top":pos_y, "left":pos_x});
+            clone_div.contextMenu({
+                menu: 'activityMenu'
+            }, function(action, el, pos) {
+                var id_ = $(el).attr("id");
+                if (action == 'edit') {
+                    editActivity(id_);
+                }
+                else if (action == 'delete') {
+                    instance.remove(id_);
+                }
+            });
             initNode(clone_div);
         }
     });
@@ -195,21 +195,7 @@ jsPlumb.ready(function () {
         // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
         // version of this demo to find out about new nodes being added.
         instance.fire("jsPlumbDemoNodeAdded", el);
-        var jqObj = $(el);
-        if(jqObj.hasClass(RS_TYPE_START) || jqObj.hasClass(RS_TYPE_END)){
-            return;
-        }
-        jqObj.contextMenu({
-            menu: 'activityMenu'
-        }, function(action, el, pos) {
-            var id_ = $(el).attr("id");
-            if (action == 'edit') {
-                editActivity(id_);
-            }
-            else if (action == 'delete') {  
-                instance.remove(id_);
-            }
-        }).addClass("user-task");
+
     };
 
     var newNodeById = function(id,type,descp, x, y) {
@@ -224,7 +210,19 @@ jsPlumb.ready(function () {
 
         d.style.left = x + "px";
         d.style.top = y + "px";
+        $(d).contextMenu({
+            menu: 'activityMenu'
+        }, function(action, el, pos) {
+            var id_ = $(el).attr("id");
+            if (action == 'edit') {
+                editActivity(id_);
+            }
+            else if (action == 'delete') {
+                instance.remove(id_);
+            }
+        });
         instance.getContainer().appendChild(d);
+
         initNode(d);
         return d;
     };
@@ -384,7 +382,7 @@ jsPlumb.ready(function () {
 function editActivity(id_){
     var activity = $("#"+id_);
     var dialog_div = $("<div>").attr("id","dialog-form").attr("title","Edit Activity").attr("activityId",id_);
-    $.get("../template/activityProperties.html", function(data){
+    $.get(basePath+"/static/activityProperties.html", function(data){
         data = data.replace("#activityDescp", activity.find("label").html());
         dialog_div.append(data);
         //load added properties
