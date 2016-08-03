@@ -41,8 +41,8 @@
 
     <div>
         <!--<input type="button" value="Remove All" id="removeAll">-->
-        <input type="button" value="Save" id="Save">
-        <input type="button" value="Reset" id="resetBtn">
+        <input type="button" class="btn btn-lg btn-primary" value="Save" id="Save">
+        <input type="button" class="btn btn-lg btn-primary" value="Reset" id="resetBtn">
     </div>
 </div>
 

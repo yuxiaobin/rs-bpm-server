@@ -7,29 +7,13 @@
 </head>
 <body class="home-template" ng-app="app" ng-controller="ctrl">
 <header class="site-header jumbotron">
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-6">
-                <h1>New Module</h1>
-                <!-- <p>
-                    稳定、快速、免费的开源项目 CDN 服务<br>
-                    <span class="package-amount">共收录了 <strong>2351</strong>
-                        个开源项目
-                    </span>
-                </p> -->
-                <form class="">
-                    <div class="form-group">
-                        <input type="text" class="form-control search clearable" ng-model="moduleName"
-                               placeholder="Module Name">
-                        <!-- <i class="fa fa-search"></i> -->
-                    </div>
-                    <div class="form-group">
-                        <input type="button" class="btn-lg" name="New Module"
-                               value="New Module" ng-click="newModule()">
-                        <!-- <i class="fa fa-search"></i> -->
-                    </div>
-                </form>
-            </div>
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse">
+            <form class="navbar-form navbar-left">
+                <div class="form-group" style="margin-top: auto;"><input type="text" class="form-control" ng-model="moduleName"  placeholder="Module Name"></div>
+                <input type="button" class="btn btn-default" name="New Module"
+                       value="New Module" ng-click="newModule()">
+            </form>
         </div>
     </div>
 </header>

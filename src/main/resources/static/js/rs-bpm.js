@@ -1,10 +1,9 @@
 var RS_TYPE_START = "start-task";
 var RS_TYPE_END = "end-task";
 var RS_TYPE_CONDITION = "rs-cond-task";
-var connectionSet = [];
+
 var variableSet = [];//activityId:[propertyArray(name,type,value)]
 
-//TODO:get nodeList from server.
 //var result_data = {"tasks":[{"id":"start-task","rsType":"start-task","descp":"Start","position":{"top":26,"left":312}},{"id":"end-task","rsType":"end-task","descp":"End","position":{"top":370,"left":350}},{"id":"userTask1","rsType":"user-task","descp":"userTask1","position":{"top":200,"left":550}},{"id":"userTask2","rsType":"user-task","descp":"userTask2","position":{"top":370,"left":550}},{"id":"condition","rsType":"rs-cond-task","descp":"condition adjust","position":{"top":173,"left":312}},{"id":"1469524101052","rsType":"rs-cond-task","descp":"Condition Node","position":{"top":231,"left":115}},{"id":"1469524108740","rsType":"user-task","descp":"User Task","position":{"top":376,"left":101}}],"conns":[{"con_id":"con_5","con_descp":"Start to process","con_value":"","source_id":"start-task","target_id":"condition"},{"con_id":"con_11","con_descp":"Yes","con_value":"","source_id":"condition","target_id":"end-task"},{"con_id":"con_17","con_descp":"No","con_value":"","source_id":"condition","target_id":"userTask1"},{"con_id":"con_23","con_descp":"Next step","con_value":"","source_id":"userTask1","target_id":"userTask2"},{"con_id":"con_29","con_descp":"Over","con_value":"","source_id":"userTask2","target_id":"end-task"},{"con_id":"con_35","con_descp":"Next","con_value":"","source_id":"condition","target_id":"1469524101052"},{"con_id":"con_41","con_descp":"Next","con_value":"","source_id":"1469524101052","target_id":"1469524108740"},{"con_id":"con_47","con_descp":"Next","con_value":"","source_id":"1469524108740","target_id":"end-task"}]}
 var result_data = [];
 var nodeList = result_data.tasks;
@@ -122,9 +121,7 @@ jsPlumb.ready(function () {
     // id as the label overlay's text.
     //TODO: add validation for usertype only have one connection out;conditionType max 2 out
     instance.bind("connection", function (info) {
-        //info.connection.getOverlay("label").setLabel(info.connection.id);//display connection label
         var connection_id = info.connection.id;
-        connectionSet.push({connection_id :connection_id , connection:info});
         var connection_label = info.connection.getOverlay("label").getElement();
         $(connection_label).attr("connection_id",info.connection.id)
             .contextMenu({
@@ -138,21 +135,29 @@ jsPlumb.ready(function () {
                 }
                 else if (action == 'delete') {
                     var removeItem = $(el).attr("connection_id");
-                    connectionSet = $.grep(connectionSet, function(value) {
-                        return value.connection_id != removeItem;
-                    });
                     instance.detach(info);
                 }
             });
         var con_source = info.source;
+        var sourceNodeConnections = $.grep(instance.getAllConnections(), function(value) {
+            return value.sourceId == con_source.id;
+        });
+        var sourceNodeConnections_count = sourceNodeConnections.length;
         if($(con_source).hasClass(RS_TYPE_CONDITION)){
-            var targetConnections = $.grep(connectionSet, function(value) {
-                return value.connection.source.id == con_source.id;
-            });
-            if(targetConnections.length>1){
+            if(sourceNodeConnections_count>1){
                 connection_label.firstChild.innerHTML = "No";
+                if(sourceNodeConnections_count>2){
+                    instance.detach(info);
+                    console.log("Condition Node can have reached Maximum 2 connections");
+                }
             }else{
                 connection_label.firstChild.innerHTML = "Yes";
+            }
+        }
+        else{
+            if(sourceNodeConnections_count>1){
+                instance.detach(info);
+                console.log("Non-condition Node can have reached Maximum 1 connections");
             }
         }
 
@@ -257,16 +262,6 @@ jsPlumb.ready(function () {
                             initEmptyWF();
                         }
                     });
-//                    if(typeof(editableFlag)=="undefined"){
-//                        editableFlag = true;
-//                    }
-//                    if(!editableFlag){
-//                        $("#canvas .w").each(function(){
-//                            var id_ = $(this).attr("id");
-//                            instance.setElementDraggable(id_, false);
-//                        });
-//                        $(".menu-task").draggable('disable');
-//                    }
                 }
             }
         );
@@ -370,8 +365,6 @@ jsPlumb.ready(function () {
     $("#backBtn").on("click",function(){
         window.location = basePath+"/wf";
     });
-
-
 });
 function editActivity(id_){
     var activity = $("#"+id_);
@@ -389,8 +382,6 @@ function editActivity(id_){
             loadProperties(activityData[0].properties);
         }
     });
-
-
 
     dialog_div.dialog({
         autoOpen: false,
