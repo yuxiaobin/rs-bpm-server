@@ -45,7 +45,8 @@ jsPlumb.ready(function () {
             }, function(action, el, pos) {
                 var id_ = $(el).attr("id");
                 if (action == 'edit') {
-                    editActivity(id_);
+//                    $('#myModal').modal();
+                    //TODO:
                 }
                 else if (action == 'delete') {
                     instance.remove(id_);
@@ -115,11 +116,6 @@ jsPlumb.ready(function () {
             strokeStyle: "#216477"
         };
 
-    // bind a connection listener. note that the parameter passed to this function contains more than
-    // just the new connection - see the documentation for a full list of what is included in 'info'.
-    // this listener sets the connection's internal
-    // id as the label overlay's text.
-    //TODO: add validation for usertype only have one connection out;conditionType max 2 out
     instance.bind("connection", function (info) {
         var connection_id = info.connection.id;
         var connection_label = info.connection.getOverlay("label").getElement();
@@ -198,54 +194,41 @@ jsPlumb.ready(function () {
 
     };
 
-    var newNodeById = function(id,type,descp, x, y) {
+    var newNodeById = function(node_) {
         var d = document.createElement("div");
-        d.className = "w "+type;
-        d.id = id;
-        if(type==RS_TYPE_CONDITION){
-            d.innerHTML = "<div class='task-descp'>"+descp + "</div><div class=\"ep\"></div>";
+        d.className = "w "+node_.rsType;
+        d.id = node_.pgId;
+        if(node_.rsType==RS_TYPE_CONDITION){
+            d.innerHTML = "<div class='task-descp'>"+node_.descp + "</div><div class=\"ep\"></div>";
         }else{
-            d.innerHTML = descp + "<div class=\"ep\"></div>";
+            d.innerHTML = node_.descp + "<div class=\"ep\"></div>";
         }
-
-        d.style.left = x + "px";
-        d.style.top = y + "px";
-        $(d).contextMenu({
-            menu: 'activityMenu'
-        }, function(action, el, pos) {
-            var id_ = $(el).attr("id");
-            if (action == 'edit') {
-                editActivity(id_);
-            }
-            else if (action == 'delete') {
-                instance.remove(id_);
-            }
+        d.style.left = node_.position.left + "px";
+        d.style.top = node_.position.top + "px";
+        $(d).attr("rs-data-assigner", node_.assigner).attr("rs-data-id", node_.id);
+        $(d).dblclick(function(){
+            editTask($(this).attr("id"));
         });
         instance.getContainer().appendChild(d);
-
         initNode(d);
         return d;
     };
 
     var initEmptyWF = function(){
-        var startNode = {id:RS_TYPE_START,rsType:RS_TYPE_START,descp:"Start Node", position:{top:70,left:350}};
-        var endNode = {id:RS_TYPE_END,rsType:RS_TYPE_END,descp:"End Node", position:{top:370,left:350}};
-        newNodeById(startNode.id, startNode.rsType, startNode.descp,startNode.position.left,startNode.position.top);
-        newNodeById(endNode.id, endNode.rsType, endNode.descp,endNode.position.left,endNode.position.top);
+        var startNode = {pgId:RS_TYPE_START,rsType:RS_TYPE_START,descp:"Start Node", position:{top:70,left:350}};
+        var endNode = {rsType:RS_TYPE_END,rsType:RS_TYPE_END,descp:"End Node", position:{top:370,left:350}};
+        newNodeById(startNode);
+        newNodeById(endNode);
     }
-
     var moduleId = $("#moduleId").val();
-    console.log("=====moduleId==="+moduleId);
     if(moduleId==undefined || moduleId==""){
         result_data = [];
         initEmptyWF();
     }else{
         var url_ = basePath+"/wf/module/"+moduleId+"/wf/";
         if(typeof(wfId)=="undefined" || wfId==""){
-            //no need to add wfId
             url_ = url_+"init";
         }else{
-//            url_ = url_+"/"+wfId;
             url_ = url_+wfId;
         }
         $.ajax(
@@ -263,8 +246,7 @@ jsPlumb.ready(function () {
                         var nodeSize = nodeList.length;
                         if(nodeSize!=undefined && nodeSize!=0){
                             for(var i=0;i<nodeList.length;++i){
-                                var node1 = nodeList[i];
-                                newNodeById(node1.id, node1.rsType, node1.descp,node1.position.left,node1.position.top);
+                                newNodeById(nodeList[i]);
                             }
                             for(var i=0;i<connList.length;++i){
                                 var conn_data = connList[i];
@@ -280,20 +262,36 @@ jsPlumb.ready(function () {
         );
     }
     // suspend drawing and initialise.
-    $(".statemachine-demo .w").each(function(){
+   /* $(".statemachine-demo .w").each(function(){
         $(this).contextMenu({
             menu: 'activityMenu'
         }, function(action, el, pos) {
             var id_ = $(el).attr("id");
             if (action == 'edit') {
-                editActivity(id_);
+                var parmJson = {};
+                parmJson.taskPgId = id_;
+                parmJson.taskDescp = $(el).text();
+                $('#myModal').on('show.bs.modal', function(e) {
+                    var bookId = $(e.relatedTarget).data('book-id');
+                    var $modal = $(this);
+                    $.ajax({
+                        cache: false,
+                        type: 'POST',
+                        url: basePath+"/wf/admin/task/",
+                        data:JSON.stringify(parmJson),
+                        headers: { 'Content-Type': "application/json" },
+                        success: function(data) {
+                            $modal.find('.modal-content').html(data);
+                        }
+                    });
+                });
+                $('#myModal').modal();
             }
             else if (action == 'delete') {
                 instance.remove(id_);
             }
         })
-
-    });
+    });*/
 
     jsPlumb.fire("jsPlumbDemoLoaded", instance);
 

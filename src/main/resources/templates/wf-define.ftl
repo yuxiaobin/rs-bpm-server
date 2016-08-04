@@ -36,9 +36,7 @@
         <div class="w menu-task rs-cond-task" rs-type="user-task"><div class="task-descp">Condition Node</div></div>
     </div>
     <div class="rscontainer jtk-demo-canvas canvas-wide statemachine-demo jtk-surface jtk-surface-nopan " id="canvas">
-
     </div>
-
     <div>
         <!--<input type="button" value="Remove All" id="removeAll">-->
         <input type="button" class="btn btn-lg btn-primary" value="Save" id="Save">
@@ -48,6 +46,15 @@
 
 <div id="context_menu_include">
 
+</div>
+<a data-toggle="modal" data-target="#myModal" id="clickId">Click me</a>
+<a id="clickId2">Click me2</a>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
 </div>
 
 <!-- JS -->
@@ -92,13 +99,47 @@
 <!-- /JS -->
 
 <script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
+<script src="${base.contextPath}/static/js/bootstrap.js"></script>
 <script src="${base.contextPath}/static/js/jquery-ui.js"></script>
-<script src="${base.contextPath}/static/js/jquery.ui.dialog.js"></script>
-<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>
+<!--<script src="${base.contextPath}/static/js/jquery.ui.dialog.js"></script>-->
+<!--<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>-->
 <!--  demo code -->
 <script src="${base.contextPath}/static/js/rs-bpm.js"></script>
 <script src="${base.contextPath}/static/js/activity-edit/properties.js"></script>
 
-<!-- <script src="demo-list.js"></script>-->
+<script>
+    var parmJsonStr = "";
+    $("#clickId").on("click",function(){
+        var parmJson = {};
+        parmJson.taskPgId = 1111;
+        parmJson.taskDescp = 222222;
+        parmJsonStr = JSON.stringify(parmJson);
+    })
+    function editTask(id_){
+        var parmJson = {};
+        var el = $("#"+id_);
+        parmJson.taskPgId = el.attr("id");;
+        parmJson.taskDescp = el.text();
+        parmJsonStr = JSON.stringify(parmJson);
+        $('#myModal').modal();
+    }
+
+    $('#myModal').on('show.bs.modal', function(e) {
+        var $modal = $(this);
+        $.ajax({
+            cache: false,
+            type: 'POST',
+            url: basePath+"/wf/admin/task/",
+            data:parmJsonStr,
+            headers: { 'Content-Type': "application/json" },
+            success: function(data) {
+                $modal.find('.modal-content').html(data);
+            }
+        });
+    });
+    $('#myModal').on('hide.bs.modal', function(){
+        $(this).removeData('bs.modal');
+    });
+</script>
 </body>
 </html>

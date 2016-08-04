@@ -37,9 +37,11 @@ public class WfDataUtil {
 		for(int i=0;i<tasks.size();++i){
 			WfTask task = tasks.get(i);
 			record = new JSONObject();
-			record.put("id", task.getTaskPgId());
+			record.put("pgId", task.getTaskPgId());
 			record.put("rsType", WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
 			record.put("descp", task.getTaskDescp());
+			record.put("id", task.getTaskId());
+			record.put("assigner", task.getAssignUsers());
 			pos = new JSONObject();
 			pos.put("top", task.getPosTop());
 			pos.put("left", task.getPosLeft());

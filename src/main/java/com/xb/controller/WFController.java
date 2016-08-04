@@ -322,4 +322,12 @@ public class WFController extends BaseController {
 		return result;
 	}
 	
+	
+	@RequestMapping(value="/admin/task" )
+	public Object viewTaskDtlPage(@RequestBody JSONObject taskData, HttpServletRequest req){
+		req.setAttribute("taskPgId", taskData.getString("taskData"));
+		req.setAttribute("taskDescp", taskData.getString("taskDescp"));
+		return "taskProperties";
+	}
+	
 }
