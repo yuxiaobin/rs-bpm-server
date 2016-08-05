@@ -69,14 +69,15 @@ angular.module('app', [ ])
             });
         }
         if("hist"==module_task_flag){
-            if(angular.isUndefined(instId)){
-                instId = "";
+            if(typeof(instId)=='undefined'){
+                console.log("instId is undefined");
+            }else{
+                wfService.getInstHist(instId).then(function(succ){
+                    $scope.histList = succ.records;
+                });
             }
-            wfService.getInstHist(instId).then(function(succ){
-                $scope.histList = succ.records;
-            });
-        }
 
+        }
 
         $scope.viewWfById = function(wfId){
             $window.location.href = basePath+"/wf/view/"+wfId;
@@ -92,5 +93,5 @@ angular.module('app', [ ])
         $scope.viewTask = function(instId){
             $window.location.href = basePath+"/wf/history/"+instId;
         }
-
+        console.log("app-staff ctrl init finished")
     }]);

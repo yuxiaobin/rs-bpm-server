@@ -65,22 +65,22 @@ jsPlumb.ready(function () {
         instance.fire("jsPlumbDemoNodeAdded", el);
     };
 
-    var newNodeById = function(id,type,descp, x, y, status) {
+    var newNodeById = function(node_) {
         var d = document.createElement("div");
-        d.className = "w "+type;
-        if("PEND"==status){
+        d.className = "w "+node_.rsType;
+        if("PEND"==node_.status){
             $(d).css("border","3px solid red");
-        }else if("PROC"==status){
+        }else if("PROC"==node_.status){
             $(d).css("border","3px solid blue");
         }
-        d.id = id;
-        if(type==RS_TYPE_CONDITION){
-            d.innerHTML = "<div class='task-descp'>"+descp + "</div><div class=\"ep\"></div>";
+        d.id = node_.pgId;
+        if(node_.rsType==RS_TYPE_CONDITION){
+            d.innerHTML = "<div class='task-descp'>"+node_.descp + "</div><div class=\"ep\"></div>";
         }else{
-            d.innerHTML = descp + "<div class=\"ep\"></div>";
+            d.innerHTML = node_.descp + "<div class=\"ep\"></div>";
         }
-        d.style.left = x + "px";
-        d.style.top = y + "px";
+        d.style.left = node_.position.left + "px";
+        d.style.top = node_.position.top + "px";
         instance.getContainer().appendChild(d);
         initNode(d);
         return d;
@@ -111,7 +111,7 @@ jsPlumb.ready(function () {
                     if(nodeSize!=undefined && nodeSize!=0){
                         for(var i=0;i<nodeList.length;++i){
                             var node1 = nodeList[i];
-                            newNodeById(node1.id, node1.rsType, node1.descp,node1.position.left,node1.position.top, node1.status);
+                            newNodeById(node1);
                             if("PEND"==node1.status){
                                 hasPendingTask =true;
                             }
