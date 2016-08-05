@@ -108,6 +108,7 @@ public class WfDataUtil {
 			JSONObject pos = taskj.getJSONObject("position");
 			task.setPosTop(Double.valueOf(pos.getString("top")));
 			task.setPosLeft(Double.valueOf(pos.getString("left")));
+			task.setAssignUsers(taskj.getString("assigner"));
 			taskList.add(task);
 		}
 		return taskList;

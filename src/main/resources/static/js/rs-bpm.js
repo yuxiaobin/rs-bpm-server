@@ -1,6 +1,9 @@
 var RS_TYPE_START = "start-task";
 var RS_TYPE_END = "end-task";
+var RS_TYPE_USER = "user-task";
 var RS_TYPE_CONDITION = "rs-cond-task";
+var RS_ATTR_ASSIGNER = "rs-data-assigner";
+var RS_ATTR_TASK_TYPE = "rs-data-type";
 
 var variableSet = [];//activityId:[propertyArray(name,type,value)]
 
@@ -39,7 +42,7 @@ jsPlumb.ready(function () {
             }
             clone_div.attr("id", div_id).append("<div class=\"ep\" action=\""+rs_type+"\"></div>");
             $(this).append(clone_div);
-            clone_div.removeClass("menu-task").removeClass("ui-draggable").addClass("user-task").css({"top":pos_y, "left":pos_x});
+            clone_div.removeClass("menu-task").removeClass("ui-draggable").addClass(RS_TYPE_USER).css({"top":pos_y, "left":pos_x});
 //            clone_div.contextMenu({
 //                menu: 'activityMenu'
 //            }, function(action, el, pos) {
@@ -205,7 +208,9 @@ jsPlumb.ready(function () {
         }
         d.style.left = node_.position.left + "px";
         d.style.top = node_.position.top + "px";
-        $(d).attr("rs-data-assigner", node_.assigner).attr("rs-data-id", node_.id);
+        $(d).attr(RS_ATTR_ASSIGNER, node_.assigner)
+            .attr("rs-data-id", node_.id)
+            .attr(RS_ATTR_TASK_TYPE,node_.rsType);
         $(d).dblclick(function(){
             editTask($(this).attr("id"));
         });
@@ -261,38 +266,6 @@ jsPlumb.ready(function () {
             }
         );
     }
-    // suspend drawing and initialise.
-   /* $(".statemachine-demo .w").each(function(){
-        $(this).contextMenu({
-            menu: 'activityMenu'
-        }, function(action, el, pos) {
-            var id_ = $(el).attr("id");
-            if (action == 'edit') {
-                var parmJson = {};
-                parmJson.taskPgId = id_;
-                parmJson.taskDescp = $(el).text();
-                $('#myModal').on('show.bs.modal', function(e) {
-                    var bookId = $(e.relatedTarget).data('book-id');
-                    var $modal = $(this);
-                    $.ajax({
-                        cache: false,
-                        type: 'POST',
-                        url: basePath+"/wf/admin/task/",
-                        data:JSON.stringify(parmJson),
-                        headers: { 'Content-Type': "application/json" },
-                        success: function(data) {
-                            $modal.find('.modal-content').html(data);
-                        }
-                    });
-                });
-                $('#myModal').modal();
-            }
-            else if (action == 'delete') {
-                instance.remove(id_);
-            }
-        })
-    });*/
-
     jsPlumb.fire("jsPlumbDemoLoaded", instance);
 
     $(document).bind("contextmenu",function(e){
@@ -323,21 +296,13 @@ jsPlumb.ready(function () {
             var jqObj = $(this);
             var pos_ = jqObj.position();
             task_json.id = jqObj.attr("id");
-            if(jqObj.hasClass(RS_TYPE_START)){
-                task_json.rsType = RS_TYPE_START;
-            }
-            else if(jqObj.hasClass(RS_TYPE_END)){
-                task_json.rsType = RS_TYPE_END;
-            }
-            else if(jqObj.hasClass(RS_TYPE_CONDITION)){
+            task_json.rsType = jqObj.attr(RS_ATTR_TASK_TYPE);
+            if(task_json.rsType ==RS_TYPE_CONDITION){
                 pos_.top = parseInt(pos_.top)+13;// add for rotation divide issue
                 pos_.left = parseInt(pos_.left)+13;
-                task_json.rsType =RS_TYPE_CONDITION;
-            }
-            else{
-                task_json.rsType ="user-task";
             }
             task_json.descp = jqObj.text();
+            task_json.assigner = jqObj.attr(RS_ATTR_ASSIGNER);
 
             var task_position = {
                 top:pos_.top,
@@ -377,101 +342,5 @@ jsPlumb.ready(function () {
         window.location = basePath+"/wf";
     });
 });
-function editActivity(id_){
-    var activity = $("#"+id_);
-    var dialog_div = $("<div>").attr("id","dialog-form").attr("title","Edit Activity").attr("activityId",id_);
-    $.get(basePath+"/static/activityProperties.html", function(data){
-        data = data.replace("#activityDescp", activity.find("label").html());
-        dialog_div.append(data);
-        //load added properties
-        var activityData = $.grep(variableSet, function(value) {
-            return value.activityId == id_;
-        });
-        if(activityData==undefined || activityData==null || activityData.length==0){
-            //no saved data
-        }else{
-            loadProperties(activityData[0].properties);
-        }
-    });
-
-    dialog_div.dialog({
-        autoOpen: false,
-        height: 300,
-        width: 600,
-        modal: true,
-        buttons: {
-            "Save":function(){
-                var activityDescp = $("#activityDescp").val();
-                var activityId_ = $("#dialog-form").attr("activityId");
-                variableSet = $.grep(variableSet, function(value) {
-                    return value.activityId != activityId_;//remove same activityId
-                });
-                var proArray = [];
-                $(".newPropertyName").each(function(){
-                    var property_ = $(this);
-                    var selection_ = property_.parent().siblings("td:has(select)").children();
-                    var textbox_ = property_.parent().siblings("td:has(input:text):visible").children();
-                    proArray[proArray.length]={
-                        name:property_.val(),
-                        type:selection_.val(),
-                        value:textbox_.val()
-                    };
-                });
-                variableSet.push({activityId :activityId_ , properties:proArray});
-                $("#"+activityId_+" > label").html(activityDescp);
-                $(this).dialog("destroy");
-            },
-            Cancel: function () {
-                $(this).dialog("destroy");
-            }
-        },
-        close: function() {
-
-        }
-    });
-    $(dialog_div).dialog( "open" );
-
-}
-function editCondition(id_){
-    var condition_ = $("#"+id_);
-    var dialog_div = $("<div>").attr("id","dialog-form").attr("title","Edit Condition");
-
-    var condition_exp = condition_.attr("condition_exp");
-    if(condition_exp==undefined){
-        condition_exp = "";
-    }
-    var table_ = $("<table>")
-            .append("<tr><td>Description:</td>"
-                +"<td><input type=\"text\" id=\"descp\" value=\""+condition_.find("i").html()+"\"></td>"
-                +"</tr>"
-        )
-            .append("<tr><td>Condition:</td>"
-                +"<td><input type=\"text\" id=\"conditionId\" value=\""+condition_exp+"\"></td>"
-                +"</tr>")
-            .append("<tr><td></td>"
-                +"<td>For example:Available name defined as \"count\", then the value here should be like: count>100</td>"
-                +"</tr>")
-        ;
-    dialog_div.append(table_);
-
-    dialog_div.dialog({
-        autoOpen: false,
-        height: 300,
-        width: 350,
-        modal: true,
-        buttons: {
-            "Save": function () {
-
-            },
-            Cancel: function () {
-                $(this).dialog("destroy");
-            }
-        },
-        close: function() {
-
-        }
-    });
-    $(dialog_div).dialog( "open" );
-}
 
 

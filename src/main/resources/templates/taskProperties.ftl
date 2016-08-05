@@ -9,7 +9,7 @@
 <body>
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <h4 class="modal-title" id="exampleModalLabel">Edit Task</h4>
+    <h4 class="modal-title" id="editTaskTitle">Edit Task</h4>
 </div>
 <div class="modal-body">
     <form id="updateTaskPropertiesForm">
@@ -17,8 +17,9 @@
             <label for="taskDescpId" class="control-label">Task Description:</label>
             <input type="text" class="form-control" id="taskDescpId">
             <input type="hidden" class="form-control" id="taskPgId">
+            <input type="hidden" class="form-control" id="taskType">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="nextAssignerDisplay">
             <label for="nextAssignerId" class="control-label">Next Assigner</label>
             <textarea class="form-control" id="nextAssignerId"></textarea>
         </div>
@@ -50,6 +51,13 @@
    }else{
        $("#taskDescpId").val(taskData.taskDescp);
        $("#taskPgId").val(taskData.taskPgId);
+       $("#taskType").val(taskData.taskType);
+       $("#nextAssignerId").val(taskData.assigner);
+       if(RS_TYPE_USER==taskData.taskType){
+           $("#nextAssignerDisplay").show();
+       }else{
+           $("#nextAssignerDisplay").hide();
+       }
    }
 </script>
 </html>

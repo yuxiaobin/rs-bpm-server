@@ -109,6 +109,8 @@
         var el = $("#"+id_);
         parmJson.taskPgId = el.attr("id");;
         parmJson.taskDescp = el.text();
+        parmJson.assigner = el.attr(RS_ATTR_ASSIGNER);
+        parmJson.taskType = el.attr(RS_ATTR_TASK_TYPE);
         parmJsonStr = JSON.stringify(parmJson);
         $('#myModal').modal();
     }
@@ -132,9 +134,15 @@
 
     function updateTaskProperties(){
         var taskPgId = $("#updateTaskPropertiesForm #taskPgId").eq(0).val();
-        $("#"+taskPgId)
-                .attr("rs-data-assigner",$("#updateTaskPropertiesForm #nextAssignerId").eq(0).val())
-                .html($("#updateTaskPropertiesForm #taskDescpId").eq(0).val()+"<div class=\"ep\"></div>");
+        var taskType = $("#updateTaskPropertiesForm #taskType").eq(0).val();
+        if(RS_TYPE_CONDITION==taskType){
+            $("#"+taskPgId +" .task-descp").html($("#updateTaskPropertiesForm #taskDescpId").eq(0).val());
+        }else{
+            $("#"+taskPgId)
+                    .attr("rs-data-assigner",$("#updateTaskPropertiesForm #nextAssignerId").eq(0).val())
+                    .html($("#updateTaskPropertiesForm #taskDescpId").eq(0).val()+"<div class=\"ep\"></div>");
+        }
+
         $("#successMsg").css("display","");
         setTimeout(function(){
             $('#myModal').modal('hide');
