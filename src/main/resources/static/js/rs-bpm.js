@@ -40,18 +40,18 @@ jsPlumb.ready(function () {
             clone_div.attr("id", div_id).append("<div class=\"ep\" action=\""+rs_type+"\"></div>");
             $(this).append(clone_div);
             clone_div.removeClass("menu-task").removeClass("ui-draggable").addClass("user-task").css({"top":pos_y, "left":pos_x});
-            clone_div.contextMenu({
-                menu: 'activityMenu'
-            }, function(action, el, pos) {
-                var id_ = $(el).attr("id");
-                if (action == 'edit') {
-//                    $('#myModal').modal();
-                    //TODO:
-                }
-                else if (action == 'delete') {
-                    instance.remove(id_);
-                }
-            });
+//            clone_div.contextMenu({
+//                menu: 'activityMenu'
+//            }, function(action, el, pos) {
+//                var id_ = $(el).attr("id");
+//                if (action == 'edit') {
+////                    $('#myModal').modal();
+//                    //TODO:
+//                }
+//                else if (action == 'delete') {
+//                    instance.remove(id_);
+//                }
+//            });
             initNode(clone_div);
         }
     });
@@ -120,20 +120,20 @@ jsPlumb.ready(function () {
         var connection_id = info.connection.id;
         var connection_label = info.connection.getOverlay("label").getElement();
         $(connection_label).attr("connection_id",info.connection.id)
-            .contextMenu({
-            menu: 'connMenu'
-            },
-            function(action, el, pos) {
-                var id_ = $(el).attr("id");
-                if (action == 'edit') {
-                    console.log("edit");
-                    editCondition(id_);
-                }
-                else if (action == 'delete') {
-                    var removeItem = $(el).attr("connection_id");
-                    instance.detach(info);
-                }
-            });
+//            .contextMenu({
+//            menu: 'connMenu'
+//            },
+//            function(action, el, pos) {
+//                var id_ = $(el).attr("id");
+//                if (action == 'edit') {
+//                    console.log("edit");
+//                    editCondition(id_);
+//                }
+//                else if (action == 'delete') {
+//                    var removeItem = $(el).attr("connection_id");
+//                    instance.detach(info);
+//                }
+//            });
         var con_source = info.source;
         var sourceNodeConnections = $.grep(instance.getAllConnections(), function(value) {
             return value.sourceId == con_source.id;
@@ -473,9 +473,5 @@ function editCondition(id_){
     });
     $(dialog_div).dialog( "open" );
 }
-if(basePath!=undefined){
-    $.get(basePath+"/static/contextMenu.html",function(data){
-        $("#context_menu_include").html(data);
-    })
-}
+
 

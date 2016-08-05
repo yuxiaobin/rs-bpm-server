@@ -44,11 +44,6 @@
     </div>
 </div>
 
-<div id="context_menu_include">
-
-</div>
-<a data-toggle="modal" data-target="#myModal" id="clickId">Click me</a>
-<a id="clickId2">Click me2</a>
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
      aria-labelledby="myModalLabel" aria-hidden="false">
     <div class="modal-dialog">
@@ -109,12 +104,6 @@
 
 <script>
     var parmJsonStr = "";
-    $("#clickId").on("click",function(){
-        var parmJson = {};
-        parmJson.taskPgId = 1111;
-        parmJson.taskDescp = 222222;
-        parmJsonStr = JSON.stringify(parmJson);
-    })
     function editTask(id_){
         var parmJson = {};
         var el = $("#"+id_);
@@ -129,7 +118,7 @@
         $.ajax({
             cache: false,
             type: 'POST',
-            url: basePath+"/wf/admin/task/",
+            url: basePath+"/wf/admin/task",
             data:parmJsonStr,
             headers: { 'Content-Type': "application/json" },
             success: function(data) {
@@ -140,6 +129,28 @@
     $('#myModal').on('hide.bs.modal', function(){
         $(this).removeData('bs.modal');
     });
+
+    function updateTaskProperties(){
+        var taskPgId = $("#updateTaskPropertiesForm #taskPgId").eq(0).val();
+        $("#"+taskPgId)
+                .attr("rs-data-assigner",$("#updateTaskPropertiesForm #nextAssignerId").eq(0).val())
+                .html($("#updateTaskPropertiesForm #taskDescpId").eq(0).val()+"<div class=\"ep\"></div>");
+        $("#successMsg").css("display","");
+        setTimeout(function(){
+            $('#myModal').modal('hide');
+        },1000);
+    }
+    function deleteTask(){
+        var taskPgId = $("#updateTaskPropertiesForm #taskPgId").eq(0).val();
+        window.jsp.remove(taskPgId);
+        $('#myModal').modal('hide');
+    }
+    function confirmDelete(){
+        $("#deleteTaskAlert").css("display","");
+    }
+    function notDeleteTask(){
+        $("#deleteTaskAlert").css("display","none");
+    }
 </script>
 </body>
 </html>

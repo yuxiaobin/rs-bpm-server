@@ -1,11 +1,8 @@
 <html>
 <head>
     <script>
-        <#if taskPgId?exists>
-            var taskPgId = "${taskPgId}";
-        </#if>
-        <#if taskDescp?exists>
-            var taskDescp = "${taskDescp}";
+        <#if taskData?exists>
+            var taskData = ${taskData};
         </#if>
     </script>
 </head>
@@ -15,7 +12,7 @@
     <h4 class="modal-title" id="exampleModalLabel">Edit Task</h4>
 </div>
 <div class="modal-body">
-    <form>
+    <form id="updateTaskPropertiesForm">
         <div class="form-group">
             <label for="taskDescpId" class="control-label">Task Description:</label>
             <input type="text" class="form-control" id="taskDescpId">
@@ -26,11 +23,21 @@
             <textarea class="form-control" id="nextAssignerId"></textarea>
         </div>
     </form>
+    <div class="form-group">
+        <div class="alert alert-success alert-dismissible col-md-6" role="alert" id="successMsg" style="display:none">
+            <strong>Success!</strong> Saved successfully!.
+        </div>
+        <div class="alert alert-danger alert-dismissible col-md-6" role="alert" id="deleteTaskAlert" style="display:none">
+            <p><strong>Confirm to delete?</strong></p>
+            <p> <button type="button" class="btn btn-danger" onclick="deleteTask()">Yes</button> <button type="button" class="btn btn-default" onclick="notDeleteTask()">No</button> </p>
+        </div>
+    </div>
 </div>
+
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-    <button type="button" class="btn btn-primary">Save</button>
-    <button type="button" class="btn btn-danger">Delete</button>
+    <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+
+    <button type="button" class="btn btn-primary" onclick="updateTaskProperties()">Save</button>
 </div>
 </body>
 <!--
@@ -38,11 +45,11 @@
 <script src="/static/js/jquery-1.9.1.min.js"></script>
 -->
 <script>
-   if(typeof(taskDescp)=='undefined'){
-       console.log("taskDescp is undefined");
+   if(typeof(taskData)=='undefined'){
+       console.log("taskData is undefined");
    }else{
-       $("#taskDescpId").val(taskDescp);
-       $("#taskPgId").val(taskPgId);
+       $("#taskDescpId").val(taskData.taskDescp);
+       $("#taskPgId").val(taskData.taskPgId);
    }
 </script>
 </html>
