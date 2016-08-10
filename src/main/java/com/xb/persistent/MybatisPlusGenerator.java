@@ -69,7 +69,7 @@ public class MybatisPlusGenerator {
         //cg.setConfigIdType(ConfigIdType.STRING);
 
 //        cg.setSaveDir("D:/workspace2/Test2/src/main/java");// 生成文件保存位置
-        cg.setSaveDir("D:/test123/src/main/java");// 生成文件保存位置
+        cg.setSaveDir("D:/tblUser/src/main/java");// 生成文件保存位置
 		/*
          * 设置数据库字段是否为驼峰命名，驼峰 true 下划线分割 false
 		 */
@@ -87,8 +87,9 @@ public class MybatisPlusGenerator {
          */
         cg.setFileOverride(true);
         
-        String[] tableNames = {"rs_module","rs_workflow","wf_def","wf_task",
-        		"wf_task_conn","wf_group","wf_instance","wf_inst_hist"};
+        String[] tableNames = {"tbl_group","tbl_user2group"};
+//        String[] tableNames = {"rs_module","rs_workflow","wf_def","wf_task",
+//        		"wf_task_conn","wf_group","wf_instance","wf_inst_hist"};
         cg.setTableNames(tableNames);
         return cg;
 	}

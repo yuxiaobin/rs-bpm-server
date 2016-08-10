@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.util.StringUtils;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.common.WFConstants;
@@ -12,7 +14,6 @@ import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
 import com.xb.vo.WFDetailVO;
 
-import httl.util.StringUtils;
 
 public class WfDataUtil {
 	

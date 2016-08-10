@@ -7,11 +7,11 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.3.5.RELEASE</version>
 	</parent>
-	<groupId>com.xb.test</groupId>
-	<artifactId>Test2</artifactId>
+	<groupId>com.xb.wf</groupId>
+	<artifactId>rs-bpm-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>test</name>
+	<name>Workflow</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -44,7 +44,7 @@
 
 
 	<build>
-		<finalName>Test2</finalName>
+		<finalName>rs-bpm-server</finalName>
 		<filters>
 			<filter>src/main/resources/config/config_${env}.properties</filter>
 		</filters>
@@ -141,7 +141,7 @@
 		</dependency>
 
 
-		<!-- https://mvnrepository.com/artifact/com.github.httl/httl -->
+		<!-- https://mvnrepository.com/artifact/com.github.httl/httl 
 		<dependency>
 			<groupId>com.github.httl</groupId>
 			<artifactId>httl</artifactId>
@@ -152,7 +152,7 @@
 			<groupId>com.github.httl</groupId>
 			<artifactId>httl-springmvc</artifactId>
 			<version>1.0.11</version>
-		</dependency>
+		</dependency>-->
 
 		<!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
 		<dependency>
@@ -186,11 +186,12 @@
 			</dependency> -->
 
 
-		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<!-- https://mvnrepository.com/artifact/junit/junit 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
-
+		-->
+		
 	</dependencies>
 </project>
