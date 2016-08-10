@@ -323,11 +323,11 @@ public class WFController extends BaseController {
 	}
 	
 	
-	@RequestMapping(value="/admin/task", method=RequestMethod.POST )
+	/*@RequestMapping(value="/admin/task", method=RequestMethod.POST )
 	public Object viewTaskDtlPage(@RequestBody JSONObject taskData, HttpServletRequest req){
 		req.setAttribute("taskData", taskData.toJSONString());
 		return "taskProperties";
-	}
+	}*/
 	
 	@RequestMapping(value="/admin/task", method=RequestMethod.GET )
 	public Object viewTaskDtlPage2(HttpServletRequest req){

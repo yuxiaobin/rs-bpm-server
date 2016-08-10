@@ -1,6 +1,3 @@
-/**
- * Created by yuxiaobin on 2016/8/7.
- */
 var RS_TYPE_START = "start-task";
 var RS_TYPE_END = "end-task";
 var RS_TYPE_USER = "user-task";

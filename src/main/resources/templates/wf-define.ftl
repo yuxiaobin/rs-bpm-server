@@ -100,6 +100,7 @@
 <!--<script src="${base.contextPath}/static/js/jquery.ui.dialog.js"></script>-->
 <!--<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>-->
 <!--  demo code -->
+<script src="${base.contextPath}/static/js/common.js"></script>
 <script src="${base.contextPath}/static/js/rs-bpm.js"></script>
 
 <script>
@@ -132,9 +133,13 @@
         }else if(taskData.opt=="D"){
             window.jsp.remove(taskData.taskPgId);
         }
-        setTimeout(function(){
+        if(taskData.opt=="C"){
             $("#myModal").modal("hide");
-        },1000);
+        }else{
+            setTimeout(function(){
+                $("#myModal").modal("hide");
+            },1000);
+        }
 
     }
 </script>

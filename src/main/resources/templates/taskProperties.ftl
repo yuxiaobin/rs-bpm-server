@@ -36,12 +36,12 @@
                         <a class="list-group-item" id="selectAllUsersId" href="javascript:void(0)">
                             <div class="input-group">
                                   <span class="input-group-addon" title="Select All">
-                                    <label for="allUsersCheckbox">Select All:</label>&nbsp;<input type="checkbox" id="allUsersCheckbox" aria-label="Select All" value="true" onclick="selectAllUserChange(this)">
+                                    <label for="allUsersCheckbox">Select All:</label>&nbsp;<input type="checkbox" id="allUsersCheckbox" aria-label="Select All" ng-click="selectAllUserChange()"><!--onclick="selectAllUserChange(this)" -->
                                   </span>
                                   <input type="text" class="form-control" aria-label="..." placeholder="filter" ng-model="userFilter">
                             </div>
                         </a>
-                        <a href="javascript:void(0)" class="list-group-item" ng-repeat="user in userList | filter:userFilter" rs-data-usname="{{user.name}}"  rs-data-usid="{{user.id}}" onclick="selectUser(this)">
+                        <a href="javascript:void(0)" ng-repeat="user in userList | filter:userFilter" class="list-group-item {{user.extClass}}"  rs-data-usname="{{user.name}}"  rs-data-usid="{{user.id}}" ng-click="selectUser(user.id)"><!--onclick="selectUser(this)"-->
                             {{user.name}}
                         </a>
                     </div>
@@ -49,12 +49,12 @@
                         <a class="list-group-item" id="selectAllGroupId" href="javascript:void(0)">
                             <div class="input-group">
                                   <span class="input-group-addon" title="Select All">
-                                    <label for="allGroupsCheckbox">Select All:</label>&nbsp;<input type="checkbox" id="allGroupsCheckbox" aria-label="Select All" value="true" onclick="selectAllGroupChange(this)">
+                                    <label for="allGroupsCheckbox">Select All:</label>&nbsp;<input type="checkbox" id="allGroupsCheckbox" aria-label="Select All" value="true" ng-click="selectAllGroupChange()">
                                   </span>
                                 <input type="text" class="form-control" aria-label="..." placeholder="filter" ng-model="groupFilter">
                             </div>
                         </a>
-                        <a href="javascript:void(0)" class="list-group-item" ng-repeat="group in groupList | filter:groupFilter" rs-data-gpname="{{group.groupName}}" rs-data-gpid="{{group.groupId}}" onclick="selectGroup(this)">
+                        <a href="javascript:void(0)"  ng-repeat="group in groupList | filter:groupFilter" class="list-group-item {{group.extClass}}" rs-data-gpname="{{group.groupName}}" rs-data-gpid="{{group.groupId}}" ng-click="selectGroup(group.groupId)">
                             {{group.groupName}}
                         </a>
                     </div>
@@ -63,7 +63,7 @@
     </form>
     <div class="form-group">
         <div class="alert alert-success alert-dismissible col-md-6" role="alert" id="successMsg" style="display:none">
-            <strong>Success!</strong> Saved successfully!.
+            <strong>Success!</strong> Update successfully!.
         </div>
         <div class="alert alert-danger alert-dismissible col-md-6" role="alert" id="deleteTaskAlert" style="display:none">
             <p><strong>Confirm to delete?</strong></p>
@@ -94,7 +94,6 @@
        $("#taskDescpId").val(taskData.taskDescp);
        $("#taskPgId").val(taskData.taskPgId);
        $("#taskType").val(taskData.taskType);
-//       $("#currAssignerId").val(taskData.assigner);
 
        if(RS_TYPE_USER==taskData.taskType){
            $("#nextAssignerDisplay").show();
