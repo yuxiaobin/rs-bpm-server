@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>jsPlumb - state machine demonstration</title>
+    <title>Define Workflow</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
 
@@ -18,7 +18,7 @@
         var basePath = "${base.contextPath}";
     </script>
 </head>
-<body data-demo-id="statemachine" data-library="dom" class="home-template">
+<body data-demo-id="statemachine" data-library="dom" class="home-template" ng-app="taskApp">
 <header class="site-header">
     <div class="container">
         <div class="row">
@@ -32,7 +32,7 @@
 <div class="jtk-demo-main">
     <!-- demo -->
     <div class="rsmenu">
-        <div class="w menu-task" rs-type="user-task"><label>User Task</label></div>
+        <div class="w menu-task" rs-data-type="user-task">User Task</div>
         <div class="w menu-task rs-cond-task" rs-type="user-task"><div class="task-descp">Condition Node</div></div>
     </div>
     <div class="rscontainer jtk-demo-canvas canvas-wide statemachine-demo jtk-surface jtk-surface-nopan " id="canvas">
@@ -45,9 +45,10 @@
 </div>
 
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="false">
+     aria-labelledby="myModalLabel" aria-hidden="false" >
     <div class="modal-dialog">
         <div class="modal-content">
+            <iframe style="zoom: 0.8;" height="500px" src="" frameBorder="0" width="99.6%"></iframe>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
@@ -100,7 +101,6 @@
 <!--<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>-->
 <!--  demo code -->
 <script src="${base.contextPath}/static/js/rs-bpm.js"></script>
-<script src="${base.contextPath}/static/js/activity-edit/properties.js"></script>
 
 <script>
     var parmJsonStr = "";
@@ -109,55 +109,33 @@
         var el = $("#"+id_);
         parmJson.taskPgId = el.attr("id");;
         parmJson.taskDescp = el.text();
-        parmJson.assigner = el.attr(RS_ATTR_ASSIGNER);
+        parmJson.assignUsers = el.attr(RS_ATTR_ASSIGN_USERS);
+        parmJson.assignGroups = el.attr(RS_ATTR_ASSIGN_GROUPS);
         parmJson.taskType = el.attr(RS_ATTR_TASK_TYPE);
         parmJsonStr = JSON.stringify(parmJson);
+        $('iframe').attr("src",basePath+"/wf/admin/task?taskData="+parmJsonStr);
         $('#myModal').modal();
     }
-
-    $('#myModal').on('show.bs.modal', function(e) {
-        var $modal = $(this);
-        $.ajax({
-            cache: false,
-            type: 'POST',
-            url: basePath+"/wf/admin/task",
-            data:parmJsonStr,
-            headers: { 'Content-Type': "application/json" },
-            success: function(data) {
-                $modal.find('.modal-content').html(data);
+    window.addEventListener('message', receiveMessage, false);
+    function receiveMessage(evt) {
+        console.log("got message from child page:"+evt.data);
+        var taskData = $.parseJSON(evt.data);
+        if(taskData.opt=="U"){
+            $("#"+taskData.taskPgId).attr(RS_ATTR_ASSIGN_USERS, taskData.assignUsers)
+                    .attr(RS_ATTR_ASSIGN_GROUPS,taskData.assignGroups);
+            if(RS_TYPE_CONDITION==taskData.taskType){
+                $("#"+taskData.taskPgId +" .task-descp").html(taskData.taskDescp);
+            }else{
+                $("#"+taskData.taskPgId)
+                        .html(taskData.taskDescp+"<div class=\"ep\"></div>");
             }
-        });
-    });
-    $('#myModal').on('hide.bs.modal', function(){
-        $(this).removeData('bs.modal');
-    });
-
-    function updateTaskProperties(){
-        var taskPgId = $("#updateTaskPropertiesForm #taskPgId").eq(0).val();
-        var taskType = $("#updateTaskPropertiesForm #taskType").eq(0).val();
-        if(RS_TYPE_CONDITION==taskType){
-            $("#"+taskPgId +" .task-descp").html($("#updateTaskPropertiesForm #taskDescpId").eq(0).val());
-        }else{
-            $("#"+taskPgId)
-                    .attr("rs-data-assigner",$("#updateTaskPropertiesForm #nextAssignerId").eq(0).val())
-                    .html($("#updateTaskPropertiesForm #taskDescpId").eq(0).val()+"<div class=\"ep\"></div>");
+        }else if(taskData.opt=="D"){
+            window.jsp.remove(taskData.taskPgId);
         }
-
-        $("#successMsg").css("display","");
         setTimeout(function(){
-            $('#myModal').modal('hide');
+            $("#myModal").modal("hide");
         },1000);
-    }
-    function deleteTask(){
-        var taskPgId = $("#updateTaskPropertiesForm #taskPgId").eq(0).val();
-        window.jsp.remove(taskPgId);
-        $('#myModal').modal('hide');
-    }
-    function confirmDelete(){
-        $("#deleteTaskAlert").css("display","");
-    }
-    function notDeleteTask(){
-        $("#deleteTaskAlert").css("display","none");
+
     }
 </script>
 </body>

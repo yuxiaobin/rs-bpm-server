@@ -41,7 +41,8 @@ public class WfDataUtil {
 			record.put("rsType", WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
 			record.put("descp", task.getTaskDescp());
 			record.put("id", task.getTaskId());
-			record.put("assigner", task.getAssignUsers());
+			record.put("assignUsers", task.getAssignUsers());
+			record.put("assignGroups", task.getAssignGroups());
 			pos = new JSONObject();
 			pos.put("top", task.getPosTop());
 			pos.put("left", task.getPosLeft());
@@ -108,7 +109,36 @@ public class WfDataUtil {
 			JSONObject pos = taskj.getJSONObject("position");
 			task.setPosTop(Double.valueOf(pos.getString("top")));
 			task.setPosLeft(Double.valueOf(pos.getString("left")));
-			task.setAssignUsers(taskj.getString("assigner"));
+			String assigners = null;
+			if(taskj.containsKey("assignUsers")){
+				assigners = taskj.getString("assignUsers");
+				if(!StringUtils.isEmpty(assigners)){
+					if(!assigners.startsWith(",")){
+						assigners = ","+assigners;
+					}
+					if(!assigners.endsWith(",")){
+						assigners = assigners+",";
+					}
+				}else{
+					assigners = null;
+				}
+			}
+			task.setAssignUsers(assigners);
+			
+			if(taskj.containsKey("assignGroups")){
+				assigners = taskj.getString("assignGroups");
+				if(!StringUtils.isEmpty(assigners)){
+					if(!assigners.startsWith(",")){
+						assigners = ","+assigners;
+					}
+					if(!assigners.endsWith(",")){
+						assigners = assigners+",";
+					}
+				}else{
+					assigners = null;
+				}
+			}
+			task.setAssignGroups(assigners);
 			taskList.add(task);
 		}
 		return taskList;

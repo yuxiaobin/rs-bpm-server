@@ -48,7 +48,7 @@
                         <td>{{taskv.task.taskDescp}}</td>
                         <td>{{taskv.instHist.optUser}}</td>
                         <td>{{taskv.instHist.optSeq}}</td>
-                        <td>{{taskv.task.assignUsers}}</td>
+                        <td>{{taskv.instHist.nextAssigner}}</td>
                         <td>{{taskv.task.assignGroups}}</td>
                         <td>{{taskv.instHist.createdDt | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                         <!--{{taskv.instHist.status}}-->

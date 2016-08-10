@@ -54,7 +54,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	IRsWorkflowService rsWfService;
 	
 	public List<TaskVO> getTasksInbox(String userId){
-		return baseMapper.getTasksInbox(userId);
+		String parmUserId = ","+userId+",";
+		return baseMapper.getTasksInbox(userId,parmUserId);
 	}
 	
 	@Transactional
@@ -196,6 +197,9 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				histService.updateById(currHist);
 				inst.setWfStatus(WFConstants.WFStatus.DONE);
 				System.out.println("update instance to Done status");
+			}else{
+				currHist.setNextAssigner(taskNext.getAssignUsers());
+				histService.updateById(currHist);
 			}
 			instService.updateById(inst);
 		}

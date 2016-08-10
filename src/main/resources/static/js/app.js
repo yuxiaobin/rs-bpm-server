@@ -52,13 +52,12 @@ angular.module('app', [ ])
                 });
             }
         };
+        wfService.getAllModules().then(function(success){
+            $scope.moduleList = success.records;
+        },function(fail){
+            console.error("getAllModules failed");
+        });
 
-//        $scope.getModules = function(){
-            wfService.getAllModules().then(function(success){
-                $scope.moduleList = success.records;
-            },function(fail){
-                console.error("getAllModules failed");
-            });
-//        }
+    }])
 
-    }]);
+;

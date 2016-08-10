@@ -31,7 +31,7 @@ hist.opt_seq, hist.next_assigner, hist.status, hist.created_dt,
 task.task_pg_id, task.task_type, task.task_descp, task.assign_users, task.assign_groups
 from WF_INST_HIST hist, WF_TASK task
   where hist.TASK_ID = task.TASK_ID
-  and hist.status='I' and (hist.next_assigner is null or hist.next_assigner=#{userId})
+  and hist.status='I' and (hist.next_assigner is null or hist.next_assigner like #{likeUserId} or hist.next_assigner=#{userId})
 </select>
 
 	<resultMap id="getTaskListWithStatusResultMap" type="com.xb.persistent.WfTask">

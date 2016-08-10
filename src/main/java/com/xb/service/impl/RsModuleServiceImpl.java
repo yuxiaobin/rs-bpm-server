@@ -15,5 +15,4 @@ import com.baomidou.framework.service.impl.CommonServiceImpl;
 @Service
 public class RsModuleServiceImpl extends CommonServiceImpl<RsModuleMapper, RsModule> implements IRsModuleService {
 
-
 }

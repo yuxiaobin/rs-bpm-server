@@ -2,7 +2,8 @@ var RS_TYPE_START = "start-task";
 var RS_TYPE_END = "end-task";
 var RS_TYPE_USER = "user-task";
 var RS_TYPE_CONDITION = "rs-cond-task";
-var RS_ATTR_ASSIGNER = "rs-data-assigner";
+var RS_ATTR_ASSIGN_USERS = "rs-data-assign-users";
+var RS_ATTR_ASSIGN_GROUPS = "rs-data-assign-groups";
 var RS_ATTR_TASK_TYPE = "rs-data-type";
 
 var variableSet = [];//activityId:[propertyArray(name,type,value)]
@@ -22,40 +23,9 @@ jsPlumb.ready(function () {
             var pos_x = trans4ContainerPos.x-task_width/2;
             var pos_y = trans4ContainerPos.y-task_height/2;
             var clone_div = $(ui.draggable).clone();
-            var div_id = clone_div.attr("id");
-            if(div_id!=undefined || clone_div.hasClass("ui-dialog")){
-                return;
-            }
-            div_id = new Date().getTime();
-            var rs_type = clone_div.attr("rs-type");
-            if(rs_type==RS_TYPE_START){
-                if($(this).find("div[action='"+RS_TYPE_START+"']").length!=0){
-                    console.log("start task already existed");
-                    return;
-                }
-            }
-            if(rs_type==RS_TYPE_END){
-                if($(this).find("div[action='"+RS_TYPE_END+"']").length!=0){
-                    console.log("end task already existed");
-                    return;
-                }
-            }
-            clone_div.attr("id", div_id).append("<div class=\"ep\" action=\""+rs_type+"\"></div>");
-            $(this).append(clone_div);
-            clone_div.removeClass("menu-task").removeClass("ui-draggable").addClass(RS_TYPE_USER).css({"top":pos_y, "left":pos_x});
-//            clone_div.contextMenu({
-//                menu: 'activityMenu'
-//            }, function(action, el, pos) {
-//                var id_ = $(el).attr("id");
-//                if (action == 'edit') {
-////                    $('#myModal').modal();
-//                    //TODO:
-//                }
-//                else if (action == 'delete') {
-//                    instance.remove(id_);
-//                }
-//            });
-            initNode(clone_div);
+            var rs_type = clone_div.attr(RS_ATTR_TASK_TYPE);
+            var userNode = {pgId:new Date().getTime(),rsType:rs_type,descp:clone_div.text(), position:{top:pos_y,left:pos_x}};
+            newNodeById(userNode);
         }
     });
     var transferPagePos2ContainerPos = function(pageX_,pageY_){
@@ -123,20 +93,6 @@ jsPlumb.ready(function () {
         var connection_id = info.connection.id;
         var connection_label = info.connection.getOverlay("label").getElement();
         $(connection_label).attr("connection_id",info.connection.id)
-//            .contextMenu({
-//            menu: 'connMenu'
-//            },
-//            function(action, el, pos) {
-//                var id_ = $(el).attr("id");
-//                if (action == 'edit') {
-//                    console.log("edit");
-//                    editCondition(id_);
-//                }
-//                else if (action == 'delete') {
-//                    var removeItem = $(el).attr("connection_id");
-//                    instance.detach(info);
-//                }
-//            });
         var con_source = info.source;
         var sourceNodeConnections = $.grep(instance.getAllConnections(), function(value) {
             return value.sourceId == con_source.id;
@@ -149,9 +105,7 @@ jsPlumb.ready(function () {
                     instance.detach(info);
                     console.log("Condition Node can have reached Maximum 2 connections");
                 }
-            }else{
-                connection_label.firstChild.innerHTML = "Yes";
-            }
+            }else{ connection_label.firstChild.innerHTML = "Yes";}
         }
         else{
             if(sourceNodeConnections_count>1){
@@ -159,7 +113,6 @@ jsPlumb.ready(function () {
                 console.log("Non-condition Node can have reached Maximum 1 connections");
             }
         }
-
     });
 
     // initialise element as connection targets and source.
@@ -208,7 +161,8 @@ jsPlumb.ready(function () {
         }
         d.style.left = node_.position.left + "px";
         d.style.top = node_.position.top + "px";
-        $(d).attr(RS_ATTR_ASSIGNER, node_.assigner)
+        $(d).attr(RS_ATTR_ASSIGN_USERS, node_.assignUsers)
+            .attr(RS_ATTR_ASSIGN_GROUPS, node_.assignGroups)
             .attr("rs-data-id", node_.id)
             .attr(RS_ATTR_TASK_TYPE,node_.rsType);
         $(d).dblclick(function(){
@@ -302,7 +256,8 @@ jsPlumb.ready(function () {
                 pos_.left = parseInt(pos_.left)+13;
             }
             task_json.descp = jqObj.text();
-            task_json.assigner = jqObj.attr(RS_ATTR_ASSIGNER);
+            task_json.assignUsers = jqObj.attr(RS_ATTR_ASSIGN_USERS);
+            task_json.assignGroups = jqObj.attr(RS_ATTR_ASSIGN_GROUPS);
 
             var task_position = {
                 top:pos_.top,

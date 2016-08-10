@@ -16,7 +16,7 @@ import com.baomidou.mybatisplus.mapper.CommonMapper;
  */
 public interface WfTaskMapper extends CommonMapper<WfTask> {
 	
-	public List<TaskVO> getTasksInbox(@Param("userId") String userId);
+	public List<TaskVO> getTasksInbox(@Param("userId") String userId, @Param("likeUserId") String likeUserId);
 
 	public List<WfTask> getTaskListWithStatus(@Param("instId") String instId);
 
