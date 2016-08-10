@@ -78,10 +78,6 @@
     <button type="button" class="btn btn-primary" ng-click="updateTaskProperties()">Save</button>
 </div>
 </body>
-<!--
-该页面会被模态框include进来，如果这里添加了和主页相同的js，会引起js冲突
-<script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
--->
 <script src="${base.contextPath}/static/js/common.js"></script>
 <script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
 <script src="${base.contextPath}/static/js/angular.js"></script>
