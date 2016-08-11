@@ -46,9 +46,9 @@
 
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
      aria-labelledby="myModalLabel" aria-hidden="false" >
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <iframe style="zoom: 0.8;" height="500px" src="" frameBorder="0" width="99.6%"></iframe>
+            <iframe style="zoom: 0.8;" height="700px" src="" frameBorder="0" width="99.6%"></iframe>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
@@ -110,8 +110,11 @@
         var el = $("#"+id_);
         parmJson.taskPgId = el.attr("id");;
         parmJson.taskDescp = el.text();
-        parmJson.assignUsers = el.attr(RS_ATTR_ASSIGN_USERS);
-        parmJson.assignGroups = el.attr(RS_ATTR_ASSIGN_GROUPS);
+        var assignersStr = el.attr(RS_ATTR_ASSIGNERS);
+        if(assignersStr==undefined || assignersStr==""){
+            assignersStr = "[]";
+        }
+        parmJson.assigners = $.parseJSON(assignersStr);
         parmJson.taskType = el.attr(RS_ATTR_TASK_TYPE);
         parmJsonStr = JSON.stringify(parmJson);
         $('iframe').attr("src",basePath+"/wf/admin/task?taskData="+parmJsonStr);
@@ -122,8 +125,7 @@
         console.log("got message from child page:"+evt.data);
         var taskData = $.parseJSON(evt.data);
         if(taskData.opt=="U"){
-            $("#"+taskData.taskPgId).attr(RS_ATTR_ASSIGN_USERS, taskData.assignUsers)
-                    .attr(RS_ATTR_ASSIGN_GROUPS,taskData.assignGroups);
+            $("#"+taskData.taskPgId).attr(RS_ATTR_ASSIGNERS, JSON.stringify(taskData.assigners));
             if(RS_TYPE_CONDITION==taskData.taskType){
                 $("#"+taskData.taskPgId +" .task-descp").html(taskData.taskDescp);
             }else{

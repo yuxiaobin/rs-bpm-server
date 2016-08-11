@@ -4,54 +4,87 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.common.WFConstants;
+import com.xb.common.WFConstants.TaskTypes;
 import com.xb.persistent.WfTask;
+import com.xb.persistent.WfTaskAssign;
 import com.xb.persistent.WfTaskConn;
 import com.xb.vo.WFDetailVO;
 
-
 public class WfDataUtil {
-	
-	/****************************generate json from object******************************/
-	
-	public static JSONObject generateWfJson(WFDetailVO wfDtl){
+
+	/****************************
+	 * generate json from object
+	 ******************************/
+
+	public static JSONObject generateWfJson(WFDetailVO wfDtl) {
 		JSONArray tasks = genTaskJson(wfDtl.getTasks());
-		JSONArray conns = genConnections(wfDtl.getConns(),wfDtl.getTasks());
+		JSONArray conns = genConnections(wfDtl.getConns(), wfDtl.getTasks());
 		JSONObject result = new JSONObject();
 		result.put("tasks", tasks);
 		result.put("conns", conns);
 		return result;
 	}
 
-	public static JSONArray genTaskJson(List<WfTask> tasks){
+	public static JSONArray genTaskJson(List<WfTask> tasks) {
 		JSONArray array = new JSONArray();
-		if(tasks==null){
-			return array; 
+		if (tasks == null) {
+			return array;
 		}
 		JSONObject record = null;
 		JSONObject pos = null;
-		for(int i=0;i<tasks.size();++i){
+		for (int i = 0; i < tasks.size(); ++i) {
 			WfTask task = tasks.get(i);
 			record = new JSONObject();
 			record.put("pgId", task.getTaskPgId());
 			record.put("rsType", WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
 			record.put("descp", task.getTaskDescp());
 			record.put("id", task.getTaskId());
-			record.put("assignUsers", task.getAssignUsers());
-			record.put("assignGroups", task.getAssignGroups());
+//			record.put("assignUsers", task.getAssignUsers());
+//			record.put("assignGroups", task.getAssignGroups());
+			List<WfTaskAssign> assignerList = task.getAssignerList();
+			JSONArray assigners = new JSONArray();
+			if(assignerList!=null){
+				JSONObject asnj = null;
+				for(WfTaskAssign asn:assignerList){
+					asnj = new JSONObject();
+					String assignType = asn.getAssignType();
+					if(assignType==null){
+						assignType = "";
+					}
+					switch(assignType) {
+						case "U": asnj.put("name", asn.getUserName());break;
+						case "G": asnj.put("name", asn.getGroupName());break;
+						default: break;
+					}
+					asnj.put("assignTypeCode", assignType);
+					asnj.put("id", asn.getAssignRelId());
+					asnj.put("defSelMod", asn.getDefSelFlag());
+					String selectAllFlag = asn.getSelAllFlag();
+					if(WFConstants.TaskSelectAllFlag.YES.equals(selectAllFlag)){
+						asnj.put("checkFlag", true);
+					}else{
+						asnj.put("checkFlag", false);
+					}
+					asnj.put("exeConn", asn.getExeCondition());
+					assigners.add(asnj);
+				}
+			}
+			record.put("assigners", assigners);
 			pos = new JSONObject();
 			pos.put("top", task.getPosTop());
 			pos.put("left", task.getPosLeft());
 			record.put("position", pos);
 			String status = "";
-			if(!StringUtils.isEmpty(task.getCurrTaskId())){
+			if (!StringUtils.isEmpty(task.getCurrTaskId())) {
 				status = "PEND";
-			}else if(!StringUtils.isEmpty(task.getProcessedFlag())){
+			} else if (!StringUtils.isEmpty(task.getProcessedFlag())) {
 				status = "PROC";
 			}
 			record.put("status", status);
@@ -59,18 +92,18 @@ public class WfDataUtil {
 		}
 		return array;
 	}
-	
-	public static JSONArray genConnections(List<WfTaskConn> conns, List<WfTask> tasks){
+
+	public static JSONArray genConnections(List<WfTaskConn> conns, List<WfTask> tasks) {
 		JSONArray array = new JSONArray();
-		if(conns==null){
+		if (conns == null) {
 			return array;
 		}
-		Map<String,WfTask> taskIdMap = new HashMap<String,WfTask>(tasks.size());
-		for(WfTask task:tasks){
+		Map<String, WfTask> taskIdMap = new HashMap<String, WfTask>(tasks.size());
+		for (WfTask task : tasks) {
 			taskIdMap.put(task.getTaskId(), task);
 		}
 		JSONObject record = null;
-		for(WfTaskConn conn:conns){
+		for (WfTaskConn conn : conns) {
 			record = new JSONObject();
 			record.put("con_id", conn.getConnId());
 			record.put("con_descp", conn.getConnDescp());
@@ -81,28 +114,31 @@ public class WfDataUtil {
 		}
 		return array;
 	}
-	
-	
-	/***************************generate object from json*******************************/
-//	public static WFDetailVO generateObjectFromJson(JSONObject jsonobj, String wfId){
-//		JSONArray tasks = jsonobj.getJSONArray("tasks");
-//		JSONArray conns = jsonobj.getJSONArray("conns");
-//		WFDetailVO wfDtl = new WFDetailVO();
-//		wfDtl.setConns(generateTaskConnList(conns, wfId));
-//		wfDtl.setTasks(generateTaskList(tasks, wfId));
-//		return wfDtl;
-//	}
-	
-	public static List<WfTask> generateTaskList(JSONArray tasks, String wfId){
-		if(tasks==null || tasks.isEmpty()){
+
+	/***************************
+	 * generate object from json
+	 *******************************/
+	// public static WFDetailVO generateObjectFromJson(JSONObject jsonobj,
+	// String wfId){
+	// JSONArray tasks = jsonobj.getJSONArray("tasks");
+	// JSONArray conns = jsonobj.getJSONArray("conns");
+	// WFDetailVO wfDtl = new WFDetailVO();
+	// wfDtl.setConns(generateTaskConnList(conns, wfId));
+	// wfDtl.setTasks(generateTaskList(tasks, wfId));
+	// return wfDtl;
+	// }
+
+	public static List<WfTask> generateTaskList(JSONArray tasks, String wfId) {
+		if (tasks == null || tasks.isEmpty()) {
 			return null;
 		}
 		int size = tasks.size();
-		List<WfTask>taskList = new ArrayList<WfTask>(size);
+		List<WfTask> taskList = new ArrayList<WfTask>(size);
 		WfTask task = null;
-		for(int i=0;i<size;++i){
+		for (int i = 0; i < size; ++i) {
 			JSONObject taskj = (JSONObject) tasks.get(i);
 			task = new WfTask();
+			task.setTaskId(UUID.randomUUID().toString().replace("-", ""));
 			task.setWfId(wfId);
 			task.setTaskPgId(taskj.getString("id"));
 			task.setTaskType(WFConstants.parse2Code(taskj.getString("rsType")));
@@ -110,59 +146,49 @@ public class WfDataUtil {
 			JSONObject pos = taskj.getJSONObject("position");
 			task.setPosTop(Double.valueOf(pos.getString("top")));
 			task.setPosLeft(Double.valueOf(pos.getString("left")));
-			String assigners = null;
-			if(taskj.containsKey("assignUsers")){
-				assigners = taskj.getString("assignUsers");
-				if(!StringUtils.isEmpty(assigners)){
-					if(!assigners.startsWith(",")){
-						assigners = ","+assigners;
-					}
-					if(!assigners.endsWith(",")){
-						assigners = assigners+",";
-					}
-				}else{
-					assigners = null;
+			if (taskj.containsKey("assigners")) {
+				String assigners = taskj.getString("assigners");
+				JSONArray assignersArray = JSONObject.parseArray(assigners);
+				int assignerSize = assignersArray.size();
+				List<WfTaskAssign> assignerList = new ArrayList<WfTaskAssign>(assignerSize);
+				WfTaskAssign asn = null;
+				for(int j=0;j<assignerSize;++j){
+					JSONObject assigner = assignersArray.getJSONObject(j);
+					asn = new WfTaskAssign();
+					asn.setAssignType(assigner.getString("assignTypeCode"));
+					asn.setAssignRelId(assigner.getString("id"));
+					asn.setDefSelFlag(assigner.getString("defSelMod"));
+					asn.setSelAllFlag(assigner.getBoolean("checkFlag")?WFConstants.TaskSelectAllFlag.YES:WFConstants.TaskSelectAllFlag.NO);
+					asn.setExeCondition(assigner.getString("exeConn"));
+					asn.setTaskId(task.getTaskId());
+					assignerList.add(asn);
 				}
+				task.setAssignerList(assignerList);
 			}
-			task.setAssignUsers(assigners);
-			
-			if(taskj.containsKey("assignGroups")){
-				assigners = taskj.getString("assignGroups");
-				if(!StringUtils.isEmpty(assigners)){
-					if(!assigners.startsWith(",")){
-						assigners = ","+assigners;
-					}
-					if(!assigners.endsWith(",")){
-						assigners = assigners+",";
-					}
-				}else{
-					assigners = null;
-				}
-			}
-			task.setAssignGroups(assigners);
 			taskList.add(task);
 		}
 		return taskList;
 	}
-	
+
 	/**
 	 * This method must be executed after taskList inserted.
+	 * 
 	 * @param conns
 	 * @param wfId
 	 * @return
 	 */
-	public static List<WfTaskConn> generateTaskConnList(JSONArray conns, String wfId, List<WfTask> taskList){
-		Map<String,String> taskIdMap = new HashMap<String,String>();
-		for(WfTask task:taskList){
+	public static List<WfTaskConn> generateTaskConnList(JSONArray conns, String wfId, List<WfTask> taskList) {
+		Map<String, String> taskIdMap = new HashMap<String, String>();
+		for (WfTask task : taskList) {
 			taskIdMap.put(task.getTaskPgId(), task.getTaskId());
 		}
-		if(conns==null || conns.isEmpty()){
+		if (conns == null || conns.isEmpty()) {
 			return null;
 		}
 		int size = conns.size();
-		List<WfTaskConn>connList = new ArrayList<WfTaskConn>(size);
+		List<WfTaskConn> connList = new ArrayList<WfTaskConn>(size);
 		WfTaskConn conn = null;
-		for(int i=0;i<size;++i){
+		for (int i = 0; i < size; ++i) {
 			JSONObject connj = (JSONObject) conns.get(i);
 			conn = new WfTaskConn();
 			conn.setWfId(wfId);
@@ -174,5 +200,5 @@ public class WfDataUtil {
 		}
 		return connList;
 	}
-	
+
 }

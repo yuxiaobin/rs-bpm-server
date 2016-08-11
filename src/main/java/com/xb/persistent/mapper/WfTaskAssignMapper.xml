@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfTaskAssignMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 TASK_ASSIGN_ID AS taskAssignId, TASK_ID AS taskId, ASSIGN_TYPE AS assignType, ASSIGN_REL_ID AS assignRelId, DEF_SEL_FLAG AS defSelFlag, SEL_ALL_FLAG AS selAllFlag, EXE_CONDITION AS exeCondition, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+	</sql>
+
+<resultMap id="getTaskAssignerListWithNameResultMap" type="com.xb.persistent.WfTaskAssign">
+	  <result property="taskId" column="task_id"/>
+	  <result property="assignType" column="assign_type"/>
+	  <result property="assignRelId" column="assign_rel_id"/>
+	  <result property="defSelFlag" column="def_sel_flag"/>
+	  <result property="selAllFlag" column="sel_all_flag"/>
+	  <result property="exeCondition" column="exe_condition"/>
+	  <result property="userName" column="username"/>
+	  <result property="groupName" column="group_name"/>
+	</resultMap>
+	
+	<select id="getTaskAssignerListWithName"  resultMap="getTaskAssignerListWithNameResultMap">
+select a.task_id, a.assign_type, a.assign_rel_id, a.def_sel_flag, a.sel_all_flag, a.exe_condition
+,u.name as username, g.group_name
+from wf_task_assign a
+left join tbl_user u on a.ASSIGN_REL_ID = u.id and a.ASSIGN_TYPE='U'
+left join tbl_group g on a.ASSIGN_REL_ID=g.GROUP_ID and a.ASSIGN_TYPE='G'
+where a.task_id=#{taskId}
+order by u.name,g.group_name 
+</select>
+</mapper>

@@ -1,5 +1,6 @@
 package com.xb.service.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -18,6 +19,7 @@ import com.xb.persistent.WfDef;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
+import com.xb.persistent.WfTaskAssign;
 import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.mapper.WfTaskMapper;
 import com.xb.service.IRsModuleService;
@@ -25,6 +27,7 @@ import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
+import com.xb.service.IWfTaskAssignService;
 import com.xb.service.IWfTaskConnService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskVO;
@@ -52,6 +55,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	IWfDefService wfDefService;
 	@Autowired
 	IRsWorkflowService rsWfService;
+	@Autowired
+	IWfTaskAssignService taskAssignerService;
 	
 	public List<TaskVO> getTasksInbox(String userId){
 		String parmUserId = ","+userId+",";
@@ -147,7 +152,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				histNext.setNextAssigner(histCurr.getOptUser());
 			}
 		}else{
-			histNext.setNextAssigner(taskCurrNext.getAssignUsers());
+//			histNext.setNextAssigner(taskCurrNext.getAssignUsers());//TODO: set assngiers
 		}
 		histService.insert(histNext);
 		prepareNextTask(histNext);
@@ -198,7 +203,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				inst.setWfStatus(WFConstants.WFStatus.DONE);
 				System.out.println("update instance to Done status");
 			}else{
-				currHist.setNextAssigner(taskNext.getAssignUsers());
+//				currHist.setNextAssigner(taskNext.getAssignUsers());//TODO: set assngiers
 				histService.updateById(currHist);
 			}
 			instService.updateById(inst);
@@ -244,4 +249,30 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		result.setConns(taskConnService.selectList(connParm));
 		return result;
 	}
+	
+	public void batchCreateTasksWithAssigners(List<WfTask> taskList){
+		List<WfTaskAssign> assignerAllList = new LinkedList<WfTaskAssign>();
+		for(WfTask task:taskList){
+			if(task.getAssignerList()!=null){
+				assignerAllList.addAll(task.getAssignerList());
+			}
+		}
+		this.insertBatch(taskList);
+		if(assignerAllList!=null && !assignerAllList.isEmpty()){
+			taskAssignerService.insertBatch(assignerAllList);
+		}
+	}
+	
+	public List<WfTask> selectTasksWithAssigners(String wfId){
+		WfTask parm = new WfTask();
+		parm.setWfId(wfId);
+		List<WfTask> taskList = this.selectList(parm);
+		if(taskList!=null){
+			for(WfTask task:taskList){
+				task.setAssignerList(taskAssignerService.selectTaskAssignerListWithName(task.getTaskId()));
+			}
+		}
+		return taskList;
+	}
+	
 }

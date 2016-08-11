@@ -26,4 +26,9 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 * @return
 	 */
 	public WFDetailVO getWFStatus(String instId);
+	
+	public void batchCreateTasksWithAssigners(List<WfTask> taskList);
+	
+	public List<WfTask> selectTasksWithAssigners(String wfId);
+	
 }

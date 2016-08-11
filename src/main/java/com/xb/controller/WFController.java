@@ -153,7 +153,6 @@ public class WFController extends BaseController {
 			System.out.println("viewWf4Module(): moduleId is empty");
 			return "";
 		}
-		System.out.println("=======moduleId="+moduleId+", =========wfId="+wfId);
 		if(wfId=="init"){
 			wfId = null;
 		}

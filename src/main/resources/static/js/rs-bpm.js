@@ -65,10 +65,10 @@ jsPlumb.ready(function () {
     // bind a click listener to each connection; the connection is deleted. you could of course
     // just do this: jsPlumb.bind("click", jsPlumb.detach), but I wanted to make it clear what was
     // happening.
-    instance.bind("click", function (c) {
+   /* instance.bind("dbclick", function (c) {
         console.log(c);
-        //instance.detach(c);
-    });
+        instance.detach(c);
+    });*/
 
     // this is the paint style for the connecting lines..
     var connectorPaintStyle = {
@@ -88,6 +88,19 @@ jsPlumb.ready(function () {
             fillStyle: "#216477",
             strokeStyle: "#216477"
         };
+
+    /**
+     * double click connection to remove it.
+     * @type {string}
+     */
+    var connectionClickTime = "";
+    instance.bind("click", function (c) {
+        if(connectionClickTime!="" && new Date().getTime()-connectionClickTime<200){
+            instance.detach(c);
+        }else{
+            connectionClickTime = new Date().getTime();
+        }
+    });
 
     instance.bind("connection", function (info) {
         var connection_id = info.connection.id;
@@ -161,8 +174,7 @@ jsPlumb.ready(function () {
         }
         d.style.left = node_.position.left + "px";
         d.style.top = node_.position.top + "px";
-        $(d).attr(RS_ATTR_ASSIGN_USERS, node_.assignUsers)
-            .attr(RS_ATTR_ASSIGN_GROUPS, node_.assignGroups)
+        $(d).attr(RS_ATTR_ASSIGNERS, JSON.stringify(node_.assigners))//TODO: replaced with RS_ATTR_ASSIGNERS
             .attr("rs-data-id", node_.id)
             .attr(RS_ATTR_TASK_TYPE,node_.rsType);
         $(d).dblclick(function(){
@@ -256,8 +268,13 @@ jsPlumb.ready(function () {
                 pos_.left = parseInt(pos_.left)+13;
             }
             task_json.descp = jqObj.text();
-            task_json.assignUsers = jqObj.attr(RS_ATTR_ASSIGN_USERS);
-            task_json.assignGroups = jqObj.attr(RS_ATTR_ASSIGN_GROUPS);
+            var assignerJSONStr = jqObj.attr(RS_ATTR_ASSIGNERS);
+            if(assignerJSONStr==undefined || assignerJSONStr==""){
+                assignerJSONStr = "[]";
+            }
+            task_json.assigners = $.parseJSON(assignerJSONStr);
+            console.log("task_json.assigners="+task_json.assigners)
+//            task_json.assignGroups = jqObj.attr(RS_ATTR_ASSIGN_GROUPS);
 
             var task_position = {
                 top:pos_.top,

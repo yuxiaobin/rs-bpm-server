@@ -12,6 +12,11 @@ public class WFConstants {
 		public static final String IN_PROCESS = "I";
 		public static final String DONE = "D";
 	}
+	
+	public static class TaskSelectAllFlag{
+		public static final String YES = "Y";
+		public static final String NO = "N";
+	}
 
 	public static enum TaskTypes {
 		S("S", "start-task"), E("E", "end-task"), U("U", "user-task"), C("C", "rs-cond-task");

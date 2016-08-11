@@ -89,20 +89,10 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 		JSONObject wfData = wfDetail.getWfData();
 		JSONArray tasksj = wfData.getJSONArray("tasks");
 		List<WfTask> taskList = WfDataUtil.generateTaskList(tasksj, wfId);
-		/*if(taskList!=null){
-			for(WfTask task:taskList){
-				wfTaskService.insert(task);
-			}
-		}*/
-		wfTaskService.insertBatch(taskList);
+		wfTaskService.batchCreateTasksWithAssigners(taskList);
 		
 		JSONArray connsj = wfData.getJSONArray("conns");
 		List<WfTaskConn> connList = WfDataUtil.generateTaskConnList(connsj, wfId, taskList);
-		/*if(connList!=null){
-			for(WfTaskConn conn:connList){
-				wfTaskConnService.insert(conn);
-			}
-		}*/
 		
 		wfTaskConnService.insertBatch(connList);
 	}
@@ -126,7 +116,6 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 		RsWorkflow parm = new RsWorkflow();
 		parm.setRsWfId(rsModule.getRsWfId());
 		rsWf = this.selectOne(parm);
-		
 		if (rsWf == null) {
 			return result;
 		}
@@ -146,12 +135,11 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 			wfDef = wfDefList.get(0);
 		}
 		result.setWfDef(wfDef);
-		WfTask taskParm = new WfTask();
-		taskParm.setWfId(wfDef.getWfId());
+		wfId = wfDef.getWfId();
 		WfTaskConn connParm = new WfTaskConn();
-		connParm.setWfId(wfDef.getWfId());
-		result.setTasks(wfTaskService.selectList(taskParm));
+		connParm.setWfId(wfId);
 		result.setConns(wfTaskConnService.selectList(connParm));
+		result.setTasks(wfTaskService.selectTasksWithAssigners(wfId));
 		return result;
 	}
 	

@@ -1,6 +1,7 @@
 package com.xb.persistent;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
@@ -47,14 +48,8 @@ public class WfTask extends CUBaseTO implements Serializable {
 	@TableField(value = "POS_LEFT")
 	private Double posLeft;
 
-	/**  */
-	@TableField(value = "ASSIGN_USERS")
-	private String assignUsers;
-
-	/**  */
-	@TableField(value = "ASSIGN_GROUPS")
-	private String assignGroups;
-
+	@TableField(exist = false)
+	private List<WfTaskAssign> assignerList;
 	/**
 	 * 用来标识是否该task被执行过
 	 */
@@ -138,27 +133,19 @@ public class WfTask extends CUBaseTO implements Serializable {
 		this.posLeft = posLeft;
 	}
 
-	public String getAssignUsers() {
-		return this.assignUsers;
+	public List<WfTaskAssign> getAssignerList() {
+		return assignerList;
 	}
 
-	public void setAssignUsers(String assignUsers) {
-		this.assignUsers = assignUsers;
-	}
-
-	public String getAssignGroups() {
-		return this.assignGroups;
-	}
-
-	public void setAssignGroups(String assignGroups) {
-		this.assignGroups = assignGroups;
+	public void setAssignerList(List<WfTaskAssign> assignerList) {
+		this.assignerList = assignerList;
 	}
 
 	@Override
 	public String toString() {
 		return "WfTask [taskId=" + taskId + ", wfId=" + wfId + ", taskPgId=" + taskPgId + ", taskType=" + taskType
-				+ ", taskDescp=" + taskDescp + ", posTop=" + posTop + ", posLeft=" + posLeft + ", assignUsers="
-				+ assignUsers + ", assignGroups=" + assignGroups + "]";
+				+ ", taskDescp=" + taskDescp + ", posTop=" + posTop + ", posLeft=" + posLeft + ", processedFlag="
+				+ processedFlag + "]";
 	}
 
 	
