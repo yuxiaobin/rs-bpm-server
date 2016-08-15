@@ -62,14 +62,18 @@ angular.module('taskApp', [ ])
                             }else{
                                 item.defSelModTxt = $scope.defSelModTxt_no;
                             }
-                        })
+                        });
+
                     },500);
                 }
             })
         });
+        $scope.task = taskData;
+        $scope.TX_CHOICES = taskData.TX_CHOICES;//to avoid data convert issue when save
 
         $scope.updateTaskProperties = function(){
-            taskData.taskDescp = $("#taskDescpId").val();
+            taskData.taskDescp = $("#taskDescp").val();
+            taskData.taskDescpDisp = $("#taskDescpDisp").val();
             var assigns = [];
             angular.forEach($scope.assignerList,function(item, index){
                 var assigner = {};
@@ -82,6 +86,20 @@ angular.module('taskApp', [ ])
                assigns.push(assigner);
             });
             taskData.assigners = assigns;
+            //
+            taskData.txCode = $scope.task.txCode;
+            taskData.txType = $("#txType").attr("rs-attr-txType");
+            taskData.buzStatus = $("#buzStatus").attr("rs-attr-buzStatus");
+            taskData.timeLimit =  $scope.task.timeLimit;
+            taskData.timeLimitTp = $("#timeLimitTp").attr("rs-attr-timeLimitTp");
+            taskData.alarmTime = $scope.task.alarmTime;
+            taskData.alarmTimeTp = $("#alarmTimeTp").attr("rs-attr-alarmTimeTp");
+            taskData.moduleId = $scope.task.moduleId;
+            taskData.runParam = $scope.task.runParam;
+            taskData.TX_CHOICES = $scope.TX_CHOICES;
+            taskData.TX_PR_CHOICES = $scope.task.TX_PR_CHOICES;
+            taskData.TX_BK_CHOICES = $scope.task.TX_BK_CHOICES;
+            taskData.SIGN_CHOICES = $scope.task.SIGN_CHOICES;
             taskData.opt = "U";
             window.parent.postMessage(JSON.stringify(taskData), '*');
             $("#successMsg").css("display","");

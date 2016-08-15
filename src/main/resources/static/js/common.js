@@ -6,3 +6,7 @@ var RS_ATTR_ASSIGNERS = "rs-data-assigners";
 var RS_ATTR_ASSIGN_USERS = "rs-data-assign-users";
 var RS_ATTR_ASSIGN_GROUPS = "rs-data-assign-groups";
 var RS_ATTR_TASK_TYPE = "rs-data-type";
+var RS_ATTR_TX_CHOICES = "TX_CHOICES";
+var RS_ATTR_TX_PR_CHOICES = "TX_PR_CHOICES";
+var RS_ATTR_TX_BK_CHOICES = "TX_BK_CHOICES";
+var RS_ATTR_SIGN_CHOICES = "SIGN_CHOICES";

@@ -53,6 +53,14 @@
     </div><!-- /.modal -->
 </div>
 
+<ul id="connMenu" class="contextMenu">
+    <li class=""><a href="#edit">Edit</a></li>
+    <li class=""><a href="#delete">Delete</a></li>
+</ul>
+<ul id="activityMenu" class="contextMenu">
+    <li class=""><a href="#edit">Edit</a></li>
+    <li class=""><a href="#delete">Delete</a></li>
+</ul>
 <!-- JS -->
 <!-- support lib for bezier stuff -->
 <script src="${base.contextPath}/static/js/lib/jsBezier-0.8.js"></script>
@@ -98,7 +106,7 @@
 <script src="${base.contextPath}/static/js/bootstrap.js"></script>
 <script src="${base.contextPath}/static/js/jquery-ui.js"></script>
 <!--<script src="${base.contextPath}/static/js/jquery.ui.dialog.js"></script>-->
-<!--<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>-->
+<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>
 <!--  demo code -->
 <script src="${base.contextPath}/static/js/common.js"></script>
 <script src="${base.contextPath}/static/js/rs-bpm.js"></script>
@@ -109,28 +117,73 @@
         var parmJson = {};
         var el = $("#"+id_);
         parmJson.taskPgId = el.attr("id");;
-        parmJson.taskDescp = el.text();
+        parmJson.taskDescpDisp = el.text();
         var assignersStr = el.attr(RS_ATTR_ASSIGNERS);
         if(assignersStr==undefined || assignersStr==""){
             assignersStr = "[]";
         }
         parmJson.assigners = $.parseJSON(assignersStr);
         parmJson.taskType = el.attr(RS_ATTR_TASK_TYPE);
+        var tx_choices_str = el.attr(RS_ATTR_TX_CHOICES);
+        if(tx_choices_str == undefined || tx_choices_str==""){
+            tx_choices_str = "{}";
+        }
+        parmJson.TX_CHOICES = $.parseJSON(tx_choices_str);
+        var tx_pr_choices_str = el.attr(RS_ATTR_TX_PR_CHOICES);
+        if(tx_pr_choices_str == undefined || tx_pr_choices_str==""){
+            tx_pr_choices_str = "{}";
+        }
+        parmJson.TX_PR_CHOICES = $.parseJSON(tx_pr_choices_str);
+        var tx_bk_choices_str = el.attr(RS_ATTR_TX_BK_CHOICES);
+        if(tx_bk_choices_str == undefined || tx_bk_choices_str==""){
+            tx_bk_choices_str = "{}";
+        }
+        parmJson.TX_BK_CHOICES = $.parseJSON(tx_bk_choices_str);
+        var sign_choices_str = el.attr(RS_ATTR_SIGN_CHOICES);
+        if(sign_choices_str == undefined || sign_choices_str==""){
+            sign_choices_str = "{}";
+        }
+        parmJson.SIGN_CHOICES = $.parseJSON(sign_choices_str);
+        parmJson.txCode		=el.attr("txCode");
+        parmJson.txType		=el.attr("txType");
+        parmJson.buzStatus	=el.attr("buzStatus");
+        parmJson.timeLimit	=el.attr("timeLimit");
+        parmJson.timeLimitTp=el.attr("timeLimitTp");
+        parmJson.alarmTime	=el.attr("alarmTime");
+        parmJson.alarmTimeTp=el.attr("alarmTimeTp");
+        parmJson.moduleId	=el.attr("moduleId");
+        parmJson.runParam	=el.attr("runParam");
+        parmJson.taskDescp	=el.attr("taskDescp");
         parmJsonStr = JSON.stringify(parmJson);
         $('iframe').attr("src",basePath+"/wf/admin/task?taskData="+parmJsonStr);
-        $('#myModal').modal();
+        $('#myModal').modal({backdrop:false});
     }
     window.addEventListener('message', receiveMessage, false);
     function receiveMessage(evt) {
         console.log("got message from child page:"+evt.data);
         var taskData = $.parseJSON(evt.data);
         if(taskData.opt=="U"){
-            $("#"+taskData.taskPgId).attr(RS_ATTR_ASSIGNERS, JSON.stringify(taskData.assigners));
+            $("#"+taskData.taskPgId).attr(RS_ATTR_ASSIGNERS, JSON.stringify(taskData.assigners))
+                    .attr(RS_ATTR_TX_CHOICES,JSON.stringify(taskData.TX_CHOICES))
+                    .attr(RS_ATTR_TX_PR_CHOICES,JSON.stringify(taskData.TX_PR_CHOICES))
+                    .attr(RS_ATTR_TX_BK_CHOICES,JSON.stringify(taskData.TX_BK_CHOICES))
+                    .attr(RS_ATTR_SIGN_CHOICES,JSON.stringify(taskData.SIGN_CHOICES))
+                    .attr("txCode",taskData.txCode)
+                    .attr("txType",taskData.txType)
+                    .attr("buzStatus",taskData.buzStatus)
+                    .attr("timeLimit",taskData.timeLimit)
+                    .attr("timeLimitTp",taskData.timeLimitTp)
+                    .attr("alarmTime",taskData.alarmTime)
+                    .attr("alarmTimeTp",taskData.alarmTimeTp)
+                    .attr("moduleId",taskData.moduleId)
+                    .attr("runParam",taskData.runParam)
+                    .attr("taskDescp",taskData.taskDescp)
+            ;
             if(RS_TYPE_CONDITION==taskData.taskType){
-                $("#"+taskData.taskPgId +" .task-descp").html(taskData.taskDescp);
+                $("#"+taskData.taskPgId +" .task-descp").html(taskData.taskDescpDisp);
             }else{
                 $("#"+taskData.taskPgId)
-                        .html(taskData.taskDescp+"<div class=\"ep\"></div>");
+                        .html(taskData.taskDescpDisp+"<div class=\"ep\"></div>");
             }
         }else if(taskData.opt=="D"){
             window.jsp.remove(taskData.taskPgId);

@@ -11,7 +11,6 @@ import org.springframework.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.common.WFConstants;
-import com.xb.common.WFConstants.TaskTypes;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskAssign;
 import com.xb.persistent.WfTaskConn;
@@ -44,7 +43,8 @@ public class WfDataUtil {
 			record = new JSONObject();
 			record.put("pgId", task.getTaskPgId());
 			record.put("rsType", WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
-			record.put("descp", task.getTaskDescp());
+			record.put("taskDescp", task.getTaskDescp());
+			record.put("taskDescpDisp", task.getTaskDescpDisp());
 			record.put("id", task.getTaskId());
 //			record.put("assignUsers", task.getAssignUsers());
 //			record.put("assignGroups", task.getAssignGroups());
@@ -88,6 +88,20 @@ public class WfDataUtil {
 				status = "PROC";
 			}
 			record.put("status", status);
+			record.put("txCode", task.getTxCode());
+			record.put("txType", task.getTxType());
+			record.put("buzStatus", task.getBuzStatus());
+			record.put("timeLimit", task.getTimeLimit());
+			record.put("timeLimitTp", task.getTimeLimitTp());
+			record.put("alarmTime", task.getAlarmTime());
+			record.put("alarmTimeTp", task.getAlarmTimeTp());
+			record.put("moduleId", task.getModuleId());
+			record.put("runParam", task.getRunParam());
+			//json data below
+			record.put("TX_CHOICES", JSONObject.parse(task.getTxChoices()));
+			record.put("TX_PR_CHOICES", JSONObject.parse(task.getTxPrChoices()));
+			record.put("TX_BK_CHOICES", JSONObject.parse(task.getTxBkChoices()));
+			record.put("SIGN_CHOICES", JSONObject.parse(task.getSignChoices()));
 			array.add(record);
 		}
 		return array;
@@ -142,7 +156,7 @@ public class WfDataUtil {
 			task.setWfId(wfId);
 			task.setTaskPgId(taskj.getString("id"));
 			task.setTaskType(WFConstants.parse2Code(taskj.getString("rsType")));
-			task.setTaskDescp(taskj.getString("descp"));
+			task.setTaskDescp(taskj.getString("taskDescp"));
 			JSONObject pos = taskj.getJSONObject("position");
 			task.setPosTop(Double.valueOf(pos.getString("top")));
 			task.setPosLeft(Double.valueOf(pos.getString("left")));
@@ -165,6 +179,21 @@ public class WfDataUtil {
 				}
 				task.setAssignerList(assignerList);
 			}
+			task.setTxCode(taskj.getString("txCode"));
+			task.setTxType(taskj.getString("txType"));
+			task.setBuzStatus(taskj.getString("buzStatus"));
+			task.setTimeLimit(taskj.getInteger("timeLimit"));
+			task.setTimeLimitTp(taskj.getString("timeLimitTp"));
+			task.setAlarmTime(taskj.getInteger("alarmTime"));
+			task.setAlarmTimeTp(taskj.getString("alarmTimeTp"));
+			task.setModuleId(taskj.getString("moduleId"));
+			task.setRunParam(taskj.getString("runParam"));
+			task.setTaskDescpDisp(taskj.getString("taskDescpDisp"));
+			task.setTxChoices(taskj.getString("TX_CHOICES"));
+			task.setTxPrChoices(taskj.getString("TX_PR_CHOICES"));
+			task.setTxBkChoices(taskj.getString("TX_BK_CHOICES"));
+			task.setSignChoices(taskj.getString("SIGN_CHOICES"));
+			
 			taskList.add(task);
 		}
 		return taskList;

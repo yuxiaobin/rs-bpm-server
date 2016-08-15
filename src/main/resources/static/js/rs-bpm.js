@@ -24,7 +24,7 @@ jsPlumb.ready(function () {
             var pos_y = trans4ContainerPos.y-task_height/2;
             var clone_div = $(ui.draggable).clone();
             var rs_type = clone_div.attr(RS_ATTR_TASK_TYPE);
-            var userNode = {pgId:new Date().getTime(),rsType:rs_type,descp:clone_div.text(), position:{top:pos_y,left:pos_x}};
+            var userNode = {pgId:new Date().getTime(),rsType:rs_type,taskDescpDisp:clone_div.text(), position:{top:pos_y,left:pos_x}};
             newNodeById(userNode);
         }
     });
@@ -105,7 +105,22 @@ jsPlumb.ready(function () {
     instance.bind("connection", function (info) {
         var connection_id = info.connection.id;
         var connection_label = info.connection.getOverlay("label").getElement();
+//        $(connection_label).attr("connection_id",info.connection.id)
         $(connection_label).attr("connection_id",info.connection.id)
+            .contextMenu({
+            menu: 'connMenu'
+            },
+            function(action, el, pos) {
+                var id_ = $(el).attr("id");
+                if (action == 'edit') {
+                    console.log("edit");
+                    editCondition(id_);
+                }
+                else if (action == 'delete') {
+                    var removeItem = $(el).attr("connection_id");
+                    instance.detach(info);
+                }
+            });
         var con_source = info.source;
         var sourceNodeConnections = $.grep(instance.getAllConnections(), function(value) {
             return value.sourceId == con_source.id;
@@ -168,26 +183,52 @@ jsPlumb.ready(function () {
         d.className = "w "+node_.rsType;
         d.id = node_.pgId;
         if(node_.rsType==RS_TYPE_CONDITION){
-            d.innerHTML = "<div class='task-descp'>"+node_.descp + "</div><div class=\"ep\"></div>";
+            d.innerHTML = "<div class='task-descp'>"+node_.taskDescpDisp + "</div><div class=\"ep\"></div>";
         }else{
-            d.innerHTML = node_.descp + "<div class=\"ep\"></div>";
+            d.innerHTML = node_.taskDescpDisp + "<div class=\"ep\"></div>";
         }
         d.style.left = node_.position.left + "px";
         d.style.top = node_.position.top + "px";
-        $(d).attr(RS_ATTR_ASSIGNERS, JSON.stringify(node_.assigners))//TODO: replaced with RS_ATTR_ASSIGNERS
+        $(d).attr(RS_ATTR_ASSIGNERS, JSON.stringify(node_.assigners))
             .attr("rs-data-id", node_.id)
-            .attr(RS_ATTR_TASK_TYPE,node_.rsType);
+            .attr(RS_ATTR_TASK_TYPE,node_.rsType)
+            .attr(RS_ATTR_TX_CHOICES,JSON.stringify(node_.TX_CHOICES))
+            .attr(RS_ATTR_TX_PR_CHOICES,JSON.stringify(node_.TX_PR_CHOICES))
+            .attr(RS_ATTR_TX_BK_CHOICES,JSON.stringify(node_.TX_BK_CHOICES))
+            .attr(RS_ATTR_SIGN_CHOICES,JSON.stringify(node_.SIGN_CHOICES))
+            .attr("txCode",node_.txCode)
+            .attr("txType",node_.txType)
+            .attr("buzStatus",node_.buzStatus)
+            .attr("timeLimit",node_.timeLimit)
+            .attr("timeLimitTp",node_.timeLimitTp)
+            .attr("alarmTime",node_.alarmTime)
+            .attr("alarmTimeTp",node_.alarmTimeTp)
+            .attr("moduleId",node_.moduleId)
+            .attr("runParam",node_.runParam)
+            .attr("taskDescp",node_.taskDescp)
+        ;
         $(d).dblclick(function(){
             editTask($(this).attr("id"));
         });
+        $(d).contextMenu({
+            menu: 'activityMenu'
+        }, function(action, el, pos) {
+            var id_ = $(el).attr("id");
+            if (action == 'edit') {
+                editTask(id_);
+            }
+            else if (action == 'delete') {
+                instance.remove(id_);
+            }
+        })
         instance.getContainer().appendChild(d);
         initNode(d);
         return d;
     };
 
     var initEmptyWF = function(){
-        var startNode = {pgId:RS_TYPE_START,rsType:RS_TYPE_START,descp:"Start Node", position:{top:70,left:350}};
-        var endNode = {rsType:RS_TYPE_END,rsType:RS_TYPE_END,descp:"End Node", position:{top:370,left:350}};
+        var startNode = {pgId:RS_TYPE_START,rsType:RS_TYPE_START,taskDescpDisp:"Start Node", position:{top:70,left:350}};
+        var endNode = {rsType:RS_TYPE_END,rsType:RS_TYPE_END,taskDescpDisp:"End Node", position:{top:370,left:350}};
         newNodeById(startNode);
         newNodeById(endNode);
     }
@@ -267,20 +308,50 @@ jsPlumb.ready(function () {
                 pos_.top = parseInt(pos_.top)+13;// add for rotation divide issue
                 pos_.left = parseInt(pos_.left)+13;
             }
-            task_json.descp = jqObj.text();
+            task_json.descpDisp = jqObj.text();
             var assignerJSONStr = jqObj.attr(RS_ATTR_ASSIGNERS);
             if(assignerJSONStr==undefined || assignerJSONStr==""){
                 assignerJSONStr = "[]";
             }
             task_json.assigners = $.parseJSON(assignerJSONStr);
             console.log("task_json.assigners="+task_json.assigners)
-//            task_json.assignGroups = jqObj.attr(RS_ATTR_ASSIGN_GROUPS);
 
             var task_position = {
                 top:pos_.top,
                 left:pos_.left
             };
             task_json.position = pos_;
+            //TODO: new properties to be added
+            task_json.txCode = jqObj.attr("txCode");
+            task_json.txType = jqObj.attr("txType");
+            task_json.buzStatus = jqObj.attr("buzStatus");
+            task_json.timeLimit = jqObj.attr("timeLimit");
+            task_json.timeLimitTp = jqObj.attr("timeLimitTp");
+            task_json.alarmTime = jqObj.attr("alarmTime");
+            task_json.alarmTimeTp = jqObj.attr("alarmTimeTp");
+            task_json.moduleId = jqObj.attr("moduleId");
+            task_json.runParam = jqObj.attr("runParam");
+            task_json.taskDescp = jqObj.attr("taskDescp");
+            var txChoicesStr = jqObj.attr(RS_ATTR_TX_CHOICES);
+            if(txChoicesStr==undefined || txChoicesStr==""){
+                txChoicesStr = "{}";
+            }
+            task_json.TX_CHOICES = $.parseJSON(txChoicesStr);
+            var txPrChoicesStr = jqObj.attr(RS_ATTR_TX_PR_CHOICES);
+            if(txPrChoicesStr==undefined || txPrChoicesStr==""){
+                txPrChoicesStr = "{}";
+            }
+            task_json.TX_PR_CHOICES = $.parseJSON(txPrChoicesStr);
+            var txBkChoicesStr = jqObj.attr(RS_ATTR_TX_BK_CHOICES);
+            if(txBkChoicesStr==undefined || txBkChoicesStr==""){
+                txBkChoicesStr = "{}";
+            }
+            task_json.TX_BK_CHOICES = $.parseJSON(txBkChoicesStr);
+            var signChoicesStr = jqObj.attr(RS_ATTR_SIGN_CHOICES);
+            if(signChoicesStr==undefined || signChoicesStr==""){
+                signChoicesStr = "{}";
+            }
+            task_json.SIGN_CHOICES = $.parseJSON(signChoicesStr);
             save_tasks[save_tasks.length] = task_json;
         });
         save_data.tasks = save_tasks;

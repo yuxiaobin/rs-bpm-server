@@ -48,6 +48,62 @@ public class WfTask extends CUBaseTO implements Serializable {
 	@TableField(value = "POS_LEFT")
 	private Double posLeft;
 
+
+/**  */
+	@TableField(value = "TX_CODE")
+	private String txCode;
+
+	/**  */
+	@TableField(value = "TX_TYPE")
+	private String txType;
+
+	/**  */
+	@TableField(value = "BUZ_STATUS")
+	private String buzStatus;
+
+	/**  */
+	@TableField(value = "TIME_LIMIT")
+	private Integer timeLimit;
+
+	/**  */
+	@TableField(value = "TIME_LIMIT_TP")
+	private String timeLimitTp;
+
+	/**  */
+	@TableField(value = "ALARM_TIME")
+	private Integer alarmTime;
+
+	/**  */
+	@TableField(value = "ALARM_TIME_TP")
+	private String alarmTimeTp;
+
+	/**  */
+	@TableField(value = "MODULE_ID")
+	private String moduleId;
+
+	/**  */
+	@TableField(value = "Run_Param")
+	private String runParam;
+
+	/**  */
+	@TableField(value = "TASK_DESCP_DISP")
+	private String taskDescpDisp;
+
+	/**  */
+	@TableField(value = "TX_CHOICES")
+	private String txChoices;
+
+	/**  */
+	@TableField(value = "TX_PR_CHOICES")
+	private String txPrChoices;
+
+	/**  */
+	@TableField(value = "TX_BK_CHOICES")
+	private String txBkChoices;
+
+	/**  */
+	@TableField(value = "SIGN_CHOICES")
+	private String signChoices;
 	@TableField(exist = false)
 	private List<WfTaskAssign> assignerList;
 	/**
@@ -141,13 +197,128 @@ public class WfTask extends CUBaseTO implements Serializable {
 		this.assignerList = assignerList;
 	}
 
+	public String getTxCode() {
+		return txCode;
+	}
+
+	public void setTxCode(String txCode) {
+		this.txCode = txCode;
+	}
+
+	public String getTxType() {
+		return txType;
+	}
+
+	public void setTxType(String txType) {
+		this.txType = txType;
+	}
+
+	public String getBuzStatus() {
+		return buzStatus;
+	}
+
+	public void setBuzStatus(String buzStatus) {
+		this.buzStatus = buzStatus;
+	}
+
+	public Integer getTimeLimit() {
+		return timeLimit;
+	}
+
+	public void setTimeLimit(Integer timeLimit) {
+		this.timeLimit = timeLimit;
+	}
+
+	public String getTimeLimitTp() {
+		return timeLimitTp;
+	}
+
+	public void setTimeLimitTp(String timeLimitTp) {
+		this.timeLimitTp = timeLimitTp;
+	}
+
+	public Integer getAlarmTime() {
+		return alarmTime;
+	}
+
+	public void setAlarmTime(Integer alarmTime) {
+		this.alarmTime = alarmTime;
+	}
+
+	public String getAlarmTimeTp() {
+		return alarmTimeTp;
+	}
+
+	public void setAlarmTimeTp(String alarmTimeTp) {
+		this.alarmTimeTp = alarmTimeTp;
+	}
+
+	public String getModuleId() {
+		return moduleId;
+	}
+
+	public void setModuleId(String moduleId) {
+		this.moduleId = moduleId;
+	}
+
+	public String getRunParam() {
+		return runParam;
+	}
+
+	public void setRunParam(String runParam) {
+		this.runParam = runParam;
+	}
+
+	public String getTaskDescpDisp() {
+		return taskDescpDisp;
+	}
+
+	public void setTaskDescpDisp(String taskDescpDisp) {
+		this.taskDescpDisp = taskDescpDisp;
+	}
+
+	public String getTxChoices() {
+		return txChoices;
+	}
+
+	public void setTxChoices(String txChoices) {
+		this.txChoices = txChoices;
+	}
+
+	public String getTxPrChoices() {
+		return txPrChoices;
+	}
+
+	public void setTxPrChoices(String txPrChoices) {
+		this.txPrChoices = txPrChoices;
+	}
+
+	public String getTxBkChoices() {
+		return txBkChoices;
+	}
+
+	public void setTxBkChoices(String txBkChoices) {
+		this.txBkChoices = txBkChoices;
+	}
+
+	public String getSignChoices() {
+		return signChoices;
+	}
+
+	public void setSignChoices(String signChoices) {
+		this.signChoices = signChoices;
+	}
+
 	@Override
 	public String toString() {
 		return "WfTask [taskId=" + taskId + ", wfId=" + wfId + ", taskPgId=" + taskPgId + ", taskType=" + taskType
-				+ ", taskDescp=" + taskDescp + ", posTop=" + posTop + ", posLeft=" + posLeft + ", processedFlag="
-				+ processedFlag + "]";
+				+ ", taskDescp=" + taskDescp + ", posTop=" + posTop + ", posLeft=" + posLeft + ", txCode=" + txCode
+				+ ", txType=" + txType + ", buzStatus=" + buzStatus + ", timeLimit=" + timeLimit + ", timeLimitTp="
+				+ timeLimitTp + ", alarmTime=" + alarmTime + ", alarmTimeTp=" + alarmTimeTp + ", moduleId=" + moduleId
+				+ ", runParam=" + runParam + ", taskDescpDisp=" + taskDescpDisp + ", txChoices=" + txChoices
+				+ ", txPrChoices=" + txPrChoices + ", txBkChoices=" + txBkChoices + ", signChoices=" + signChoices
+				+ ", processedFlag=" + processedFlag + ", currTaskId=" + currTaskId + "]";
 	}
-
 	
-
+	
 }

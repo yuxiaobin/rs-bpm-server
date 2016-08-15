@@ -75,9 +75,9 @@ jsPlumb.ready(function () {
         }
         d.id = node_.pgId;
         if(node_.rsType==RS_TYPE_CONDITION){
-            d.innerHTML = "<div class='task-descp'>"+node_.descp + "</div>";//<div class=\"ep\"></div>
+            d.innerHTML = "<div class='task-descp'>"+node_.taskDescpDisp + "</div>";//<div class=\"ep\"></div>
         }else{
-            d.innerHTML = node_.descp;// + "<div class=\"ep\"></div>"
+            d.innerHTML = node_.taskDescpDisp;// + "<div class=\"ep\"></div>"
         }
         d.style.left = node_.position.left + "px";
         d.style.top = node_.position.top + "px";
