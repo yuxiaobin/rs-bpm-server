@@ -76,19 +76,31 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		if (rsModule == null) {
 			return;
 		}
-		if (StringUtils.isEmpty(rsModule.getRsWfId())) {
+		String rsWfId = rsModule.getRsWfId();
+		if (StringUtils.isEmpty(rsWfId)) {
 			return;
 		}
 		WfDef wfDefParm = new WfDef();
-		wfDefParm.setRsWfId(rsModule.getRsWfId());
+		wfDefParm.setRsWfId(rsWfId);
 		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
 		if (wfDefList == null || wfDefList.isEmpty()) {
 			return;
 		}
 		String wfId = wfDefList.get(0).getWfId();
+		WfInstance instParm = new WfInstance();
+		instParm.setRsWfId(rsWfId);
+		List<WfInstance> instList4RsWfId = instService.selectList(instParm, "INST_NUM desc");
+		int instNumCurr = 1;
+		if(instList4RsWfId!=null && !instList4RsWfId.isEmpty()){
+			instNumCurr = instList4RsWfId.get(0).getInstNum()+1;
+		}
+		
 		WfInstance wfInst = new WfInstance();
 		wfInst.setWfId(wfId);
 		wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
+		wfInst.setRsWfId(rsWfId);
+		wfInst.setInstNum(instNumCurr);
+		instService.insert(wfInst);
 		
 		WfTask taskParm = new WfTask();
 		taskParm.setWfId(wfId);
@@ -100,7 +112,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				break;
 			}
 		}
-		instService.insert(wfInst);
 		//待办事宜
 		WfAwt awt = new WfAwt();
 		awt.setAssignerId(currUserId);
