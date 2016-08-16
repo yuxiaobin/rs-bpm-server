@@ -178,6 +178,7 @@
                     .attr("moduleId",taskData.moduleId)
                     .attr("runParam",taskData.runParam)
                     .attr("taskDescp",taskData.taskDescp)
+                    .attr("taskDescpDisp",taskData.taskDescpDisp)
             ;
             if(RS_TYPE_CONDITION==taskData.taskType){
                 $("#"+taskData.taskPgId +" .task-descp").html(taskData.taskDescpDisp);

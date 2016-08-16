@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.persistent.RsModule;
+import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfDef;
 import com.xb.persistent.WfInstance;
 import com.xb.service.IRsModuleService;
@@ -28,7 +29,6 @@ import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
 import com.xb.utils.WfDataUtil;
 import com.xb.vo.ModuleVO;
-import com.xb.vo.TaskVO;
 import com.xb.vo.WFDetailVO;
 
 @Controller
@@ -63,50 +63,12 @@ public class WFController extends BaseController {
 	public String viewWf(@PathVariable String roleName, HttpSession session){
 		session.setAttribute(SESSION_USERINFO,roleName);
 		if("admin".equals(roleName)){
-			return "redirect:/wf/admin/modules";
+			return "redirect:/wfadmin/admin/modules";
 		}
 		return "wf-"+roleName;
 	}
 	
-	@RequestMapping("/admin/modules")
-	public String home(HttpSession session){
-		String userId = (String) session.getAttribute(SESSION_USERINFO);
-		if(userId==null){
-			session.setAttribute(SESSION_USERINFO,"system");
-		}
-		return "wf-modules";
-	}
 	
-//	@RequestMapping("/index/{userId}")
-//	public String userIndex(@PathVariable String userId, HttpSession session){
-//		session.setAttribute(SESSION_USERINFO,userId);
-//		return "wf-index";
-//	}
-	
-	@RequestMapping(value="/admin/module",method=RequestMethod.POST )
-	@ResponseBody
-	public Object createModule(@RequestBody ModuleVO moduleVO){
-		RsModule module = new RsModule();
-		module.setNAME(moduleVO.getModuleName());
-		module.setCreatedBy("system");
-		module.setCreatedDt(new Date());
-		moduleService.insert(module);
-		moduleVO.setModuleId(String.valueOf(module.getModId()));
-		return moduleVO;
-	}
-	
-	@RequestMapping(value="/modules/list",method=RequestMethod.GET )
-	@ResponseBody
-	public Object getAllModules(){
-		RsModule parm = new RsModule();
-//		Page<RsModule> page = new Page<>(0, 100);
-		JSONObject page = new JSONObject();
-		List<RsModule> list = moduleService.selectList(parm);
-		page.put("records", list);
-//		page.setRecords(list);
-//		page.setTotal(list.size());
-		return page;
-	}
 	
 	@RequestMapping(value="/modules/listall",method=RequestMethod.GET )
 	@ResponseBody
@@ -132,19 +94,6 @@ public class WFController extends BaseController {
 		return page;
 	}
 	
-	@RequestMapping("/admin/define/{moduleId}")
-	public String viewWf4Module(@PathVariable String moduleId, HttpSession session, HttpServletRequest req){
-		if(StringUtils.isEmpty(moduleId)){
-			System.out.println("viewWf4Module(): moduleId is empty");
-			return "";
-		}
-		RsModule moduleParm = new RsModule();
-		moduleParm.setModId(moduleId);
-		RsModule module = moduleService.selectOne(moduleParm);
-		session.setAttribute("moduleId", moduleId);
-		req.setAttribute("moduleName", module.getNAME());
-		return "wf-define";
-	}
 	
 	@RequestMapping(value="/module/{moduleId}/wf/{wfId}",method=RequestMethod.GET )
 	@ResponseBody
@@ -160,20 +109,6 @@ public class WFController extends BaseController {
 		result.put("role", session.getAttribute(SESSION_USERINFO));
 		return result;
 	}
-	
-	@RequestMapping(value="/admin/module/{moduleId}/wf",method=RequestMethod.POST )
-	@ResponseBody
-	public Object createWF(@PathVariable String moduleId, @RequestBody JSONObject wfData){
-		System.out.println(wfData);
-		ModuleVO module = new ModuleVO();
-		module.setModuleId(moduleId);
-		module.setModuleName("moduleName:TODO");//TODO:
-		WFDetailVO wfDetail = new WFDetailVO();
-		wfDetail.setWfData(wfData);
-		wfService.createWF4Module(module, wfDetail);
-		return wfData;
-	}
-	
 	
 	
 	/************staff view only********************/
@@ -235,7 +170,8 @@ public class WFController extends BaseController {
 		if(userId==null){
 			userId = "system";
 		}
-		List<TaskVO> taskvList = taskService.getTasksInbox(userId);
+		List<WfAwt> taskvList = taskService.getTasksInbox(userId);//TODO:
+		//TODO: data format changed
 		JSONObject result = new JSONObject();
 		result.put("records", taskvList);
 		return result;
@@ -263,7 +199,7 @@ public class WFController extends BaseController {
 		return "wf-view";
 	}
 	
-	@RequestMapping(value="/history/{instId}", method=RequestMethod.POST )
+	/*@RequestMapping(value="/history/{instId}", method=RequestMethod.POST )
 	@ResponseBody
 	public Object updateTaskHist(@PathVariable String instId,@RequestBody JSONObject obj, HttpSession session){
 		String userId = (String) session.getAttribute(SESSION_USERINFO);
@@ -272,7 +208,7 @@ public class WFController extends BaseController {
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
 		return result;
-	}
+	}*/
 	
 	@RequestMapping(value="/inbox" )
 	public String viewInbox(HttpSession session){

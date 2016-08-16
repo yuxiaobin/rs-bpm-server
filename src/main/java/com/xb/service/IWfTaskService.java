@@ -3,8 +3,8 @@ package com.xb.service;
 import java.util.List;
 
 import com.baomidou.framework.service.ICommonService;
+import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfTask;
-import com.xb.vo.TaskVO;
 import com.xb.vo.WFDetailVO;
 
 /**
@@ -14,7 +14,7 @@ import com.xb.vo.WFDetailVO;
  */
 public interface IWfTaskService extends ICommonService<WfTask> {
 	
-	public List<TaskVO> getTasksInbox(String userId);
+	public List<WfAwt> getTasksInbox(String userId);
 	
 	public void startWF4Module(String moduleId,String userId);
 	

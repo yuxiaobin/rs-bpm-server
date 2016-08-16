@@ -206,6 +206,7 @@ jsPlumb.ready(function () {
             .attr("moduleId",node_.moduleId)
             .attr("runParam",node_.runParam)
             .attr("taskDescp",node_.taskDescp)
+            .attr("taskDescpDisp",node_.taskDescpDisp)
         ;
         $(d).dblclick(function(){
             editTask($(this).attr("id"));
@@ -332,6 +333,7 @@ jsPlumb.ready(function () {
             task_json.moduleId = jqObj.attr("moduleId");
             task_json.runParam = jqObj.attr("runParam");
             task_json.taskDescp = jqObj.attr("taskDescp");
+            task_json.taskDescpDisp = jqObj.attr("taskDescpDisp");
             var txChoicesStr = jqObj.attr(RS_ATTR_TX_CHOICES);
             if(txChoicesStr==undefined || txChoicesStr==""){
                 txChoicesStr = "{}";
@@ -361,7 +363,7 @@ jsPlumb.ready(function () {
         $.ajax(
             {
                 type: "POST",
-                url: basePath+"/wf/admin/module/"+moduleId+"/wf",
+                url: basePath+"/wfadmin/module/"+moduleId+"/wf",
                 data:json_str,
                 headers: { 'Content-Type': "application/json" },
                 success: function (msg) {

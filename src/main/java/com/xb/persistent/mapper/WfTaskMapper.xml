@@ -4,7 +4,7 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 TASK_ID AS taskId, WF_ID AS wfId, TASK_PG_ID AS taskPgId, TASK_TYPE AS taskType, TASK_DESCP AS taskDescp, POS_TOP AS posTop, POS_LEFT AS posLeft, ASSIGN_USERS AS assignUsers, ASSIGN_GROUPS AS assignGroups, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+		 TASK_ID AS taskId, WF_ID AS wfId, TASK_PG_ID AS taskPgId, TASK_TYPE AS taskType, TASK_DESCP AS taskDescp, POS_TOP AS posTop, POS_LEFT AS posLeft, ASSIGN_USERS AS assignUsers, ASSIGN_GROUPS AS assignGroups, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt, TX_CODE AS txCode, TX_TYPE AS txType, BUZ_STATUS AS buzStatus, TIME_LIMIT AS timeLimit, TIME_LIMIT_TP AS timeLimitTp, ALARM_TIME AS alarmTime, ALARM_TIME_TP AS alarmTimeTp, MODULE_ID AS moduleId, Run_Param AS runParam, TASK_DESCP_DISP AS taskDescpDisp, TX_CHOICES AS txChoices, TX_PR_CHOICES AS txPrChoices, TX_BK_CHOICES AS txBkChoices, SIGN_CHOICES AS signChoices
 	</sql>
 
 	<resultMap id="taskInboxResultMap" type="com.xb.vo.TaskVO">

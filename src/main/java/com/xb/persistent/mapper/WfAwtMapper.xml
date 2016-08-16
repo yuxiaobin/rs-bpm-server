@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfAwtMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 wf_awt_id AS wfAwtId, INST_ID AS instId, TASK_ID_CURR AS taskIdCurr, HIST_ID_PRE AS histIdPre, ASSIGNER_ID AS assignerId, awt_begin AS awtBegin, awt_end AS awtEnd, awt_alarm AS awtAlarm, awt_title AS awtTitle, awt_summary AS awtSummary, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+	</sql>
+
+	<resultMap id="getAwfByUserIdResultMap" type="com.xb.persistent.WfAwt">
+	  <result property="wfAwtId" column="wf_awt_id"/>
+	  <result property="instId" column="INST_ID"/>
+	  <result property="taskIdCurr" column="TASK_ID_CURR"/>
+	  <result property="histIdPre" column="HIST_ID_PRE"/>
+	  <result property="assignerId" column="ASSIGNER_ID"/>
+	  <result property="awtBegin" column="awt_begin"/>
+	  <result property="awtEnd" column="awt_end"/>
+	  <result property="awtAlarm" column="awt_alarm"/>
+	  <result property="awtTitle" column="awt_title"/>
+	  <result property="awtSummary" column="awt_summary"/>
+	  <result property="nextAssigners" column="next_assigners"/>
+	</resultMap>
+	
+	<select id="getAwfByUserId"  resultMap="getAwfByUserIdResultMap">
+select awt.*, 
+case when awt.HIST_ID_PRE is null then awt.ASSIGNER_ID else hist_prev.NEXT_ASSIGNER end as next_assigners
+from wf_awt awt
+left join WF_INST_HIST hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
+where awt.ASSIGNER_ID=#{userId}
+</select>
+</mapper>

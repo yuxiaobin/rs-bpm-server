@@ -30,11 +30,14 @@ public class WfInstance extends CUBaseTO implements Serializable {
 	/**  */
 	@TableField(value = "WF_STATUS")
 	private String wfStatus;
-	/**  */
-	@TableField(value = "CURR_TASK_ID")
-	private String currTaskId;
 
-	
+	/**  */
+	@TableField(value = "RS_WF_ID")
+	private String rsWfId;
+
+	/**  */
+	@TableField(value = "INST_NUM")
+	private Integer instNum;
 	public String getInstId() {
 		return this.instId;
 	}
@@ -59,12 +62,19 @@ public class WfInstance extends CUBaseTO implements Serializable {
 		this.wfStatus = wfStatus;
 	}
 
-	public String getCurrTaskId() {
-		return currTaskId;
+	public String getRsWfId() {
+		return this.rsWfId;
 	}
 
-	public void setCurrTaskId(String currTaskId) {
-		this.currTaskId = currTaskId;
+	public void setRsWfId(String rsWfId) {
+		this.rsWfId = rsWfId;
 	}
 
+	public Integer getInstNum() {
+		return this.instNum;
+	}
+
+	public void setInstNum(Integer instNum) {
+		this.instNum = instNum;
+	}
 }

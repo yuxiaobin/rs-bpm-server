@@ -51,9 +51,6 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 	@TableField(value = "NEXT_ASSIGNER")
 	private String nextAssigner;
 
-	/**  */
-	private String STATUS;
-
 	
 
 	public String getHistId() {
@@ -118,14 +115,6 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 
 	public void setNextAssigner(String nextAssigner) {
 		this.nextAssigner = nextAssigner;
-	}
-
-	public String getSTATUS() {
-		return this.STATUS;
-	}
-
-	public void setSTATUS(String STATUS) {
-		this.STATUS = STATUS;
 	}
 
 }

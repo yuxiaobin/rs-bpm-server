@@ -28,7 +28,7 @@
 <main class="packages-list-container" id="all-packages">
     <div class="container">
         <div class="list-group packages">
-            <a class="package list-group-item" ng-repeat="module in moduleList" href="/wf/admin/define/{{module.modId}}" >
+            <a class="package list-group-item" ng-repeat="module in moduleList" href="/wfadmin/define/{{module.modId}}" >
                 <div class="row">
                     <div class="col-md-3">
                         <h4 class="package-name" ng-bind="module.name">Module Name</h4>

@@ -1,5 +1,6 @@
 package com.xb.service.impl;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -15,6 +16,7 @@ import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.common.WFConstants;
 import com.xb.persistent.RsModule;
 import com.xb.persistent.RsWorkflow;
+import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfDef;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
@@ -24,6 +26,7 @@ import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.mapper.WfTaskMapper;
 import com.xb.service.IRsModuleService;
 import com.xb.service.IRsWorkflowService;
+import com.xb.service.IWfAwtService;
 import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
@@ -57,10 +60,14 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	IRsWorkflowService rsWfService;
 	@Autowired
 	IWfTaskAssignService taskAssignerService;
+	@Autowired
+	IWfAwtService awtService;
 	
-	public List<TaskVO> getTasksInbox(String userId){
-		String parmUserId = ","+userId+",";
-		return baseMapper.getTasksInbox(userId,parmUserId);
+	/**
+	 * 获取待办事宜
+	 */
+	public List<WfAwt> getTasksInbox(String userId){
+		return awtService.getAwfByUserId(userId);
 	}
 	
 	@Transactional
@@ -82,7 +89,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		WfInstance wfInst = new WfInstance();
 		wfInst.setWfId(wfId);
 		wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
-		instService.insert(wfInst);
 		
 		WfTask taskParm = new WfTask();
 		taskParm.setWfId(wfId);
@@ -94,17 +100,15 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				break;
 			}
 		}
-		WfInstHist hist = new WfInstHist();
-		hist.setInstId(wfInst.getInstId());
-		hist.setWfId(wfId);
-		hist.setTaskId(startTask.getTaskId());
-		hist.setOptSeq(1);
-		hist.setOptUser(currUserId);
-		hist.setOptType(WFConstants.OptTypes.REQUEST);//R:Request
-		hist.setSTATUS(WFConstants.WFStatus.IN_PROCESS);
-		histService.insert(hist);
-		
-		prepareNextTask(hist);
+		instService.insert(wfInst);
+		//待办事宜
+		WfAwt awt = new WfAwt();
+		awt.setAssignerId(currUserId);
+		awt.setInstId(wfInst.getInstId());
+		awt.setTaskIdCurr(startTask.getTaskId());
+		awt.setHistIdPre(null);//发起时无hist记录
+		awt.setAwtBegin(new Date());
+		awtService.insert(awt);
 	}
 
 	@Transactional
@@ -116,13 +120,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		}
 		WfInstHist histParm = new WfInstHist();
 		histParm.setInstId(instId);
-		histParm.setSTATUS(WFConstants.WFStatus.IN_PROCESS);
 		WfInstHist histCurr = histService.selectOne(histParm);
 		if(histCurr==null){
 			System.err.println("processTask====no IN_PROCESS history found for instId"+instId);
 			return;
 		}
-		histCurr.setSTATUS(WFConstants.WFStatus.DONE);
 		histService.updateById(histCurr);
 		WfTask taskCurrNext = null;
 		if(WFConstants.OptTypes.REJECT.equals(histCurr.getOptType())){
@@ -136,7 +138,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		histNext.setOptSeq(histCurr.getOptSeq()+1);
 		histNext.setOptType(opt);//AP:Approve, RJ:Reject, RQ:Request
 		histNext.setOptUser(userId);
-		histNext.setSTATUS(WFConstants.WFStatus.IN_PROCESS);
 		histNext.setWfId(histCurr.getWfId());
 		histNext.setTaskId(taskCurrNext.getTaskId());
 		if(WFConstants.OptTypes.REJECT.equals(opt)){
@@ -144,7 +145,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			histParm = new WfInstHist();
 			histParm.setInstId(instId);
 			histParm.setTaskId(getPrevTaskId(histNext.getTaskId()));
-			histParm.setSTATUS(WFConstants.WFStatus.DONE);
 			List<WfInstHist> prevSameTaskHistList = histService.selectList(histParm, "OPT_SEQ desc");
 			if(prevSameTaskHistList!=null && !prevSameTaskHistList.isEmpty()){
 				histNext.setNextAssigner(prevSameTaskHistList.get(0).getOptUser());
@@ -155,7 +155,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 //			histNext.setNextAssigner(taskCurrNext.getAssignUsers());//TODO: set assngiers
 		}
 		histService.insert(histNext);
-		prepareNextTask(histNext);
 	}
 	
 	private String getPrevTaskId(String currTaskId){
@@ -179,37 +178,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 		
 	
-	@Transactional
-	public void prepareNextTask(final WfInstHist currHist){
-		/*
-		 * 条件节点的判断先不做//TODO:
-		 */
-		WfInstance inst = instService.selectById(currHist.getInstId());
-		if(WFConstants.OptTypes.REJECT.equals(currHist.getOptType())){
-			WfTask taskPrev = this.selectById(getPrevTaskId(currHist.getTaskId()));
-			inst.setCurrTaskId(taskPrev.getTaskId());
-			instService.updateById(inst);
-		}
-		else{
-			WfTask taskNext = this.selectById(getNextTask(currHist.getTaskId()));
-			if(taskNext==null){
-				System.out.println("prepareNextTask====nextTask is "+taskNext);
-				return;
-			}
-			inst.setCurrTaskId(taskNext.getTaskId());
-			if(WFConstants.TaskTypes.E.getTypeCode().equals(taskNext.getTaskType())){
-				currHist.setSTATUS(WFConstants.WFStatus.DONE);
-				histService.updateById(currHist);
-				inst.setWfStatus(WFConstants.WFStatus.DONE);
-				System.out.println("update instance to Done status");
-			}else{
-//				currHist.setNextAssigner(taskNext.getAssignUsers());//TODO: set assngiers
-				histService.updateById(currHist);
-			}
-			instService.updateById(inst);
-		}
-		
-	}
 	
 	/**
 	 * 获取当前工作流状态
