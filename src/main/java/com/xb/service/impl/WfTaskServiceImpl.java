@@ -33,7 +33,7 @@ import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskAssignService;
 import com.xb.service.IWfTaskConnService;
 import com.xb.service.IWfTaskService;
-import com.xb.vo.TaskVO;
+import com.xb.vo.TaskOptVO;
 import com.xb.vo.WFDetailVO;
 
 /**
@@ -67,7 +67,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	 * 获取待办事宜
 	 */
 	public List<WfAwt> getTasksInbox(String userId){
-		return awtService.getAwfByUserId(userId);
+		return awtService.getAwtByUserId(userId);
 	}
 	
 	@Transactional
@@ -123,6 +123,30 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 
 	@Transactional
+	public void processTask(TaskOptVO optVO, String currUserId){
+		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), currUserId);
+		if(awt==null){
+			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
+		}
+		if(awt==null){
+			System.err.println("cannot get awt record for optVO="+optVO);
+		}
+		optVO.setInstId(awt.getInstId());
+		optVO.setCurrTaskId(awt.getTaskIdCurr());
+		optVO.setPrevInstHistId(histService.createHistRecord(optVO, currUserId));
+		WfTask task = this.selectById(awt.getTaskIdCurr());
+		WfInstance wfInst = instService.selectById(awt.getInstId());
+		WfTask nextTask = this.selectById(optVO.getNextTaskId());
+		if(WFConstants.TaskTypes.E.getTypeCode().equals(nextTask.getTaskType())){
+			optVO.setNextEndTaskFlag(true);
+		}else{
+			optVO.setNextEndTaskFlag(false);
+		}
+		awtService.renewAwt(awt, task, wfInst, optVO, currUserId);
+	}
+	
+	@Deprecated
+	@Transactional
 	public void processTask(String instId, String userId, String opt){
 		WfInstance inst = instService.selectById(instId);
 		if(inst==null || WFConstants.WFStatus.DONE.equals(inst.getWfStatus())){
@@ -149,7 +173,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		histNext.setOptSeq(histCurr.getOptSeq()+1);
 		histNext.setOptType(opt);//AP:Approve, RJ:Reject, RQ:Request
 		histNext.setOptUser(userId);
-		histNext.setWfId(histCurr.getWfId());
+//		histNext.setWfId(histCurr.getWfId());
 		histNext.setTaskId(taskCurrNext.getTaskId());
 		if(WFConstants.OptTypes.REJECT.equals(opt)){
 			//for rejected task, should get who requested it
@@ -178,6 +202,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return null;
 	}
 	
+	@Deprecated
 	private String getNextTask(String currTaskId){
 		WfTaskConn connParm = new WfTaskConn();
 		connParm.setSourceTaskId(currTaskId);
@@ -188,7 +213,16 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return null;
 	}
 		
-	
+	public WFDetailVO getWFStatus(String rsWfId, Integer instNum){
+		WfInstance parmInst = new WfInstance();
+		parmInst.setRsWfId(rsWfId);
+		parmInst.setInstNum(instNum);
+		List<WfInstance> instList = instService.selectList(parmInst);
+		if(instList!=null && !instList.isEmpty()){
+			return getWFStatus(instList.get(0).getInstId());
+		}
+		return null;
+	}
 	
 	/**
 	 * 获取当前工作流状态

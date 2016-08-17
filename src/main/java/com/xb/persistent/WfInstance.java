@@ -38,6 +38,18 @@ public class WfInstance extends CUBaseTO implements Serializable {
 	/**  */
 	@TableField(value = "INST_NUM")
 	private Integer instNum;
+	
+	@TableField(value = "CURR_ASSIGNERS")
+	private String currAssigners;
+	
+	public String getCurrAssigners() {
+		return currAssigners;
+	}
+
+	public void setCurrAssigners(String currAssigners) {
+		this.currAssigners = currAssigners;
+	}
+
 	public String getInstId() {
 		return this.instId;
 	}

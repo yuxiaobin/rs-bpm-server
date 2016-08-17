@@ -7,33 +7,6 @@
 		 TASK_ID AS taskId, WF_ID AS wfId, TASK_PG_ID AS taskPgId, TASK_TYPE AS taskType, TASK_DESCP AS taskDescp, POS_TOP AS posTop, POS_LEFT AS posLeft, ASSIGN_USERS AS assignUsers, ASSIGN_GROUPS AS assignGroups, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt, TX_CODE AS txCode, TX_TYPE AS txType, BUZ_STATUS AS buzStatus, TIME_LIMIT AS timeLimit, TIME_LIMIT_TP AS timeLimitTp, ALARM_TIME AS alarmTime, ALARM_TIME_TP AS alarmTimeTp, MODULE_ID AS moduleId, Run_Param AS runParam, TASK_DESCP_DISP AS taskDescpDisp, TX_CHOICES AS txChoices, TX_PR_CHOICES AS txPrChoices, TX_BK_CHOICES AS txBkChoices, SIGN_CHOICES AS signChoices
 	</sql>
 
-	<resultMap id="taskInboxResultMap" type="com.xb.vo.TaskVO">
-	  <result property="instHist.histId" column="hist_id"/>
-	  <result property="instHist.instId" column="inst_id"/>
-	  <result property="instHist.wfId" column="wf_id"/>
-	  <result property="instHist.optUser" column="opt_user"/>
-	  <result property="instHist.optType" column="opt_type"/>
-	  <result property="instHist.optSeq" column="opt_seq"/>
-	  <result property="instHist.nextAssigner" column="next_assigner"/>
-	  <result property="instHist.STATUS" column="status"/>
-	  <result property="instHist.createdDt" column="created_dt"/>
-	  
-	  <result property="task.taskPgId" column="task_pg_id"/>
-	  <result property="task.taskType" column="task_type"/>
-	  <result property="task.assignUsers" column="assign_users"/>
-	  <result property="task.assignGroups" column="assign_groups"/>
-	  <result property="task.taskDescp" column="task_descp"/>
-	</resultMap>
-	
-	<select id="getTasksInbox"  resultMap="taskInboxResultMap">
-select hist.hist_id,hist.inst_id, hist.wf_id, hist.opt_user, hist.opt_type,
-hist.opt_seq, hist.next_assigner, hist.status, hist.created_dt,
-task.task_pg_id, task.task_type, task.task_descp, task.assign_users, task.assign_groups
-from WF_INST_HIST hist, WF_TASK task
-  where hist.TASK_ID = task.TASK_ID
-  and hist.status='I' and (hist.next_assigner is null or hist.next_assigner like #{likeUserId} or hist.next_assigner=#{userId})
-</select>
-
 	<resultMap id="getTaskListWithStatusResultMap" type="com.xb.persistent.WfTask">
 	  <result property="taskId" column="task_id"/>
 	  <result property="wfId" column="wf_id"/>
@@ -43,21 +16,34 @@ from WF_INST_HIST hist, WF_TASK task
 	  <result property="posTop" column="pos_top"/>
 	  <result property="posLeft" column="pos_left"/>
 	  <result property="assignUsers" column="assign_users"/>
+	  <result property="taskDescpDisp" column="task_descp_disp"/>
+	  
+	  <result property="txCode" column="tx_code"/>
+	  <result property="txType" column="tx_type"/>
+	  <result property="buzStatus" column="buz_status"/>
+	  <result property="timeLimit" column="time_limit"/>
+	  <result property="timeLimitTp" column="time_limit_tp"/>
+	  <result property="alarmTime" column="alarm_time"/>
+	  <result property="alarmTimeTp" column="alarm_time_tp"/>
+	  <result property="moduleId" column="module_id"/>
+	  <result property="runParam" column="run_param"/>
+	  <result property="txChoices" column="tx_choices"/>
+	  <result property="txPrChoices" column="tx_pr_choices"/>
+	  <result property="txBkChoices" column="tx_bk_choices"/>
+	  <result property="signChoices" column="sign_choices"/>
 	  
 	  <result property="processedFlag" column="proc_flag"/>
 	  <result property="currTaskId" column="curr_task_id"/>
 	</resultMap>
 	
 	<select id="getTaskListWithStatus"  resultMap="getTaskListWithStatusResultMap">
-select task.*,
-his.proc_flag,inst.CURR_TASK_ID
-from WF_TASK task
-join WF_INSTANCE ins on task.WF_ID = ins.wf_id and ins.inst_id=#{instId}
-left join (select distinct TASK_ID,'Y' as proc_flag from WF_INST_HIST hist where hist.INST_ID=#{instId}) his 
-on his.task_id = task.task_id
-left join WF_INSTANCE inst on inst.WF_ID=task.wf_id and inst.CURR_TASK_ID=task.task_id
-and ins.inst_id = inst.inst_id and inst.WF_STATUS='I'
-
+select distinct task.*, 
+case when hist.task_id is not null then 'Y' else '' end as proc_flag,
+awt.TASK_ID_CURR as CURR_TASK_ID
+from wf_task task
+left join WF_INST_HIST hist on hist.TASK_ID= task.TASK_ID and hist.INST_ID = #{instId}
+left join wf_awt awt on awt.TASK_ID_CURR=task.task_id and (COMPLETE_FLAG is null or COMPLETE_FLAG='N') and awt.inst_id=#{instId} 
+join WF_INSTANCE inst on inst.WF_ID=task.WF_ID and inst.INST_ID=#{instId} 
 </select>
 
 

@@ -59,6 +59,9 @@ public class WfAwt extends CUBaseTO implements Serializable {
 	/**  */
 	@TableField(value = "awt_summary")
 	private String awtSummary;
+	
+	@TableField(value = "complete_flag")
+	private String completeFlag = "N";
 
 	
 	@TableField(exist = false)
@@ -150,6 +153,14 @@ public class WfAwt extends CUBaseTO implements Serializable {
 
 	public void setAwtSummary(String awtSummary) {
 		this.awtSummary = awtSummary;
+	}
+
+	public String getCompleteFlag() {
+		return completeFlag;
+	}
+
+	public void setCompleteFlag(String completeFlag) {
+		this.completeFlag = completeFlag;
 	}
 
 }

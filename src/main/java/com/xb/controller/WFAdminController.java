@@ -155,4 +155,11 @@ public class WFAdminController extends BaseController {
 	}
 	
 
+	@RequestMapping(value="/task", method=RequestMethod.GET )
+	public Object viewTaskDtlPage2(HttpServletRequest req){
+		String taskStr = req.getParameter("taskData");
+//		System.out.println(taskStr);
+		req.setAttribute("taskData", taskStr);
+		return "taskProperties";
+	}
 }

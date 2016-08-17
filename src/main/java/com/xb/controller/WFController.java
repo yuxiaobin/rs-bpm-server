@@ -177,7 +177,7 @@ public class WFController extends BaseController {
 		return result;
 	}
 	
-	@RequestMapping(value="/history/{instId}", method=RequestMethod.GET )
+	@RequestMapping(value="/history/{instId}", method=RequestMethod.GET )//TODO:
 	public String viewTaskHist(@PathVariable String instId, HttpServletRequest req){
 		WfInstance instance = instService.selectById(instId);
 		if(instance==null){
@@ -258,17 +258,4 @@ public class WFController extends BaseController {
 	}
 	
 	
-	/*@RequestMapping(value="/admin/task", method=RequestMethod.POST )
-	public Object viewTaskDtlPage(@RequestBody JSONObject taskData, HttpServletRequest req){
-		req.setAttribute("taskData", taskData.toJSONString());
-		return "taskProperties";
-	}*/
-	
-	@RequestMapping(value="/admin/task", method=RequestMethod.GET )
-	public Object viewTaskDtlPage2(HttpServletRequest req){
-		String taskStr = req.getParameter("taskData");
-//		System.out.println(taskStr);
-		req.setAttribute("taskData", taskStr);
-		return "taskProperties";
-	}
 }

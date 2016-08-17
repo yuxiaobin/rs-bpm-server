@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.baomidou.framework.service.ICommonService;
 import com.xb.persistent.WfInstHist;
+import com.xb.vo.TaskOptVO;
 
 /**
  *
@@ -13,4 +14,7 @@ import com.xb.persistent.WfInstHist;
 public interface IWfInstHistService extends ICommonService<WfInstHist> {
 
 	public List<WfInstHist> viewWfInstHistory(String instId);
+	
+	public String createHistRecord(TaskOptVO optVO, String currUserId);
+	
 }

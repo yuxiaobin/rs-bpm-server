@@ -3,9 +3,17 @@ package com.xb.common;
 public class WFConstants {
 	
 	public static class OptTypes{
-		public static final String REQUEST = "RQ";
-		public static final String APPROVE = "AP";
-		public static final String REJECT = "RJ";
+//		public static final String REQUEST = "RQ";
+//		public static final String APPROVE = "AP";
+		public static final String COMMIT = "C";//提交
+		public static final String REJECT = "RJ";//退回
+		public static final String VETO = "V";//否决
+		public static final String REDO = "RD";//撤回
+	}
+	
+	public static class TxCodes{
+		public static final String COUNTERSIGN = "M";
+		public static final String NORMAL = "S";
 	}
 	
 	public static class WFStatus{

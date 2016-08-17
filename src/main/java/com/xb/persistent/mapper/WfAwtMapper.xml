@@ -4,15 +4,15 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 wf_awt_id AS wfAwtId, INST_ID AS instId, TASK_ID_CURR AS taskIdCurr, HIST_ID_PRE AS histIdPre, ASSIGNER_ID AS assignerId, awt_begin AS awtBegin, awt_end AS awtEnd, awt_alarm AS awtAlarm, awt_title AS awtTitle, awt_summary AS awtSummary, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+		 wf_awt_id AS wfAwtId, INST_ID AS instId, TASK_ID_CURR AS taskIdCurr, HIST_ID_PRE AS histIdPre, ASSIGNER_ID AS assignerId, awt_begin AS awtBegin, awt_end AS awtEnd, awt_alarm AS awtAlarm, awt_title AS awtTitle, awt_summary AS awtSummary, complete_flag as completeFlag, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
 	</sql>
 
 	<resultMap id="getAwfByUserIdResultMap" type="com.xb.persistent.WfAwt">
 	  <result property="wfAwtId" column="wf_awt_id"/>
-	  <result property="instId" column="INST_ID"/>
-	  <result property="taskIdCurr" column="TASK_ID_CURR"/>
-	  <result property="histIdPre" column="HIST_ID_PRE"/>
-	  <result property="assignerId" column="ASSIGNER_ID"/>
+	  <result property="instId" column="inst_id"/>
+	  <result property="taskIdCurr" column="task_id_curr"/>
+	  <result property="histIdPre" column="hist_id_pre"/>
+	  <result property="assignerId" column="assigner_id"/>
 	  <result property="awtBegin" column="awt_begin"/>
 	  <result property="awtEnd" column="awt_end"/>
 	  <result property="awtAlarm" column="awt_alarm"/>
@@ -26,6 +26,29 @@ select awt.*,
 case when awt.HIST_ID_PRE is null then awt.ASSIGNER_ID else hist_prev.NEXT_ASSIGNER end as next_assigners
 from wf_awt awt
 left join WF_INST_HIST hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
-where awt.ASSIGNER_ID=#{userId}
+where awt.ASSIGNER_ID=#{userId} and (awt.complete_flag is null or awt.complete_flag!='Y')
 </select>
+
+	<resultMap id="getAwfByParamResultMap" type="com.xb.persistent.WfAwt">
+	  <result property="wfAwtId" column="wf_awt_id"/>
+	  <result property="instId" column="inst_id"/>
+	  <result property="taskIdCurr" column="task_id_curr"/>
+	  <result property="histIdPre" column="hist_id_pre"/>
+	  <result property="assignerId" column="assigner_id"/>
+	  <result property="awtBegin" column="awt_begin"/>
+	  <result property="awtEnd" column="awt_end"/>
+	  <result property="awtAlarm" column="awt_alarm"/>
+	  <result property="awtTitle" column="awt_title"/>
+	  <result property="awtSummary" column="awt_summary"/>
+	</resultMap>
+	<select id="getAwfByParam"  parameterType="java.util.Map" resultMap="getAwfByParamResultMap" >
+select awt.*, 
+from wf_awt awt
+join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
+where inst.RS_WF_ID=#{rsWfId} and inst.INST_NUM=#{instNum} 
+<if test="currUserId != null ">
+and awt.ASSIGNER_ID=#{currUserId}
+</if>
+</select>
+
 </mapper>

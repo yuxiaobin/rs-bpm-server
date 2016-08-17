@@ -155,9 +155,10 @@
         parmJson.runParam	=el.attr("runParam");
         parmJson.taskDescp	=el.attr("taskDescp");
         parmJsonStr = JSON.stringify(parmJson);
-        $('iframe').attr("src",basePath+"/wf/admin/task?taskData="+parmJsonStr);
+        $('iframe').attr("src",basePath+"/wfadmin/task?taskData="+parmJsonStr);
         $('#myModal').modal({backdrop:false});
     }
+    
     window.addEventListener('message', receiveMessage, false);
     function receiveMessage(evt) {
         console.log("got message from child page:"+evt.data);
