@@ -180,23 +180,7 @@ public class WFController extends BaseController {
 		return result;
 	}
 
-	/**
-	 * Common API to get task list for Inbox
-	 * @param session
-	 * @return
-	 */
-	@RequestMapping("/inbox/tasks")
-	@ResponseBody
-	public Object getWf4Manager(HttpSession session){
-		Map<String,Object> userinfo = getUserInfo(session);
-		String userId = (String) userinfo.get("userId");
-		if(userId==null){
-			userId = "system";
-		}
-		JSONObject result = new JSONObject();
-		result.put("records", taskService.getTasksInbox(userId));
-		return result;
-	}
+	
 	
 	/*@RequestMapping(value="/history/{instId}", method=RequestMethod.GET )//TODO:
 	public String viewTaskHist(@PathVariable String instId, HttpServletRequest req){
@@ -220,23 +204,40 @@ public class WFController extends BaseController {
 		return "wf-view";
 	}*/
 	
-	@RequestMapping(value="/inbox" )
+	/*@RequestMapping(value="/inbox" )
 	public String viewInbox(HttpSession session, HttpServletRequest req){
 		Map<String,Object> userinfo = getUserInfo(session);
 		String userId = (String) userinfo.get("userId");
 		req.setAttribute("userId", userId);
 		return "wf-inbox";
 	}
-	
+	*//**
+	 * Common API to get task list for Inbox
+	 * @param session
+	 * @return
+	 *//*
+	@RequestMapping("/inbox/tasks")
+	@ResponseBody
+	public Object getWf4Manager(HttpSession session){
+		Map<String,Object> userinfo = getUserInfo(session);
+		String userId = (String) userinfo.get("userId");
+		if(userId==null){
+			userId = "system";
+		}
+		JSONObject result = new JSONObject();
+		result.put("records", taskService.getTasksInbox(userId));
+		return result;
+	}*/
+	/*
 	@RequestMapping(value="/modules/page" )
 	public String modulesPage(HttpSession session, HttpServletRequest req){
 		Map<String,Object> userinfo =getUserInfo(session);
 		String userId = (String) userinfo.get("userId");
 		req.setAttribute("role", userId);
 		return "wf-modules-view";
-	}
+	}*/
 	
-	
+	/**********************Workflow Track * start ********************/
 	@RequestMapping(value="/hist",method=RequestMethod.GET )
 	@ResponseBody
 	public Object viewInstHistory(HttpSession session,HttpServletRequest req){
@@ -289,5 +290,6 @@ public class WFController extends BaseController {
 		JSONObject result = WfDataUtil.generateWfJson(taskService.getWFStatus(rsWfId, NumberUtils.toInt(instNum)));
 		return result;
 	}
-	
+	/**********************Workflow Track * end ********************/
+
 }
