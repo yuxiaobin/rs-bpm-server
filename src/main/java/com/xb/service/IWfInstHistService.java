@@ -15,6 +15,8 @@ public interface IWfInstHistService extends ICommonService<WfInstHist> {
 
 	public List<WfInstHist> viewWfInstHistory(String instId);
 	
+	public List<WfInstHist> viewWfInstHistory(String rsWfId, Integer instNum);
+	
 	public String createHistRecord(TaskOptVO optVO, String currUserId);
 	
 }

@@ -1,7 +1,11 @@
 package com.xb.persistent.mapper;
 
-import com.xb.persistent.WfInstHist;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.mapper.CommonMapper;
+import com.xb.persistent.WfInstHist;
 
 /**
  *
@@ -10,5 +14,5 @@ import com.baomidou.mybatisplus.mapper.CommonMapper;
  */
 public interface WfInstHistMapper extends CommonMapper<WfInstHist> {
 
-
+	public List<WfInstHist> getInstHistByInstId(@Param("instId") String instId);
 }

@@ -192,6 +192,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		histService.insert(histNext);
 	}
 	
+	@Deprecated
 	private String getPrevTaskId(String currTaskId){
 		WfTaskConn connParm = new WfTaskConn();
 		connParm.setTargetTaskId(currTaskId);
@@ -223,6 +224,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		}
 		return null;
 	}
+	
 	
 	/**
 	 * 获取当前工作流状态

@@ -14,9 +14,11 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/properties.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/demo.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <script>
         var basePath = "${base.contextPath}";
     </script>
+    <script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
 </head>
 <body data-demo-id="statemachine" data-library="dom" class="home-template">
 <header class="site-header">
@@ -37,9 +39,28 @@
     <div class="container">
         <div class="row">
             <ul class="nav nav-pills nav-justified">
-                <li role="presentation" class="active"><a href="#" onclick="viewWf('staff')">Staff Role</a></li>
-                <li><a href="#" onclick="viewWf('manager')">Manager Role</a></li>
-                <li><a href="#" onclick="viewWf('admin')">Admin Role</a></li>
+                <li role="presentation" class="active"><a href="#" onclick="viewTab('staff')">Staff Role</a></li>
+                <li><a href="#" onclick="viewTab('manager')">Manager Role</a></li>
+                <li><a href="#" onclick="viewTab('admin')">Admin Role</a></li>
+            </ul>
+        </div>
+        <div class="row tab" id="staffTab">
+            <ul class="nav nav-pills nav-stacked">
+                <li><a href="#" onclick="viewWf('staff1')">staff1</a></li>
+                <li><a href="#" onclick="viewWf('staff2')">staff2</a></li>
+                <li><a href="#" onclick="viewWf('staff3')">staff3</a></li>
+            </ul>
+        </div>
+        <div class="row tab" id="managerTab" style="display: none">
+            <ul class="nav nav-pills nav-stacked">
+                <li><a href="#" onclick="viewWf('manager1')">manager1</a></li>
+                <li><a href="#" onclick="viewWf('manager2')">manager2</a></li>
+                <li><a href="#" onclick="viewWf('manager3')">manager3</a></li>
+            </ul>
+        </div>
+        <div class="row tab" id="adminTab" style="display: none">
+            <ul class="nav nav-pills nav-stacked">
+                <li><a href="#" onclick="viewWf('admin')">admin</a></li>
             </ul>
         </div>
     </div>
@@ -50,8 +71,13 @@
 <!-- <script src="demo-list.js"></script>-->
 </body>
 <script type="text/javascript">
-    function viewWf(roleName){
-        window.location = basePath +"/wf/"+roleName;
+    function viewWf(userid){
+        window.location = basePath +"/wf/"+userid;
+    }
+
+    function viewTab(role){
+        $("#"+role+"Tab").css("display","")
+                .siblings(".tab").hide();
     }
 
 </script>

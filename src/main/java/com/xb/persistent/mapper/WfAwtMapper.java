@@ -15,7 +15,7 @@ import com.xb.persistent.WfAwt;
  */
 public interface WfAwtMapper extends CommonMapper<WfAwt> {
 
-	public List<WfAwt> getAwfByUserId(@Param("userId") String userId);
+	public List<WfAwt> getAwtByUserId(@Param("userId") String userId);
 	
-	public List<WfAwt> getAwfByParam(Map<String, Object> parmMap);
+	public List<WfAwt> getAwtByParam(Map<String, Object> parmMap);
 }

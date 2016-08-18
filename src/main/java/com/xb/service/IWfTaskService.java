@@ -30,6 +30,8 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 */
 	public WFDetailVO getWFStatus(String instId);
 	
+	public WFDetailVO getWFStatus(String rsWfId, Integer instNum);
+	
 	public void batchCreateTasksWithAssigners(List<WfTask> taskList);
 	
 	public List<WfTask> selectTasksWithAssigners(String wfId);

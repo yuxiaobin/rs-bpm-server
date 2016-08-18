@@ -1,6 +1,7 @@
 package com.xb.persistent;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
@@ -27,9 +28,9 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 	@TableField(value = "INST_ID")
 	private String instId;
 
-	/**  *//*
+	/**  */
 	@TableField(value = "WF_ID")
-	private String wfId;*/
+	private String wfId;
 
 	/**  */
 	@TableField(value = "TASK_ID")
@@ -49,9 +50,34 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 
 	/**  */
 	@TableField(value = "NEXT_ASSIGNER")
-	private String nextAssigner;
+	private String nextAssigner;//待处理人
 
+	/**  */
+	@TableField(value = "TASK_OWNER")
+	private String taskOwner;//当前处理人
+
+	/**  */
+	@TableField(value = "TASK_BEGIN")
+	private Date taskBegin;
+
+	/**  */
+	@TableField(value = "TASK_END")
+	private Date taskEnd;
+
+	/**  */
+	@TableField(value = "TASK_REND")
+	private Date taskRend;
 	
+	@TableField(exist = false)
+	private String taskDescpDisp;
+	
+	public String getTaskDescpDisp() {
+		return taskDescpDisp;
+	}
+
+	public void setTaskDescpDisp(String taskDescpDisp) {
+		this.taskDescpDisp = taskDescpDisp;
+	}
 
 	public String getHistId() {
 		return this.histId;
@@ -69,13 +95,13 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 		this.instId = instId;
 	}
 
-//	public String getWfId() {
-//		return this.wfId;
-//	}
-//
-//	public void setWfId(String wfId) {
-//		this.wfId = wfId;
-//	}
+	public String getWfId() {
+		return this.wfId;
+	}
+
+	public void setWfId(String wfId) {
+		this.wfId = wfId;
+	}
 
 	public String getTaskId() {
 		return this.taskId;
@@ -117,4 +143,35 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 		this.nextAssigner = nextAssigner;
 	}
 
+	public String getTaskOwner() {
+		return this.taskOwner;
+	}
+
+	public void setTaskOwner(String taskOwner) {
+		this.taskOwner = taskOwner;
+	}
+
+	public Date getTaskBegin() {
+		return this.taskBegin;
+	}
+
+	public void setTaskBegin(Date taskBegin) {
+		this.taskBegin = taskBegin;
+	}
+
+	public Date getTaskEnd() {
+		return this.taskEnd;
+	}
+
+	public void setTaskEnd(Date taskEnd) {
+		this.taskEnd = taskEnd;
+	}
+
+	public Date getTaskRend() {
+		return this.taskRend;
+	}
+
+	public void setTaskRend(Date taskRend) {
+		this.taskRend = taskRend;
+	}
 }

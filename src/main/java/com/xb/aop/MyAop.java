@@ -1,5 +1,7 @@
 package com.xb.aop;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
@@ -56,7 +58,8 @@ public class MyAop {
 		// 接收到请求，记录请求内容
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = attributes.getRequest();
-		String userId = (String) request.getSession().getAttribute("USERINFO");
+		Map<String,Object> userinfo = (Map<String, Object>) request.getSession().getAttribute("USERINFO");
+		String userId = (String) userinfo.get("userId");
 		if(userId==null){
 			userId = "system";
 		}

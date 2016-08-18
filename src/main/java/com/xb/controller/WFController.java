@@ -1,16 +1,18 @@
 package com.xb.controller;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,22 +22,22 @@ import com.xb.base.BaseController;
 import com.xb.persistent.RsModule;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfDef;
-import com.xb.persistent.WfInstance;
+import com.xb.persistent.WfInstHist;
 import com.xb.service.IRsModuleService;
 import com.xb.service.IRsWorkflowService;
+import com.xb.service.ITblUser2groupService;
+import com.xb.service.ITblUserService;
+import com.xb.service.IWfAwtService;
 import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
 import com.xb.utils.WfDataUtil;
-import com.xb.vo.ModuleVO;
-import com.xb.vo.WFDetailVO;
 
 @Controller
 @RequestMapping("/wf")
 public class WFController extends BaseController {
 	
-	private static final String SESSION_USERINFO = "USERINFO";
 	
 	@Autowired
 	IRsModuleService moduleService;
@@ -49,6 +51,12 @@ public class WFController extends BaseController {
 	IWfInstHistService instHistService;
 	@Autowired
 	IWfInstanceService instService;
+	@Autowired
+	ITblUserService userService;
+	@Autowired
+	ITblUser2groupService user2GroupService;
+	@Autowired
+	IWfAwtService awtService;;
 	
 	@RequestMapping("/")
 	public String hello(HttpSession session){
@@ -59,13 +67,25 @@ public class WFController extends BaseController {
 		return "hello";
 	}
 	
-	@RequestMapping("/{roleName}")
-	public String viewWf(@PathVariable String roleName, HttpSession session){
-		session.setAttribute(SESSION_USERINFO,roleName);
-		if("admin".equals(roleName)){
-			return "redirect:/wfadmin/admin/modules";
+	@RequestMapping("/{userId}")
+	public String viewWf(@PathVariable String userId, HttpSession session){
+		Map<String,Object> userinfo = new HashMap<String,Object>();
+		userinfo.put("userId", userId);
+		session.setAttribute(SESSION_USERINFO,userinfo);
+		String roleName = null;
+		if(userId.startsWith("staff")){
+			roleName = "staff";
+		}else if(userId.startsWith("manager")){
+			roleName = "manager";
 		}
-		return "wf-"+roleName;
+		else{
+			roleName = "admin";
+		}
+		if("admin".equals(roleName)){
+			return "redirect:/wfadmin/modules";
+		}
+//		return "wf-"+roleName;
+		return "redirect:/inbox";
 	}
 	
 	
@@ -151,7 +171,9 @@ public class WFController extends BaseController {
 			System.out.println("viewWf4Module(): moduleId is empty");
 			return "";
 		}
-		String userId = (String) session.getAttribute(SESSION_USERINFO);
+		
+		Map<String,Object> userinfo = getUserInfo(session);
+		String userId = (String) userinfo.get("userId");
 		taskService.startWF4Module(moduleId, userId);
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
@@ -166,18 +188,17 @@ public class WFController extends BaseController {
 	@RequestMapping("/inbox/tasks")
 	@ResponseBody
 	public Object getWf4Manager(HttpSession session){
-		String userId = (String) session.getAttribute(SESSION_USERINFO);
+		Map<String,Object> userinfo = getUserInfo(session);
+		String userId = (String) userinfo.get("userId");
 		if(userId==null){
 			userId = "system";
 		}
-		List<WfAwt> taskvList = taskService.getTasksInbox(userId);//TODO:
-		//TODO: data format changed
 		JSONObject result = new JSONObject();
-		result.put("records", taskvList);
+		result.put("records", taskService.getTasksInbox(userId));
 		return result;
 	}
 	
-	@RequestMapping(value="/history/{instId}", method=RequestMethod.GET )//TODO:
+	/*@RequestMapping(value="/history/{instId}", method=RequestMethod.GET )//TODO:
 	public String viewTaskHist(@PathVariable String instId, HttpServletRequest req){
 		WfInstance instance = instService.selectById(instId);
 		if(instance==null){
@@ -197,65 +218,76 @@ public class WFController extends BaseController {
 		req.setAttribute("latestFlag", String.valueOf(false));
 		req.setAttribute("instId", instId);
 		return "wf-view";
-	}
-	
-	/*@RequestMapping(value="/history/{instId}", method=RequestMethod.POST )
-	@ResponseBody
-	public Object updateTaskHist(@PathVariable String instId,@RequestBody JSONObject obj, HttpSession session){
-		String userId = (String) session.getAttribute(SESSION_USERINFO);
-		String opt = obj.getString("opt");
-		taskService.processTask(instId, userId, opt);
-		JSONObject result = new JSONObject();
-		result.put("message", "success");
-		return result;
 	}*/
 	
 	@RequestMapping(value="/inbox" )
-	public String viewInbox(HttpSession session){
-		String userId = (String) session.getAttribute(SESSION_USERINFO);
-		if("staff".equals(userId)){//TODO: should use role
-			return "wf-staff";
-		}else if("manager".equalsIgnoreCase(userId)){
-			return "wf-manager";
-		}
-		return "/";
+	public String viewInbox(HttpSession session, HttpServletRequest req){
+		Map<String,Object> userinfo = getUserInfo(session);
+		String userId = (String) userinfo.get("userId");
+		req.setAttribute("userId", userId);
+		return "wf-inbox";
 	}
 	
 	@RequestMapping(value="/modules/page" )
 	public String modulesPage(HttpSession session, HttpServletRequest req){
-		String userId = (String) session.getAttribute(SESSION_USERINFO);
-//		if("staff".equals(userId)){//TODO: should use role
-//			return "wf-staff";
-//		}else if("manager".equalsIgnoreCase(userId)){
-//			return "wf-manager";
-//		}
-//		return "/";
+		Map<String,Object> userinfo =getUserInfo(session);
+		String userId = (String) userinfo.get("userId");
 		req.setAttribute("role", userId);
 		return "wf-modules-view";
 	}
 	
-	@RequestMapping(value="/view/status/{instId}",method=RequestMethod.GET )
+	
+	@RequestMapping(value="/hist",method=RequestMethod.GET )
 	@ResponseBody
-	public Object getWfStatus(@PathVariable String instId, HttpSession session){
-		if(StringUtils.isEmpty(instId)){
+	public Object viewInstHistory(HttpSession session,HttpServletRequest req){
+		String rsWfId = req.getParameter("rsWfId");
+		String instNum = req.getParameter("instNum");
+		if(StringUtils.isEmpty(instNum) || !NumberUtils.isNumber(instNum)){
+			System.err.println("getWfStatus(): invalid instNum="+instNum);
 			return "";
 		}
-		JSONObject result = WfDataUtil.generateWfJson(taskService.getWFStatus(instId));
-		result.put("role", session.getAttribute(SESSION_USERINFO));
-		return result;
-	}
-	
-	
-	@RequestMapping(value="/inst/hist/{instId}",method=RequestMethod.GET )
-	@ResponseBody
-	public Object viewInstHistory(@PathVariable String instId){
-		if(StringUtils.isEmpty(instId)){
-			return "";
-		}
+		int instNumber = NumberUtils.toInt(instNum);
 		JSONObject result = new JSONObject();
-		result.put("records", instHistService.viewWfInstHistory(instId));
+		List<WfInstHist> list = instHistService.viewWfInstHistory(rsWfId, instNumber);
+		
+		Map<String,Object> userinfo = getUserInfo(session);
+		String userId = (String) userinfo.get("userId");
+		WfAwt awt = awtService.getAwtByParam(rsWfId, instNumber, userId);
+		if(awt!=null){
+			WfInstHist awtHist = new WfInstHist();
+			awtHist.setTaskDescpDisp(awt.getTaskDescpDisp());
+			awtHist.setInstId(awt.getInstId());
+			
+			awtHist.setTaskBegin(awt.getAwtBegin());
+			awtHist.setTaskEnd(awt.getAwtEnd());
+			awtHist.setTaskOwner(awt.getTaskOwner());
+			if(list==null){
+				list = new ArrayList<WfInstHist>(1);
+			}else{
+				if(!list.isEmpty()){
+					awtHist.setNextAssigner(list.get(list.size()-1).getNextAssigner());
+				}else{
+					awtHist.setNextAssigner(userId);
+				}
+			}
+			list.add(awtHist);
+		}
+		result.put("records", list);
 		return result;
 	}
 	
+	@RequestMapping(value="/status",method=RequestMethod.GET )
+	@ResponseBody
+	public Object getWfStatus(HttpSession session, HttpServletRequest req){
+		String rsWfId = req.getParameter("rsWfId");
+		String instNum = req.getParameter("instNum");
+//		String refMkid = req.getParameter("refMkid");
+		if(StringUtils.isEmpty(instNum) || !NumberUtils.isNumber(instNum)){
+			System.err.println("getWfStatus(): invalid instNum="+instNum);
+			return "";
+		}
+		JSONObject result = WfDataUtil.generateWfJson(taskService.getWFStatus(rsWfId, NumberUtils.toInt(instNum)));
+		return result;
+	}
 	
 }

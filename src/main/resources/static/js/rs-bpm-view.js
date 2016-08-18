@@ -44,8 +44,6 @@ jsPlumb.ready(function () {
         };
     // initialise element as connection targets and source.
     var initNode = function(el,type) {
-        // initialise draggable elements.
-//        instance.draggable(el,{containment:"parent"});
         instance.makeSource(el, {
             filter: ".ep",
             anchor: "Continuous",
@@ -60,8 +58,6 @@ jsPlumb.ready(function () {
             anchor: "Continuous",
             allowLoopback: false//Not allow to connect to itself
         });
-        // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
-        // version of this demo to find out about new nodes being added.
         instance.fire("jsPlumbDemoNodeAdded", el);
     };
 
@@ -87,13 +83,7 @@ jsPlumb.ready(function () {
     };
 
     var moduleId = $("#moduleId").val();
-    var url_ = basePath+"/wf/module/"+moduleId+"/wf/";
-    if(typeof(instId)=="undefined" || instId==""){
-        //no need to add wfId
-        url_ = url_+"init";
-    }else{
-        url_ = basePath+"/wf/view/status/"+instId;
-    }
+    var url_ = basePath+"/wf/status?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid
     $.ajax(
         {
             type: "GET",
@@ -123,79 +113,6 @@ jsPlumb.ready(function () {
                         }
                     }
                 });
-                var role_ = msg.role;
-                if("staff"==role_){
-                    if(typeof(latestFlag)=="undefined" || latestFlag=="false"){
-                        $("#startWf").css("display","none")
-                    }else {
-                        $("#startWf").css("display", "")
-                            .on("click", function () {
-                                $.ajax({
-                                    type: "POST",
-                                    url: basePath + "/wf/start/" + moduleId,
-                                    success: function (msg) {
-                                        console.log("save wf successfully");
-                                        alert(msg.message);
-                                    },
-                                    error: function (err) {
-                                        alert(err);
-                                    }
-                                });
-                            });
-                    }
-                    if(hasPendingTask){
-                        $("#reSubmitWf").css("display", "")
-                            .on("click", function () {
-                                $.ajax({
-                                    type: "POST",
-                                    url: basePath + "/wf/history/" + instId,
-                                    data:JSON.stringify({opt:"RQ"}),
-                                    headers: { 'Content-Type': "application/json" },
-                                    success: function (msg) {
-                                        console.log("save wf successfully");
-                                        alert(msg.message);
-                                    },
-                                    error: function (err) {
-                                        alert(err);
-                                    }
-                                });
-                            });
-                    }
-
-                }else if("manager"==role_){
-                    $("#approveWf").css("display","")
-                        .on("click",function(){
-                            $.ajax({
-                                type: "POST",
-                                url: basePath+"/wf/history/"+instId,
-                                data:JSON.stringify({opt:"AP"}),
-                                headers: { 'Content-Type': "application/json" },
-                                success: function (msg) {
-                                    console.log("save wf successfully");
-                                    alert(msg.message);
-                                },
-                                error:function(msg){
-                                    alert(msg.message);
-                                }
-                            });
-                        });
-                    $("#rejectWf").css("display","")
-                        .on("click",function(){
-                            $.ajax({
-                                type: "POST",
-                                url: basePath+"/wf/history/"+instId,
-                                data:JSON.stringify({opt:"RJ"}),
-                                headers: { 'Content-Type': "application/json" },
-                                success: function (msg) {
-                                    console.log("save wf successfully");
-                                    alert(msg.message);
-                                },
-                                error:function(msg){
-                                    alert(msg.message);
-                                }
-                            });
-                        });
-                }
                 $("#canvas .w").each(function(){
                     var id_ = $(this).attr("id");
                     instance.setElementDraggable(id_, false);

@@ -5,7 +5,9 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/site.min.css">
     <script>
         var basePath = "${base.contextPath}";
-        var module_task_flag = "tasks";
+        <#if userId?exists>
+            var userId = "${userId}";
+        </#if>
     </script>
 
 </head>
@@ -14,7 +16,7 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-                <h1>Welcome, Staff Role</h1>
+                <h1>Welcome, {{userId}}</h1>
             </div>
         </div>
     </div>
@@ -24,7 +26,6 @@
     <div class="container">
         <ul class="nav nav-pills nav-justified">
             <li role="presentation" class="active"><a href="#">Inbox</a></li>
-            <li role="presentation"><a href="#" ng-click="viewModules()">All Modules</a></li>
         </ul>
 
         <div class="row">
@@ -45,7 +46,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="taskv in taskvList" ng-dblclick="">
+                    <tr ng-repeat="taskv in taskvList" ng-dblclick="viewAwtInMK(taskv.rsWfId, taskv.instNum, taskv.refMkid)">
                         <td>{{taskv.taskDescpDisp}}</td>
                         <td>{{taskv.awtTitle}}</td>
                         <td>{{taskv.awtBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
@@ -66,5 +67,5 @@
 
 </body>
 <script src="${base.contextPath}/static/js/angular.js"></script>
-<script src="${base.contextPath}/static/js/app-staff.js"></script>
+<script src="${base.contextPath}/static/js/app-inbox.js"></script>
 </html>

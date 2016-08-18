@@ -36,7 +36,8 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	 * 根据登录用户，获取待办事宜。
 	 */
 	public List<WfAwt> getAwtByUserId(String userId){
-		return baseMapper.getAwfByUserId(userId);
+		
+		return baseMapper.getAwtByUserId(userId);
 	}
 	
 	public WfAwt getAwtByParam(String rsWfId, int instNum, String currUserId){
@@ -44,7 +45,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		parmMap.put("rsWfId", rsWfId);
 		parmMap.put("instNum", instNum);
 		parmMap.put("currUserId", currUserId);
-		List<WfAwt> awtList = baseMapper.getAwfByParam(parmMap);
+		List<WfAwt> awtList = baseMapper.getAwtByParam(parmMap);
 		if(awtList!=null && !awtList.isEmpty()){
 			return awtList.get(0);
 		}

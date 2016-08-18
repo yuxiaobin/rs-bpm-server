@@ -2,13 +2,16 @@ package com.xb.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.xb.persistent.mapper.WfInstHistMapper;
-import com.xb.persistent.WfInstHist;
-import com.xb.service.IWfInstHistService;
-import com.xb.vo.TaskOptVO;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
+import com.xb.persistent.WfInstHist;
+import com.xb.persistent.WfInstance;
+import com.xb.persistent.mapper.WfInstHistMapper;
+import com.xb.service.IWfInstHistService;
+import com.xb.service.IWfInstanceService;
+import com.xb.vo.TaskOptVO;
 
 /**
  *
@@ -17,6 +20,9 @@ import com.baomidou.framework.service.impl.CommonServiceImpl;
  */
 @Service
 public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, WfInstHist> implements IWfInstHistService {
+	
+	@Autowired
+	IWfInstanceService instService;
 
 	public List<WfInstHist> viewWfInstHistory(String instId){
 		if(instId==null){
@@ -25,7 +31,18 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		}
 		WfInstHist histParm = new WfInstHist();
 		histParm.setInstId(instId);
-		return this.selectList(histParm, "OPT_SEQ desc");
+		return baseMapper.getInstHistByInstId(instId);
+	}
+	
+	public List<WfInstHist> viewWfInstHistory(String rsWfId, Integer instNum){
+		WfInstance instParm = new WfInstance();
+		instParm.setRsWfId(rsWfId);
+		instParm.setInstNum(instNum);
+		WfInstance inst = instService.selectOne(instParm);
+		if(inst!=null){
+			return viewWfInstHistory(inst.getInstId());
+		}
+		return null;
 	}
 	
 	public String createHistRecord(TaskOptVO optVO, String currUserId){

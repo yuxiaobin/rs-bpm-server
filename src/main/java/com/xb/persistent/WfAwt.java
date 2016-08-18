@@ -65,14 +65,58 @@ public class WfAwt extends CUBaseTO implements Serializable {
 
 	
 	@TableField(exist = false)
-	private String nextAssigners;//待处理人
+	private String taskOwner;//待处理人
 	
-	public String getNextAssigners() {
-		return nextAssigners;
+	@TableField(exist = false)
+	private String taskDescpDisp;
+	
+	@TableField(exist = false)
+	private String rsWfId;
+	
+	@TableField(exist = false)
+	private Integer instNum;
+	
+	@TableField(exist = false)
+	private String refMkid;
+	
+	public String getRefMkid() {
+		return refMkid;
 	}
 
-	public void setNextAssigners(String nextAssigners) {
-		this.nextAssigners = nextAssigners;
+	public void setRefMkid(String refMkid) {
+		this.refMkid = refMkid;
+	}
+
+	public String getRsWfId() {
+		return rsWfId;
+	}
+
+	public void setRsWfId(String rsWfId) {
+		this.rsWfId = rsWfId;
+	}
+
+	public Integer getInstNum() {
+		return instNum;
+	}
+
+	public void setInstNum(Integer instNum) {
+		this.instNum = instNum;
+	}
+
+	public String getTaskDescpDisp() {
+		return taskDescpDisp;
+	}
+
+	public void setTaskDescpDisp(String taskDescpDisp) {
+		this.taskDescpDisp = taskDescpDisp;
+	}
+
+	public String getTaskOwner() {
+		return taskOwner;
+	}
+
+	public void setTaskOwner(String taskOwner) {
+		this.taskOwner = taskOwner;
 	}
 
 	public String getWfAwtId() {

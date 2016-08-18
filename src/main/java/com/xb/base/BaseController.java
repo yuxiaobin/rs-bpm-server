@@ -1,5 +1,9 @@
 package com.xb.base;
 
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -7,7 +11,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 public class BaseController {
+	
+	protected static final String SESSION_USERINFO = "USERINFO";
 
+	
+	@SuppressWarnings("unchecked")
+	public Map<String,Object> getUserInfo(HttpSession session){
+		return (Map<String, Object>) session.getAttribute(SESSION_USERINFO);
+	}
 	/*
 	 * @ExceptionHandler({MyException.class})
 	 * 
