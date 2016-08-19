@@ -18,13 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.persistent.RsModule;
-import com.xb.persistent.WfDef;
 import com.xb.service.IRsModuleService;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfDefService;
-import com.xb.service.IWfInstHistService;
-import com.xb.service.IWfInstanceService;
-import com.xb.service.IWfTaskService;
 import com.xb.utils.WfDataUtil;
 import com.xb.vo.ModuleVO;
 import com.xb.vo.WFDetailVO;
@@ -33,20 +29,12 @@ import com.xb.vo.WFDetailVO;
 @RequestMapping("/wfadmin")
 public class WFAdminController extends BaseController {
 	
-	private static final String SESSION_USERINFO = "USERINFO";
-	
 	@Autowired
 	IRsModuleService moduleService;
 	@Autowired
 	IRsWorkflowService wfService;
 	@Autowired
 	IWfDefService wfDefService;
-	@Autowired
-	IWfTaskService taskService;
-	@Autowired
-	IWfInstHistService instHistService;
-	@Autowired
-	IWfInstanceService instService;
 	
 	@RequestMapping("/")
 	public String hello(HttpSession session){
@@ -84,30 +72,6 @@ public class WFAdminController extends BaseController {
 		return page;
 	}
 	
-	@RequestMapping(value="/modules/listall",method=RequestMethod.GET )
-	@ResponseBody
-	public Object getAllModulesWithWfDefs(){
-		RsModule parm = new RsModule();
-//		Page<RsModule> page = new Page<>(0, 100);
-		JSONObject page = new JSONObject();
-		List<RsModule> list = moduleService.selectList(parm);
-		if(list!=null){
-			WfDef wfDefParm = new WfDef();
-			for(RsModule module:list){
-				String rsWfId = module.getRsWfId();
-				if(StringUtils.isEmpty(rsWfId)){
-					continue;
-				}
-				wfDefParm.setRsWfId(rsWfId);
-				module.setWfList(wfDefService.selectList(wfDefParm, "version"));
-			}
-		}
-		page.put("records", list);
-//		page.setRecords(list);
-//		page.setTotal(list.size());
-		return page;
-	}
-	
 	@RequestMapping("/define/{moduleId}")
 	public String viewWf4Module(@PathVariable String moduleId, HttpSession session, HttpServletRequest req){
 		if(StringUtils.isEmpty(moduleId)){
@@ -132,9 +96,7 @@ public class WFAdminController extends BaseController {
 		if(wfId=="init"){
 			wfId = null;
 		}
-		JSONObject result = WfDataUtil.generateWfJson(wfService.getWF4Module(moduleId,wfId));
-		result.put("role", session.getAttribute(SESSION_USERINFO));
-		return result;
+		return WfDataUtil.generateWfJson(wfService.getWF4Module(moduleId,wfId));
 	}
 	
 	@RequestMapping(value="/module/{moduleId}/wf",method=RequestMethod.POST )
@@ -154,7 +116,6 @@ public class WFAdminController extends BaseController {
 	@RequestMapping(value="/task", method=RequestMethod.GET )
 	public Object viewTaskDtlPage2(HttpServletRequest req){
 		String taskStr = req.getParameter("taskData");
-//		System.out.println(taskStr);
 		req.setAttribute("taskData", taskStr);
 		return "taskProperties";
 	}

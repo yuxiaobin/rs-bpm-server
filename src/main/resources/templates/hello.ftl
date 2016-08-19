@@ -5,15 +5,7 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
 
-    <link rel="stylesheet" href="${base.contextPath}/static/css/jsPlumbToolkit-defaults.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/main.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/jsPlumbToolkit-demo.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/jquery.contextMenu.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/rs-bpm.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/theme/base/jquery.ui.all.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/properties.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/demo.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <script>
         var basePath = "${base.contextPath}";
@@ -42,6 +34,7 @@
                 <li role="presentation" class="active"><a href="#" onclick="viewTab('staff')">Staff Role</a></li>
                 <li><a href="#" onclick="viewTab('manager')">Manager Role</a></li>
                 <li><a href="#" onclick="viewTab('admin')">Admin Role</a></li>
+                <li><a href="#" onclick="viewTab('history')">History</a></li>
             </ul>
         </div>
         <div class="row tab" id="staffTab">
@@ -63,6 +56,11 @@
                 <li><a href="#" onclick="viewWf('admin')">admin</a></li>
             </ul>
         </div>
+        <div class="row tab" id="historyTab" style="display: none">
+            <ul class="nav nav-pills nav-stacked">
+                <li><a href="#" onclick="viewHistory()">View history</a></li>
+            </ul>
+        </div>
     </div>
 
 </main>
@@ -78,6 +76,10 @@
     function viewTab(role){
         $("#"+role+"Tab").css("display","")
                 .siblings(".tab").hide();
+    }
+
+    function viewHistory(){
+
     }
 
 </script>

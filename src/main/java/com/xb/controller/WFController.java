@@ -127,7 +127,6 @@ public class WFController extends BaseController {
 			wfId = null;
 		}
 		JSONObject result = WfDataUtil.generateWfJson(wfService.getWF4Module(moduleId,wfId));
-		result.put("role", session.getAttribute(SESSION_USERINFO));
 		return result;
 	}
 	
@@ -146,7 +145,6 @@ public class WFController extends BaseController {
 	public String modulesPage(HttpSession session, HttpServletRequest req){
 		Map<String,Object> userinfo =getUserInfo(session);
 		String userId = (String) userinfo.get("userId");
-		req.setAttribute("role", userId);
 		return "wf-modules-view";
 	}
 	

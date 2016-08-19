@@ -17,8 +17,6 @@ import com.xb.service.ITblUserService;
 @RequestMapping("/usergroup")
 public class UserGroupController extends BaseController {
 	
-	private static final String SESSION_USERINFO = "USERINFO";
-	
 	@Autowired
 	ITblUserService userService;
 	@Autowired

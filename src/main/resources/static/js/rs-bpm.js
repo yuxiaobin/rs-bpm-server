@@ -238,14 +238,14 @@ jsPlumb.ready(function () {
         result_data = [];
         initEmptyWF();
     }else{
-        var url_ = basePath+"/wf/module/"+moduleId+"/wf/";
+        //todo: to use rsWfId instead of moduleId
+        var url_ = basePath+"/wfadmin/module/"+moduleId+"/wf/";
         if(typeof(wfId)=="undefined" || wfId==""){
             url_ = url_+"init";
         }else{
             url_ = url_+wfId;
         }
-        $.ajax(
-            {
+        $.ajax({
                 type: "GET",
                 url: url_,
                 success: function (msg) {

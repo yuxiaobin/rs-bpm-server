@@ -18,12 +18,12 @@
 <body ng-app="taskApp" ng-controller="taskCtrl">
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="hideModal()"><span aria-hidden="true">&times;</span></button>
-    <h4 class="modal-title" id="editTaskTitle">Edit Task</h4>
+    <h4 class="modal-title" id="editTaskTitle">事务属性设置</h4>
 </div>
 <div class="modal-body">
     <ul class="nav nav-tabs">
-        <li role="presentation" class="active"><a href="javascript:void(0)" onclick="changeTab(this,'updateTaskPropertiesForm')">Task Define</a></li>
-        <li role="presentation"><a href="javascript:void(0)" onclick="changeTab(this,'updateTaskPropertiesForm2')">Assigner Define</a></li>
+        <li role="presentation" class="active"><a href="javascript:void(0)" onclick="changeTab(this,'updateTaskPropertiesForm')">事务定义</a></li>
+        <li role="presentation"><a href="javascript:void(0)" onclick="changeTab(this,'updateTaskPropertiesForm2')">执行人员</a></li>
     </ul>
     <div class="row form-wrapper">
     <form id="updateTaskPropertiesForm" style="display: ''">
@@ -327,19 +327,14 @@
     </div>
     <div class="row">
         <div class="alert alert-success alert-dismissible col-md-6" role="alert" id="successMsg" style="display:none">
-            <strong>Success!</strong> Update successfully!.
-        </div>
-        <div class="alert alert-danger alert-dismissible col-md-6" role="alert" id="deleteTaskAlert" style="display:none">
-            <p><strong>Confirm to delete?</strong></p>
-            <p> <button type="button" class="btn btn-danger" ng-click="deleteTask()">Yes</button> <button type="button" class="btn btn-default" onclick="notDeleteTask()">No</button> </p>
+            <strong>保存成功</strong>
         </div>
     </div>
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="confirmDelete()">Delete</button>
-
-    <button type="button" class="btn btn-primary" ng-click="updateTaskProperties()">Save</button>
+    <button type="button" class="btn btn-primary" ng-click="updateTaskProperties()">确定</button>
+    <button type="button" class="btn btn-default" onclick="hideModal()">取消</button>
 </div>
 </body>
 <script src="${base.contextPath}/static/js/common.js"></script>
