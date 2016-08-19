@@ -53,7 +53,7 @@ angular.module('app', [ ])
                 }
                 else if (action == 'track') {
                     $('iframe').attr("src",url_+"&optCode=TRACK");
-                    $('#myModal').modal({backdrop:false});
+                    $('#myModal').modal({backdrop:true});
                 }
             })
         }

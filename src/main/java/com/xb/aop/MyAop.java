@@ -59,9 +59,11 @@ public class MyAop {
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest request = attributes.getRequest();
 		Map<String,Object> userinfo = (Map<String, Object>) request.getSession().getAttribute("USERINFO");
-		String userId = (String) userinfo.get("userId");
-		if(userId==null){
+		String userId = null;
+		if(userinfo==null || userinfo.get("userId") ==null){
 			userId = "system";
+		}else{
+			userId = (String)userinfo.get("userId");
 		}
 		String methodName = joinPoint.getSignature().getName();
 		boolean isInsert = false;

@@ -19,6 +19,14 @@ public class BaseController {
 	public Map<String,Object> getUserInfo(HttpSession session){
 		return (Map<String, Object>) session.getAttribute(SESSION_USERINFO);
 	}
+	
+	public String getCurrUserId(HttpSession session){
+		Map<String,Object> userInfo = getUserInfo(session);
+		if(userInfo!=null){
+			return (String) userInfo.get("userId");
+		}
+		return null;
+	}
 	/*
 	 * @ExceptionHandler({MyException.class})
 	 * 

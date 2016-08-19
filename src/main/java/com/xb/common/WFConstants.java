@@ -21,6 +21,11 @@ public class WFConstants {
 		public static final String DONE = "D";
 	}
 	
+	public static class AssignType{
+		public static final String USER = "U";
+		public static final String GROUP = "G";
+	}
+	
 	public static class TaskSelectAllFlag{
 		public static final String YES = "Y";
 		public static final String NO = "N";

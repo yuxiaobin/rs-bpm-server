@@ -25,7 +25,8 @@
 <main class="packages-list-container" id="all-packages">
     <div class="container">
         <ul class="nav nav-pills nav-justified">
-            <li role="presentation" class="active"><a href="#">Inbox</a></li>
+            <li role="presentation" class="active"><a href="#">待办事宜</a></li>
+            <li><a href="/wf/modules/page">发起请求页面</a></li>
         </ul>
 
         <div class="row">

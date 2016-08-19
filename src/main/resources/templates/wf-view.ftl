@@ -20,8 +20,8 @@
         <#if latestFlag?exists>
             var latestFlag = "${latestFlag}";
         </#if>
-        <#if instId?exists>
-            var instId = "${instId}";
+        <#if wfId?exists>
+            var wfId = "${wfId}";
         </#if>
     </script>
 </head>

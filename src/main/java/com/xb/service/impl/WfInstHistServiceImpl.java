@@ -1,11 +1,13 @@
 package com.xb.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.framework.service.impl.CommonServiceImpl;
+import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.mapper.WfInstHistMapper;
@@ -45,9 +47,10 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		return null;
 	}
 	
-	public String createHistRecord(TaskOptVO optVO, String currUserId){
+	public String createHistRecord(TaskOptVO optVO, WfAwt awt, String currUserId){
+		String instId = awt.getInstId();
 		WfInstHist parm = new WfInstHist();
-		parm.setInstId(optVO.getInstId());
+		parm.setInstId(instId);
 		List<WfInstHist> histList = this.selectList(parm, "OPT_SEQ desc");
 		int nextOptSeq = 1;
 		WfInstHist prefHist = null;
@@ -57,12 +60,19 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		}
 		
 		WfInstHist hist = new WfInstHist();
-		hist.setInstId(optVO.getInstId());
+		hist.setInstId(instId);
 		hist.setNextAssigner(optVO.getNextAssigners());
 		hist.setOptSeq(nextOptSeq);
 		hist.setOptUser(currUserId);
-		hist.setOptType(optVO.getOptType());
-		hist.setTaskId(optVO.getCurrTaskId());
+		hist.setOptType(optVO.getOptCode());
+		hist.setTaskId(awt.getTaskIdCurr());
+		hist.setWfId(optVO.getWfId());
+		if(prefHist!=null){
+			hist.setTaskOwner(prefHist.getNextAssigner());
+		}
+		hist.setTaskBegin(awt.getAwtBegin());
+		hist.setTaskBegin(awt.getAwtEnd());
+		hist.setTaskRend(new Date());
 		this.insert(hist);
 		return hist.getHistId();
 	}

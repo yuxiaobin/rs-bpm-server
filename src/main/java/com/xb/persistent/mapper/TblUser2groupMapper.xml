@@ -7,4 +7,45 @@
 		 user2group_id AS user2groupId, user_id AS userId, group_id AS groupId
 	</sql>
 
+
+	<resultMap id="getUserListByIdListResultMap" type="com.xb.persistent.TblUser">
+	  <result property="id" column="id"/>
+	  <result property="name" column="name"/>
+	</resultMap>
+	
+	<select id="getUserListByIdList"  parameterType="java.util.List" resultMap="getUserListByIdListResultMap">
+select id, name from tbl_user
+
+where id in
+<foreach collection="useridList" index="index" item="userid" open="("
+    separator="," close=")">
+  #{userid}
+  </foreach>
+</select>
+
+<resultMap id="getGroupListWithUsersByIdListResultMap" type="com.xb.persistent.TblUser">
+	  <result property="id" column="ID"/>
+	  <result property="name" column="NAME"/>
+	  <result property="groupId" column="GROUP_ID"/>
+	  <result property="groupName" column="GROUP_NAME"/>
+	</resultMap>
+	
+	<select id="getGroupListWithUsersByIdList"  parameterType="java.util.List" resultMap="getGroupListWithUsersByIdListResultMap">
+select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
+from tbl_user u, tbl_user2group ug, tbl_group g
+where u.id=ug.user_id and ug.group_id=g.GROUP_ID
+and GROUP_ID in
+<foreach collection="groupidList" index="index" item="groupid" open="("
+    separator="," close=")">
+  #{groupid}
+  </foreach>
+</select>
+
+	<select id="getGroupListWithUsersAll"  resultMap="getGroupListWithUsersByIdListResultMap">
+select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
+from tbl_user u, tbl_user2group ug, tbl_group g
+where u.id=ug.user_id and ug.group_id=g.GROUP_ID
+</select>
+
+
 </mapper>

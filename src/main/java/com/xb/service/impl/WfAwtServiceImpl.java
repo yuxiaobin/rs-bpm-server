@@ -53,13 +53,14 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	}
 	
 	public void renewAwt(WfAwt prev, WfTask currtask, WfInstance wfInst, TaskOptVO optVO, String currUserId){
+		String instId = prev.getInstId();
 		if(WFConstants.TxCodes.COUNTERSIGN.equals(currtask.getTxCode())){
 			prev.setCompleteFlag("Y");
 			this.updateById(prev);
 			String csOptJson = currtask.getSignChoices();
 			JSONObject csOpt = (JSONObject) JSONObject.parse(csOptJson);
 			WfAwt parm = new WfAwt();
-			parm.setInstId(prev.getInstId());
+			parm.setInstId(instId);
 			parm.setCompleteFlag("Y");
 			int completedCount = this.selectCount(parm);
 			if(Boolean.TRUE.toString().equals(csOpt.getString("AllHandledThenGo"))){
@@ -87,8 +88,8 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		}
 		//delete by rsWfId&instNum&taskId
 		WfAwt parm = new WfAwt();
-		parm.setInstId(optVO.getInstId());
-		parm.setTaskIdCurr(optVO.getCurrTaskId());
+		parm.setInstId(instId);
+		parm.setTaskIdCurr(prev.getTaskIdCurr());
 		this.deleteSelective(parm);
 		//create new awt(s) with next taskId
 		String nextAssigners = optVO.getNextAssigners();
@@ -106,7 +107,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					awt.setAwtEnd(limitDate);
 					awt.setAwtAlarm(alarmDate);
 					awt.setHistIdPre(optVO.getPrevInstHistId());
-					awt.setInstId(prev.getInstId());
+					awt.setInstId(instId);
 					awt.setTaskIdCurr(optVO.getNextTaskId());
 					this.insert(awt);
 				}

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,6 +34,7 @@ import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
 import com.xb.utils.WfDataUtil;
+import com.xb.vo.TaskOptVO;
 
 @Controller
 @RequestMapping("/wf")
@@ -164,17 +166,10 @@ public class WFController extends BaseController {
 		return "wf-view";
 	}
 	
-	@RequestMapping("/start/{moduleId}")
+	@RequestMapping(value="/start", method=RequestMethod.POST)
 	@ResponseBody
-	public Object startWf4Module(@PathVariable String moduleId,HttpSession session){
-		if(StringUtils.isEmpty(moduleId)){
-			System.out.println("viewWf4Module(): moduleId is empty");
-			return "";
-		}
-		
-		Map<String,Object> userinfo = getUserInfo(session);
-		String userId = (String) userinfo.get("userId");
-		taskService.startWF4Module(moduleId, userId);
+	public Object startWf4Module(@RequestBody TaskOptVO optVO, HttpSession session){
+		taskService.startWF4Module(optVO.getModuleId(),optVO.getRsWfId(), getCurrUserId(session));
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
 		return result;
@@ -228,14 +223,14 @@ public class WFController extends BaseController {
 		result.put("records", taskService.getTasksInbox(userId));
 		return result;
 	}*/
-	/*
+	
 	@RequestMapping(value="/modules/page" )
 	public String modulesPage(HttpSession session, HttpServletRequest req){
 		Map<String,Object> userinfo =getUserInfo(session);
 		String userId = (String) userinfo.get("userId");
 		req.setAttribute("role", userId);
 		return "wf-modules-view";
-	}*/
+	}
 	
 	/**********************Workflow Track * start ********************/
 	@RequestMapping(value="/hist",method=RequestMethod.GET )
@@ -251,8 +246,7 @@ public class WFController extends BaseController {
 		JSONObject result = new JSONObject();
 		List<WfInstHist> list = instHistService.viewWfInstHistory(rsWfId, instNumber);
 		
-		Map<String,Object> userinfo = getUserInfo(session);
-		String userId = (String) userinfo.get("userId");
+		String userId = getCurrUserId(session);
 		WfAwt awt = awtService.getAwtByParam(rsWfId, instNumber, userId);
 		if(awt!=null){
 			WfInstHist awtHist = new WfInstHist();

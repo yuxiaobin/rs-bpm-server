@@ -15,4 +15,6 @@ import com.xb.persistent.WfTaskAssign;
 public interface WfTaskAssignMapper extends CommonMapper<WfTaskAssign> {
 
 	public List<WfTaskAssign> getTaskAssignerListWithName(@Param("taskId") String taskId);
+	
+	
 }

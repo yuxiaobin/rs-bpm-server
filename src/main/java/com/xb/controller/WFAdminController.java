@@ -59,10 +59,6 @@ public class WFAdminController extends BaseController {
 	
 	@RequestMapping("/modules")
 	public String home(HttpSession session){
-		String userId = (String) session.getAttribute(SESSION_USERINFO);
-		if(userId==null){
-			session.setAttribute(SESSION_USERINFO,"system");
-		}
 		return "wf-modules";
 	}
 	

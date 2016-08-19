@@ -1,7 +1,10 @@
 package com.xb.persistent.mapper;
 
-import com.xb.persistent.TblUser2group;
+import java.util.List;
+
 import com.baomidou.mybatisplus.mapper.CommonMapper;
+import com.xb.persistent.TblUser;
+import com.xb.persistent.TblUser2group;
 
 /**
  *
@@ -10,5 +13,9 @@ import com.baomidou.mybatisplus.mapper.CommonMapper;
  */
 public interface TblUser2groupMapper extends CommonMapper<TblUser2group> {
 
-
+	public List<TblUser> getUserListByIdList(List<String> userIdList);
+	
+	public List<TblUser> getGroupListWithUsersByIdList(List<String> groupIdList);
+	
+	public List<TblUser> getGroupListWithUsersAll();
 }

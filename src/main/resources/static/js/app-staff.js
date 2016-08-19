@@ -19,11 +19,14 @@ angular.module('app', [ ])
             return delay.promise;
         };
 
-        this.getTaskInbox = function(){
+        this.triggerWF = function(rsWfId,modId){
             var delay = $q.defer();
+            var parm = {rsWfId:rsWfId, moduleId:modId};
             var req = {
-                method: 'GET',
-                url: basePath+'/wf/inbox/tasks'
+                method: 'POST',
+                url: basePath+'/wf/start',
+                data: JSON.stringify(parm),
+                headers: { 'Content-Type': "application/json" }
             };
             $http(req)
                 .success(function(data, status, headers, config){
@@ -34,64 +37,22 @@ angular.module('app', [ ])
                 });
             return delay.promise;
         };
-        this.getInstHist = function(instId){
-            var delay = $q.defer();
-            var req = {
-                method: 'GET',
-                url: basePath+'/wf/inst/hist/'+instId
-            };
-            $http(req)
-                .success(function(data, status, headers, config){
-                    delay.resolve(data);
-                })
-                .error(function(data, status, headers, config){
-                    delay.reject(data);
-                });
-            return delay.promise;
-        }
     }])
     .controller('ctrl', ['$scope','$window', 'wfService', function ($scope,$window, wfService) {
-        if(angular.isUndefined(module_task_flag)){
-            module_task_flag = "tasks";
-        }
-        if("modules"==module_task_flag){
-            wfService.getAllModules().then(function(success){
-                $scope.moduleList = success.records;
-            },function(fail){
-                console.error("getAllModules failed");
-            });
-        }
-        if("tasks"==module_task_flag){
-            wfService.getTaskInbox().then(function(success){
-                $scope.taskvList = success.records;
-            },function(fail){
-                console.error("getAllModules failed");
-            });
-        }
-        if("hist"==module_task_flag){
-            if(typeof(instId)=='undefined'){
-                console.log("instId is undefined");
-            }else{
-                wfService.getInstHist(instId).then(function(succ){
-                    $scope.histList = succ.records;
-                });
-            }
-
-        }
-
-        $scope.viewWfById = function(wfId){
-            $window.location.href = basePath+"/wf/view/"+wfId;
-        }
-
+        wfService.getAllModules().then(function(success){
+            $scope.moduleList = success.records;
+        },function(fail){
+            console.error("getAllModules failed");
+        });
         $scope.viewInbox = function(){
-            $window.location.href = basePath+"/wf/inbox";
+            $window.location.href = basePath+"/inbox";
         }
-        $scope.viewModules = function(){
-            $window.location.href = basePath+"/wf/modules/page";
+        $scope.triggerWF = function(rsWfId,modId){
+            wfService.triggerWF(rsWfId,modId).then(function(success){
+                alert("Start successfully");
+            },function(fail){
+                alert("Start failed");
+            });
         }
 
-        $scope.viewTask = function(instId){
-            $window.location.href = basePath+"/wf/history/"+instId;
-        }
-        console.log("app-staff ctrl init finished")
     }]);

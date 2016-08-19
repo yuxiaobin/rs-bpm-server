@@ -41,14 +41,14 @@
                             <tr>
                                 <th>#</th>
                                 <th>Version</th>
-                                <th>Workflow Name</th>
+                                <th>发起工作流？</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr ng-repeat="wf in module.wfList">
                                 <td>{{$index+1}}</td>
                                 <td>{{wf.version}}</td>
-                                <td><a href="#" ng-click="viewWfById(wf.wfId)">Workflow Name</a></td>
+                                <td><a href="#" ng-click="triggerWF(wf.rsWfId, module.modId)">发起</a></td>
                             </tr>
                             </tbody>
                         </table>

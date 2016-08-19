@@ -65,12 +65,12 @@
             <tbody>
             <tr ng-repeat="hist in histList">
                 <td>{{hist.taskDescpDisp}}</td>
-                <td>{{hist.taskOwner}}</td>
+                <td>{{hist.optUser}}</td>
                 <td>{{hist.optType}}</td>
                 <td>{{hist.taskBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                 <td>{{hist.taskEnd | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                 <td>{{hist.taskRend | date:'yyyy-MM-dd hh:mm:ss'}}</td>
-                <td>{{hist.nextAssigner}}</td>
+                <td>{{hist.taskOwner}}</td>
             </tr>
             </tbody>
         </table>

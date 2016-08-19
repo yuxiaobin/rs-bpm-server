@@ -1,6 +1,6 @@
 package com.xb.controller;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -13,11 +13,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
+import com.xb.persistent.WfTask;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskOptVO;
 
+/**
+ * 跟task相关的都在此controller
+ * 跟wf相关放在WFController
+ * @author yuxiaobin
+ *
+ */
 @Controller
 @RequestMapping("/task")
 public class WFTaskController extends BaseController {
@@ -32,8 +39,7 @@ public class WFTaskController extends BaseController {
 	@RequestMapping("/process")
 	@ResponseBody
 	public Object processTask(@RequestBody TaskOptVO optVO, HttpSession session){
-		Map<String,Object> userInfo = getUserInfo(session);
-		taskService.processTask(optVO, (String) userInfo.get("userId"));
+		taskService.processTask(optVO, getCurrUserId(session));
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
 		return result;
@@ -41,7 +47,7 @@ public class WFTaskController extends BaseController {
 	
 	
 	@RequestMapping("/loadprocess")
-	public Object loadProcessTask( HttpSession session, HttpServletRequest req){
+	public Object loadProcessTask(HttpSession session, HttpServletRequest req){
 //		Map<String,Object> userInfo = getUserInfo(session);
 //		String userId = (String) userInfo.get("userId");
 		
@@ -55,9 +61,28 @@ public class WFTaskController extends BaseController {
 		if("TRACK".equals(optCode)){
 			return "wf-popup-track";
 		}else{
+			req.setAttribute("optCode", optCode);
 			//提交，退回，否决等操作事务页面
 			return "wf-popup-opt";
 		}
+	}
+	
+	@RequestMapping("/next/tasks")
+	@ResponseBody
+	public Object getNextTasks(@RequestBody TaskOptVO optVO, HttpSession session){
+		optVO.setCurrUserId(getCurrUserId(session));
+		JSONObject result = new JSONObject();
+		result.put("records", taskService.getNextTasksByOptCode(optVO));
+		return result;
+	}
+	
+	@RequestMapping("/next/usergroups")
+	@ResponseBody
+	public Object getNextAssigners(@RequestBody TaskOptVO optVO, HttpSession session){
+		optVO.setCurrUserId(getCurrUserId(session));
+		JSONObject result = new JSONObject();
+		result.put("result", taskService.getNextAssignersByOptCode(optVO));
+		return result;
 	}
 	
 	
