@@ -118,6 +118,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		awt.setTaskIdCurr(startTask.getTaskId());
 		awt.setHistIdPre(null);//发起时无hist记录
 		awt.setAwtBegin(new Date());
+		
 		awtService.insert(awt);
 	}
 
@@ -130,8 +131,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		if(awt==null){
 			System.err.println("cannot get awt record for optVO="+optVO);
 		}
-//		optVO.setInstId(awt.getInstId());
-//		optVO.setCurrTaskId(awt.getTaskIdCurr());
 		WfTask nextTask = this.selectById(optVO.getNextTaskId());
 		optVO.setWfId(nextTask.getWfId());
 		optVO.setPrevInstHistId(histService.createHistRecord(optVO, awt ,currUserId));
