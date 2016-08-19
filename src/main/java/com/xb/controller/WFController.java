@@ -86,7 +86,6 @@ public class WFController extends BaseController {
 		if("admin".equals(roleName)){
 			return "redirect:/wfadmin/modules";
 		}
-//		return "wf-"+roleName;
 		return "redirect:/inbox";
 	}
 	
@@ -133,39 +132,6 @@ public class WFController extends BaseController {
 	}
 	
 	
-	/************staff view only********************/
-	@RequestMapping("/view/{wfId}")
-	public String viewWf4Staff(@PathVariable String wfId, HttpSession session, HttpServletRequest req){
-		if(StringUtils.isEmpty(wfId)){
-			System.out.println("viewWf4Staff(): wfId is empty");
-			return "";
-		}
-		WfDef parm = new WfDef();
-		parm.setWfId(wfId);
-		WfDef wfDef = wfDefService.selectOne(parm);
-		if(wfDef==null){
-			System.out.println("viewWf4Staff(): wfDef is null");
-			return "";
-		}
-		String rsWfId = wfDef.getRsWfId();
-		RsModule moduleParm = new RsModule();
-		moduleParm.setRsWfId(rsWfId);
-		RsModule module = moduleService.selectOne(moduleParm);
-		req.setAttribute("moduleId", module.getModId());
-		req.setAttribute("moduleName", module.getNAME());
-		req.setAttribute("wfId", wfId);
-		parm.setWfId(null);
-		parm.setRsWfId(rsWfId);
-		List<WfDef> wfList = wfDefService.selectList(parm, "version desc");
-		if(wfList.get(0).getVERSION()>wfDef.getVERSION()){
-			req.setAttribute("latestFlag", String.valueOf(false));
-		}else{
-			req.setAttribute("latestFlag", String.valueOf(true));
-		}
-		
-		return "wf-view";
-	}
-	
 	@RequestMapping(value="/start", method=RequestMethod.POST)
 	@ResponseBody
 	public Object startWf4Module(@RequestBody TaskOptVO optVO, HttpSession session){
@@ -175,54 +141,6 @@ public class WFController extends BaseController {
 		return result;
 	}
 
-	
-	
-	/*@RequestMapping(value="/history/{instId}", method=RequestMethod.GET )//TODO:
-	public String viewTaskHist(@PathVariable String instId, HttpServletRequest req){
-		WfInstance instance = instService.selectById(instId);
-		if(instance==null){
-			System.err.println("viewTaksHist(): instance is null for instId="+instId);
-			return "";
-		}
-		String wfId = instance.getWfId();
-		WfDef wfDefParm = new WfDef();
-		wfDefParm.setWfId(wfId);
-		WfDef wfDef = wfDefService.selectOne(wfDefParm);
-		RsModule moduleParm = new RsModule();
-		moduleParm.setRsWfId(wfDef.getRsWfId());
-		RsModule module = moduleService.selectOne(moduleParm);
-		req.setAttribute("moduleId", module.getModId());
-		req.setAttribute("moduleName", module.getNAME());
-		req.setAttribute("wfId", wfId);
-		req.setAttribute("latestFlag", String.valueOf(false));
-		req.setAttribute("instId", instId);
-		return "wf-view";
-	}*/
-	
-	/*@RequestMapping(value="/inbox" )
-	public String viewInbox(HttpSession session, HttpServletRequest req){
-		Map<String,Object> userinfo = getUserInfo(session);
-		String userId = (String) userinfo.get("userId");
-		req.setAttribute("userId", userId);
-		return "wf-inbox";
-	}
-	*//**
-	 * Common API to get task list for Inbox
-	 * @param session
-	 * @return
-	 *//*
-	@RequestMapping("/inbox/tasks")
-	@ResponseBody
-	public Object getWf4Manager(HttpSession session){
-		Map<String,Object> userinfo = getUserInfo(session);
-		String userId = (String) userinfo.get("userId");
-		if(userId==null){
-			userId = "system";
-		}
-		JSONObject result = new JSONObject();
-		result.put("records", taskService.getTasksInbox(userId));
-		return result;
-	}*/
 	
 	@RequestMapping(value="/modules/page" )
 	public String modulesPage(HttpSession session, HttpServletRequest req){

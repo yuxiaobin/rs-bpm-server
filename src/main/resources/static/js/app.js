@@ -1,5 +1,7 @@
 /**
  * Created by yuxiaobin on 2016/7/28.
+ *
+ * 模拟增加模块页面
  */
 angular.module('app', [ ])
     .service('wfService', ['$http', '$q', function ($http, $q) {

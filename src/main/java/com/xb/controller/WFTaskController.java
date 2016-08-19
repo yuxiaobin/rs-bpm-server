@@ -1,7 +1,5 @@
 package com.xb.controller;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
-import com.xb.persistent.WfTask;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
