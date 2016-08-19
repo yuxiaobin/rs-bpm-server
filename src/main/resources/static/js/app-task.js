@@ -115,7 +115,7 @@ angular.module('taskApp', [ ])
         }
 
         $scope.selectUser = function(user_id){
-            var elm_ = $("#selectAllUsersId").siblings("[rs-data-usid='"+user_id+"']");
+            var elm_ = $("#selectAllUsersId").siblings("[rs-data-asid='"+user_id+"']").eq(0);
             if(elm_.hasClass("active")){
                 angular.forEach($scope.userList, function (item, index) {
                     if(item.id==user_id){
@@ -131,7 +131,7 @@ angular.module('taskApp', [ ])
             }
         }
         $scope.selectGroup = function(group_id){
-            var elm_ = $("#selectAllGroupId").siblings("[rs-data-gpid='"+group_id+"']");
+            var elm_ = $("#selectAllGroupId").siblings("[rs-data-asid='"+group_id+"']");
             if(elm_.hasClass("active")){
                 angular.forEach($scope.groupList, function (item, index) {
                     if(item.groupId==group_id){

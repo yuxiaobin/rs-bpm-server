@@ -116,21 +116,6 @@ public class WFController extends BaseController {
 	}
 	
 	
-	@RequestMapping(value="/module/{moduleId}/wf/{wfId}",method=RequestMethod.GET )
-	@ResponseBody
-	public Object getWfDtl4Module(@PathVariable String moduleId, @PathVariable String wfId, HttpSession session){
-		if(StringUtils.isEmpty(moduleId)){
-			System.out.println("viewWf4Module(): moduleId is empty");
-			return "";
-		}
-		if(wfId=="init"){
-			wfId = null;
-		}
-		JSONObject result = WfDataUtil.generateWfJson(wfService.getWF4Module(moduleId,wfId));
-		return result;
-	}
-	
-	
 	@RequestMapping(value="/start", method=RequestMethod.POST)
 	@ResponseBody
 	public Object startWf4Module(@RequestBody TaskOptVO optVO, HttpSession session){
@@ -143,8 +128,6 @@ public class WFController extends BaseController {
 	
 	@RequestMapping(value="/modules/page" )
 	public String modulesPage(HttpSession session, HttpServletRequest req){
-		Map<String,Object> userinfo =getUserInfo(session);
-		String userId = (String) userinfo.get("userId");
 		return "wf-modules-view";
 	}
 	

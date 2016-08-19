@@ -114,9 +114,9 @@ public class WFAdminController extends BaseController {
 	
 
 	@RequestMapping(value="/task", method=RequestMethod.GET )
-	public Object viewTaskDtlPage2(HttpServletRequest req){
+	public Object viewTaskDtlPopup(HttpServletRequest req){
 		String taskStr = req.getParameter("taskData");
 		req.setAttribute("taskData", taskStr);
-		return "taskProperties";
+		return "wf-popup-task";
 	}
 }
