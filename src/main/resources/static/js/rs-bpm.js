@@ -230,9 +230,9 @@ jsPlumb.ready(function () {
 
     var initEmptyWF = function(){
         var startNode = {pgId:RS_TYPE_START,rsType:RS_TYPE_START,taskDescpDisp:"开始", position:{top:70,left:350},
-            txCode:"0000",txType:"B"};
+            txCode:"0000",txType:"B",TX_BK_CHOICES:{GoBackToPrevious:true}};
         var endNode = {rsType:RS_TYPE_END,rsType:RS_TYPE_END,taskDescpDisp:"结束", position:{top:370,left:350},
-            txCode:"9999",txType:"E"};
+            txCode:"9999",txType:"E",TX_BK_CHOICES:{GoBackToPrevious:true}};
         newNodeById(startNode);
         newNodeById(endNode);
     }

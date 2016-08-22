@@ -71,6 +71,7 @@ angular.module('taskApp', [ ])
             })
         });
         $scope.task = taskData;
+        $scope.TX_CHOICES = taskData.TX_CHOICES;//to avoid data convert issue when save
         if(taskData.taskType==RS_TYPE_START || taskData.taskType==RS_TYPE_END){
             $scope.showAssignerEdit = false;
             $scope.isStartEndNode = true;
@@ -97,6 +98,7 @@ angular.module('taskApp', [ ])
             }
             $scope.task.timeLimitTp = "H";
             $scope.task.alarmTimeTp = "H";
+            $scope.task.SIGN_CHOICES.AllHandledThenGo = true;
             $scope.txTypeOptions = [{value:"B",descp:"开始"},{value:"E",descp:"结束"}]
         }else{
             $scope.showAssignerEdit = true;
@@ -104,12 +106,25 @@ angular.module('taskApp', [ ])
             $scope.txTypeOptions = [{value:"S",descp:"一般事务"},{value:"M",descp:"会签事务"}]
         }
 
-        $scope.TX_CHOICES = taskData.TX_CHOICES;//to avoid data convert issue when save
+
         if($scope.task.TX_PR_CHOICES.NoticeNextAfterGo || $scope.task.TX_PR_CHOICES.NoticeFirstAfterGo || $scope.task.TX_PR_CHOICES.NoticePreviousAfterGo || $scope.task.TX_PR_CHOICES.NoticeElseAfterGo){
             $scope.needNotifyFlag = true;
         }
 
         $scope.updateTaskProperties = function(){
+            if(angular.isUndefined($scope.task.TX_PR_CHOICES)){
+                $scope.task.TX_PR_CHOICES = {};
+            }
+            if($scope.task.TX_PR_CHOICES.NoticeNextAfterGo
+                || $scope.task.TX_PR_CHOICES.NoticeFirstAfterGo
+                || $scope.task.TX_PR_CHOICES.NoticePreviousAfterGo
+                || $scope.task.TX_PR_CHOICES.NoticeElseAfterGo
+                ){
+                if(!$scope.task.TX_PR_CHOICES.MsgAlert && !$scope.task.TX_PR_CHOICES.SmsAlert){
+                    alert("维护了处理后通知人，请维护通知方式！");
+                    return;
+                }
+            }
             taskData.taskDescp = $("#taskDescp").val();
             taskData.taskDescpDisp = $("#taskDescpDisp").val();
             var assigns = [];
@@ -283,7 +298,7 @@ angular.module('taskApp', [ ])
         $scope.$watch('task.txType', function(newVal, oldVal) {
             if(newVal=="M"){
                 $scope.csFlag = true;
-            }else{
+            }else if(newVal=="S"){
                 $scope.csFlag = false;
                 $scope.task.SIGN_CHOICES.AllHandledThenGo = false;
                 $scope.task.SIGN_CHOICES.PartHandledThenGo = false;

@@ -36,7 +36,7 @@
 <div class="jtk-demo-main">
     <!-- demo -->
     <div class="rsmenu">
-        <div class="w menu-task" rs-data-type="user-task">User Task</div>
+        <div class="w menu-task" rs-data-type="user-task">事务</div>
         <div class="w menu-task rs-cond-task" rs-type="user-task"><div class="task-descp">Condition Node</div></div>
     </div>
     <div class="rscontainer jtk-demo-canvas canvas-wide statemachine-demo jtk-surface jtk-surface-nopan " id="canvas">
