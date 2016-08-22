@@ -74,12 +74,40 @@ angular.module('taskApp', [ ])
         if(taskData.taskType==RS_TYPE_START || taskData.taskType==RS_TYPE_END){
             $scope.showAssignerEdit = false;
             $scope.isStartEndNode = true;
+            if(taskData.taskType==RS_TYPE_START){
+                $scope.isStartNode = true;
+                $scope.isEndNode = false;
+                $scope.task.txType = "B";
+                $scope.task.buzStatus = "I";
+                if(angular.isUndefined($scope.TX_CHOICES)){
+                    $scope.TX_CHOICES = {};
+                }
+                $scope.TX_CHOICES.AllowEdit = true;
+                $scope.TX_CHOICES.AllowDelete = true;
+            }else{
+                $scope.isStartNode = false;
+                $scope.isEndNode = true;
+                $scope.task.txType = "E";
+                $scope.task.buzStatus = "C";
+                if(angular.isUndefined($scope.TX_CHOICES)){
+                    $scope.TX_CHOICES = {};
+                }
+                $scope.TX_CHOICES.AllowEdit = false;
+                $scope.TX_CHOICES.AllowDelete = false;
+            }
+            $scope.task.timeLimitTp = "H";
+            $scope.task.alarmTimeTp = "H";
+            $scope.txTypeOptions = [{value:"B",descp:"开始"},{value:"E",descp:"结束"}]
         }else{
             $scope.showAssignerEdit = true;
             $scope.isStartEndNode = false;
+            $scope.txTypeOptions = [{value:"S",descp:"一般事务"},{value:"M",descp:"会签事务"}]
         }
 
         $scope.TX_CHOICES = taskData.TX_CHOICES;//to avoid data convert issue when save
+        if($scope.task.TX_PR_CHOICES.NoticeNextAfterGo || $scope.task.TX_PR_CHOICES.NoticeFirstAfterGo || $scope.task.TX_PR_CHOICES.NoticePreviousAfterGo || $scope.task.TX_PR_CHOICES.NoticeElseAfterGo){
+            $scope.needNotifyFlag = true;
+        }
 
         $scope.updateTaskProperties = function(){
             taskData.taskDescp = $("#taskDescp").val();
@@ -264,7 +292,6 @@ angular.module('taskApp', [ ])
             }
         });
 
-        $scope.needNotifyFlag = false;
         $scope.selectNotify = function(event){
             if($("#txpNotifyNextOnPro").is(':checked') || $("#txpNotifyCreOnPro").is(':checked') || $("#txpNotifyPreOnPro").is(':checked')){
                 $scope.needNotifyFlag = true;

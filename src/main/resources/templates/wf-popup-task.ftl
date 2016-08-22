@@ -32,30 +32,31 @@
             <div class="col-xs-4">
                 <div class="input-group">
                     <label for="txCode" class="control-label">事务编码:</label>
-                    <input type="text" class="input-sm" id="txCode" ng-model="task.txCode">
+                    <input type="text" class="input-sm" id="txCode" ng-model="task.txCode" ng-disabled="isStartEndNode">
                 </div>
                 <label class="control-label">事务类型:</label>
-                <select class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.txType">
-                    <option value="S">一般事务</option>
-                    <option value="M">会签事务</option>
+                <select class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.txType" ng-disabled="isStartEndNode">
+                    <option ng-repeat="opt in txTypeOptions" value="{{opt.value}}">{{opt.descp}}</option>
+                    <!--S:一般事务-->
+                    <!--M:会签事务-->
                 </select><br>
                 <label for="buzStatus" class="control-label">业务状态:</label>
-                <select id="buzStatus" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.buzStatus">
+                <select id="buzStatus" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.buzStatus" ng-disabled="isStartEndNode">
                     <option value="I">初始</option>
                     <option value="H">会签</option>
                     <option value="F">确认</option>
                     <option value="C">完成</option>
                 </select><br>
                 <label for="timeLimitTp" class="control-label">完成期限:</label>
-                <input type="text" class="input-sm" id="durTime" style="width:80" ng-model="task.timeLimit">
-                <select id="timeLimitTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.timeLimitTp">
+                <input type="text" class="input-sm" id="durTime" style="width:80" ng-model="task.timeLimit" ng-disabled="isStartEndNode">
+                <select id="timeLimitTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.timeLimitTp" ng-disabled="isStartEndNode">
                     <option value="M">分钟</option>
                     <option value="H">小时</option>
                     <option value="D">天</option>
                 </select><br>
                 <label for="alarmTime" class="control-label">预警提前期:</label>
-                <input class="input-sm" aria-label="Text input with dropdown button" id="alarmTime" style="width:80" ng-model="task.alarmTime">
-                <select id="alarmTimeTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.alarmTimeTp">
+                <input class="input-sm" aria-label="Text input with dropdown button" id="alarmTime" style="width:80" ng-model="task.alarmTime" ng-disabled="isStartEndNode">
+                <select id="alarmTimeTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.alarmTimeTp" ng-disabled="isStartEndNode">
                     <option value="M">分钟</option>
                     <option value="H">小时</option>
                     <option value="D">天</option>
@@ -63,11 +64,11 @@
             </div>
             <div class="col-xs-4">
                 显示内容
-                <textarea id="taskDescpDisp" rows="8" style="width:95%" ng-model="task.taskDescpDisp"></textarea>
+                <textarea id="taskDescpDisp" rows="8" style="width:95%" ng-model="task.taskDescpDisp" ng-disabled="isEndNode"></textarea>
             </div>
             <div class="col-xs-4">
                 事务说明
-                <textarea id="taskDescp" rows="8" style="width:95%" ng-model="task.taskDescp"></textarea>
+                <textarea id="taskDescp" rows="8" style="width:95%" ng-model="task.taskDescp" ng-disabled="isEndNode"></textarea>
             </div>
         </div>
         <div class="row">
@@ -86,18 +87,18 @@
             <div class="bs-example" data-example-id="vertical-button-group">
                 <div>事务选项</div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicUpdData" ng-model="TX_CHOICES.AllowEdit">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicUpdData" ng-model="TX_CHOICES.AllowEdit" ng-disabled="isStartEndNode">
                         <label for="txChoicUpdData" style="font-weight: inherit;">允许修改数据</label>
                     </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicDelData" ng-model="TX_CHOICES.AllowDelete">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicDelData" ng-model="TX_CHOICES.AllowDelete" ng-disabled="isStartEndNode">
                         <label for="txChoicDelData" style="font-weight: inherit;">允许删除数据</label>
                     </button>
                 </div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej" ng-model="TX_CHOICES.AllowGoBack">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej" ng-model="TX_CHOICES.AllowGoBack" ng-disabled="isStartEndNode">
                         <label for="txChoicAlwRej" style="font-weight: inherit;">允许退回</label>
                     </button>
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowGoBack">
@@ -106,8 +107,8 @@
                     </button>
                 </div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej2" ng-model="TX_CHOICES.AllowReCall">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej2" ng-model="TX_CHOICES.AllowReCall" ng-disabled="isStartNode">
                         <label for="txChoicAlwRej2" style="font-weight: inherit;">允许撤回</label>
                     </button>
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowReCall">
@@ -116,8 +117,8 @@
                     </button>
                 </div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicAlwVeto" ng-model="TX_CHOICES.AllowVeto">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicAlwVeto" ng-model="TX_CHOICES.AllowVeto" ng-disabled="isStartEndNode">
                         <label for="txChoicAlwVeto" style="font-weight: inherit;">允许否决</label>
                     </button>
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowVeto">
@@ -168,12 +169,12 @@
                 <div class="bs-example" data-example-id="vertical-button-group">
                     <div>退回选项</div>
                     <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-default">
-                            <input type="checkbox" class="btn btn-default" id="bkAlwPrev" ng-model="task.TX_BK_CHOICES.GoBackToPrevious">
+                        <button type="button" class="btn btn-default" ng-disabled="isStartEndNode">
+                            <input type="checkbox" class="btn btn-default" id="bkAlwPrev" ng-model="task.TX_BK_CHOICES.GoBackToPrevious" ng-disabled="isStartEndNode">
                             <label for="bkAlwPrev" style="font-weight: inherit;">允许退回至上一步事务</label>
                         </button>
-                        <button type="button" class="btn btn-default">
-                            <input type="checkbox" class="btn btn-default" id="bkAlwFirst" ng-model="task.TX_BK_CHOICES.GoBackToFirst">
+                        <button type="button" class="btn btn-default" ng-disabled="isStartEndNode">
+                            <input type="checkbox" class="btn btn-default" id="bkAlwFirst" ng-model="task.TX_BK_CHOICES.GoBackToFirst" ng-disabled="isStartEndNode">
                             <label for="bkAlwFirst" style="font-weight: inherit;">允许退回至第一步事务</label>
                         </button>
                     </div>

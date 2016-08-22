@@ -24,7 +24,8 @@ jsPlumb.ready(function () {
             var pos_y = trans4ContainerPos.y-task_height/2;
             var clone_div = $(ui.draggable).clone();
             var rs_type = clone_div.attr(RS_ATTR_TASK_TYPE);
-            var userNode = {pgId:new Date().getTime(),rsType:rs_type,taskDescpDisp:clone_div.text(), position:{top:pos_y,left:pos_x}};
+            var userNode = {pgId:new Date().getTime(),rsType:rs_type,taskDescpDisp:clone_div.text(), position:{top:pos_y,left:pos_x},
+                txType:"S",buzStatus:"I",timeLimitTp:"H",alarmTimeTp:"H"};
             newNodeById(userNode);
         }
     });
@@ -228,8 +229,10 @@ jsPlumb.ready(function () {
     };
 
     var initEmptyWF = function(){
-        var startNode = {pgId:RS_TYPE_START,rsType:RS_TYPE_START,taskDescpDisp:"Start Node", position:{top:70,left:350}};
-        var endNode = {rsType:RS_TYPE_END,rsType:RS_TYPE_END,taskDescpDisp:"End Node", position:{top:370,left:350}};
+        var startNode = {pgId:RS_TYPE_START,rsType:RS_TYPE_START,taskDescpDisp:"开始", position:{top:70,left:350},
+            txCode:"0000",txType:"B"};
+        var endNode = {rsType:RS_TYPE_END,rsType:RS_TYPE_END,taskDescpDisp:"结束", position:{top:370,left:350},
+            txCode:"9999",txType:"E"};
         newNodeById(startNode);
         newNodeById(endNode);
     }
