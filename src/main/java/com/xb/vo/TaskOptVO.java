@@ -11,6 +11,7 @@ public class TaskOptVO {
 	private String optCode;//C:提交，V:否决，RJ:退回，RD:撤回
 	
 	private String refMkid;
+	
 	/**********以上为处理事务时必填字段*************/
 	
 //	private String instId;
@@ -19,7 +20,6 @@ public class TaskOptVO {
 	private boolean nextEndTaskFlag;
 	
 	private String wfId;//userd when create hist
-	private String moduleId;//For start workflow
 
 	public String getWfId() {
 		return wfId;
@@ -27,12 +27,7 @@ public class TaskOptVO {
 	public void setWfId(String wfId) {
 		this.wfId = wfId;
 	}
-	public String getModuleId() {
-		return moduleId;
-	}
-	public void setModuleId(String moduleId) {
-		this.moduleId = moduleId;
-	}
+	
 	public String getCurrUserId() {
 		return currUserId;
 	}

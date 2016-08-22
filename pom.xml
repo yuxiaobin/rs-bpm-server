@@ -58,11 +58,17 @@
 			</resource>
 			<resource>
 				<directory>src/main/resources</directory>
-				<includes>
-					<include>jdbc.properties</include>
-				</includes>
 				<filtering>true</filtering>
+				<excludes>
+					<exclude>application.properties</exclude>
+				</excludes>
 			</resource>
+			<resource>
+	            <directory>src/main/java</directory>
+	            <includes>                      
+	                <include>**/*.xml</include>
+	            </includes>
+	        </resource>
 		</resources>
 
 
@@ -73,7 +79,9 @@
 				<configuration>
 					<source>7</source>
 					<target>7</target>
+					<debug>true</debug>
 					<encoding>UTF-8</encoding>
+					<mainClass>com.xb.MyWorkflowApp</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

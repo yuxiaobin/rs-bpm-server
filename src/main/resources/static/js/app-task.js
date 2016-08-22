@@ -187,8 +187,10 @@ angular.module('taskApp', [ ])
                     assigner.assignTypeDesc = "用户";
                 }else if($scope.ugflag=="G"){
                     assigner.assignTypeDesc = "用户组";
+                }else if($scope.ugflag=="R"){
+                    assigner.assignTypeDesc = "岗位";
                 }else{
-                    assigner.assignTypeDesc = "其他";
+                    assigner.assignTypeDesc = "自定义";
                 }
                 assigner.assignTypeCode = $scope.ugflag;
                 assigner.name = $(this).attr("rs-data-asname");
@@ -212,7 +214,7 @@ angular.module('taskApp', [ ])
             $("#selectAllGroupId").siblings(".active").each(function(){
 //                assignedGroupsStr+=$(this).attr("rs-data-gpname")+",";
             });
-        }
+        };
         $scope.selectAddUserGroups = function(ugflag,evt){
             $scope.ugflag = ugflag;
             $("#addUserGroupId").css("display","");
@@ -232,7 +234,6 @@ angular.module('taskApp', [ ])
             sel_target.parent().addClass("active");
             sel_target.parent().siblings().removeClass("active");
         }
-
     }]);
 
 function confirmDelete(){

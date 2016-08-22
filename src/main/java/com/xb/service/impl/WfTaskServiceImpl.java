@@ -11,7 +11,6 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
@@ -73,11 +72,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 	
 	@Transactional
-	public void startWF4Module(String moduleId, String rsWfId, String currUserId){
-		RsModule rsModule = moduleService.selectById(moduleId);
-		if (rsModule == null) {
-			return;
-		}
+	public void startWF4Module(String refMkid, String rsWfId, String currUserId){
+//		RsModule rsModule = moduleService.selectById(moduleId);
+//		if (rsModule == null) {
+//			return;
+//		}
 		WfDef wfDefParm = new WfDef();
 		wfDefParm.setRsWfId(rsWfId);
 		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
@@ -98,7 +97,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
 		wfInst.setRsWfId(rsWfId);
 		wfInst.setInstNum(instNumCurr);
-		wfInst.setRefMkid(moduleId);
+		wfInst.setRefMkid(refMkid);
 		instService.insert(wfInst);
 		
 		WfTask taskParm = new WfTask();

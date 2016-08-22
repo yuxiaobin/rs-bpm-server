@@ -5,14 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 
 public class JsonObjectGenerate {
 	
-	public static void main(String[] args) {
-		JSONArray tasks = genTaskJson();
-		JSONArray conns = genConnections();
-		JSONObject result = new JSONObject();
-		result.put("tasks", tasks);
-		result.put("conns", conns);
-		System.out.println(result);
-	}
+//	public static void main(String[] args) {
+//		JSONArray tasks = genTaskJson();
+//		JSONArray conns = genConnections();
+//		JSONObject result = new JSONObject();
+//		result.put("tasks", tasks);
+//		result.put("conns", conns);
+//		System.out.println(result);
+//	}
 	
 	
 	

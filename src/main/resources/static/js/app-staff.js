@@ -19,9 +19,9 @@ angular.module('app', [ ])
             return delay.promise;
         };
 
-        this.triggerWF = function(rsWfId,modId){
+        this.triggerWF = function(rsWfId,refMkId){
             var delay = $q.defer();
-            var parm = {rsWfId:rsWfId, moduleId:modId};
+            var parm = {rsWfId:rsWfId, refMkId:refMkId};
             var req = {
                 method: 'POST',
                 url: basePath+'/wf/start',
@@ -47,8 +47,8 @@ angular.module('app', [ ])
         $scope.viewInbox = function(){
             $window.location.href = basePath+"/inbox";
         }
-        $scope.triggerWF = function(rsWfId,modId){
-            wfService.triggerWF(rsWfId,modId).then(function(success){
+        $scope.triggerWF = function(rsWfId,refMkId){
+            wfService.triggerWF(rsWfId,refMkId).then(function(success){
                 alert("Start successfully");
             },function(fail){
                 alert("Start failed");

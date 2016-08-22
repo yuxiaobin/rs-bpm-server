@@ -119,7 +119,10 @@ public class WFController extends BaseController {
 	@RequestMapping(value="/start", method=RequestMethod.POST)
 	@ResponseBody
 	public Object startWf4Module(@RequestBody TaskOptVO optVO, HttpSession session){
-		taskService.startWF4Module(optVO.getModuleId(),optVO.getRsWfId(), getCurrUserId(session));
+		//TODO:
+		//TODO:
+		//TODO:use refMkid instead of moduleID @0819
+		taskService.startWF4Module(optVO.getRefMkid(),optVO.getRsWfId(), getCurrUserId(session));
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
 		return result;

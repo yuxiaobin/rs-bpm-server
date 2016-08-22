@@ -252,7 +252,8 @@
                         <ul class="dropdown-menu">
                             <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('U',$event)">添加用户</a></li>
                             <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('G',$event)">添加用户组</a></li>
-                            <li><a href="javascript:void(0)">添加。。。</a></li>
+                            <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('R',$event)">添加岗位</a></li>
+                            <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('Z',$event)">添加自定义</a></li>
                         </ul>
                     </div>
                     <button type="button" class="btn btn-default">
@@ -341,6 +342,7 @@
 <script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
 <script src="${base.contextPath}/static/js/angular.js"></script>
 <script src="${base.contextPath}/static/js/bootstrap.js"></script>
+<script src="${base.contextPath}/static/js/plugin/bootstrap-select.js"></script>
 <script src="${base.contextPath}/static/js/app-task.js"></script>
 <script>
    if(typeof(taskData)=='undefined'){
