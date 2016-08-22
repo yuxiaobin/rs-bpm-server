@@ -2,6 +2,7 @@
 <head>
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/docs.css">
+    <link rel="stylesheet" href="${base.contextPath}/static/css/plugin/bootstrap-select.css">
     <style>
         .form-wrapper {
             padding: 40px 30px;
@@ -23,7 +24,7 @@
 <div class="modal-body">
     <ul class="nav nav-tabs">
         <li role="presentation" class="active"><a href="javascript:void(0)" onclick="changeTab(this,'updateTaskPropertiesForm')">事务定义</a></li>
-        <li role="presentation"><a href="javascript:void(0)" onclick="changeTab(this,'updateTaskPropertiesForm2')">执行人员</a></li>
+        <li role="presentation" ng-hide="!showAssignerEdit"><a href="javascript:void(0)" onclick="changeTab(this,'updateTaskPropertiesForm2')">执行人员</a></li>
     </ul>
     <div class="row form-wrapper">
     <form id="updateTaskPropertiesForm" style="display: ''">
@@ -33,57 +34,33 @@
                     <label for="txCode" class="control-label">事务编码:</label>
                     <input type="text" class="input-sm" id="txCode" ng-model="task.txCode">
                 </div>
-                <div class="input-group">
-                    <label class="control-label">事务类型:</label>
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span aria-hidden="true" id="txType" rs-attr-txType="S">一般事务</span>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li rs-attr-txType="S"><a href="javascript:void(0)" >一般事务</a></li>
-                        <li rs-attr-txType="M"><a href="javascript:void(0)" >会签事务</a></li>
-                    </ul>
-                </div>
-                <div class="input-group">
-                    <label for="buzStatus" class="control-label">业务状态:</label>
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span aria-hidden="true" id="buzStatus" rs-attr-buzStatus="I">初始</span>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li rs-attr-buzStatus="I"><a href="javascript:void(0)" >初始</a></li>
-                        <li rs-attr-buzStatus="H"><a href="javascript:void(0)" >会签</a></li>
-                        <li rs-attr-buzStatus="F"><a href="javascript:void(0)" >确认</a></li>
-                        <li rs-attr-buzStatus="C"><a href="javascript:void(0)" >完成</a></li>
-                    </ul>
-                </div>
-                <div class="input-group">
-                    <label for="timeLimitTp" class="control-label">完成期限:</label>
-                    <input type="text" class="input-sm" id="durTime" style="width:80" ng-model="task.timeLimit">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span aria-hidden="true" id="timeLimitTp" rs-attr-timeLimitTp="H">小时</span>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li rs-attr-timeLimitTp="M"><a href="javascript:void(0)" >分钟</a></li>
-                        <li rs-attr-timeLimitTp="H"><a href="javascript:void(0)" >小时</a></li>
-                        <li rs-attr-timeLimitTp="D"><a href="javascript:void(0)" >天</a></li>
-                    </ul>
-                </div>
-                <div class="input-group">
-                    <label for="alarmTime" class="control-label">预警提前期:</label>
-                    <input class="input-sm" aria-label="Text input with dropdown button" id="alarmTime" style="width:80" ng-model="task.alarmTime">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span aria-hidden="true" id="alarmTimeTp" rs-attr-alarmTimeTp="H">小时</span>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li rs-attr-alarmTimeTp="M"><a href="javascript:void(0)" >分钟</a></li>
-                        <li rs-attr-alarmTimeTp="H"><a href="javascript:void(0)" >小时</a></li>
-                        <li rs-attr-alarmTimeTp="D"><a href="javascript:void(0)" >天</a></li>
-                    </ul>
-                    </div>
-                </div>
+                <label class="control-label">事务类型:</label>
+                <select class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.txType">
+                    <option value="S">一般事务</option>
+                    <option value="M">会签事务</option>
+                </select><br>
+                <label for="buzStatus" class="control-label">业务状态:</label>
+                <select id="buzStatus" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.buzStatus">
+                    <option value="I">初始</option>
+                    <option value="H">会签</option>
+                    <option value="F">确认</option>
+                    <option value="C">完成</option>
+                </select><br>
+                <label for="timeLimitTp" class="control-label">完成期限:</label>
+                <input type="text" class="input-sm" id="durTime" style="width:80" ng-model="task.timeLimit">
+                <select id="timeLimitTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.timeLimitTp">
+                    <option value="M">分钟</option>
+                    <option value="H">小时</option>
+                    <option value="D">天</option>
+                </select><br>
+                <label for="alarmTime" class="control-label">预警提前期:</label>
+                <input class="input-sm" aria-label="Text input with dropdown button" id="alarmTime" style="width:80" ng-model="task.alarmTime">
+                <select id="alarmTimeTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.alarmTimeTp">
+                    <option value="M">分钟</option>
+                    <option value="H">小时</option>
+                    <option value="D">天</option>
+                </select><br>
+            </div>
             <div class="col-xs-4">
                 显示内容
                 <textarea id="taskDescpDisp" rows="8" style="width:95%" ng-model="task.taskDescpDisp"></textarea>
@@ -123,8 +100,8 @@
                         <input type="checkbox" class="btn btn-default" id="txChoicAlwRej" ng-model="TX_CHOICES.AllowGoBack">
                         <label for="txChoicAlwRej" style="font-weight: inherit;">允许退回</label>
                     </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom" ng-model="TX_CHOICES.SignWhenGoBack">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowGoBack">
+                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom" ng-model="TX_CHOICES.SignWhenGoBack" ng-disabled="!TX_CHOICES.AllowGoBack">
                         <label for="txChoicRejCom" style="font-weight: inherit;">退回时必须签署意见</label>
                     </button>
                 </div>
@@ -133,8 +110,8 @@
                         <input type="checkbox" class="btn btn-default" id="txChoicAlwRej2" ng-model="TX_CHOICES.AllowReCall">
                         <label for="txChoicAlwRej2" style="font-weight: inherit;">允许撤回</label>
                     </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom2" ng-model="TX_CHOICES.SignWhenReCall">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowReCall">
+                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom2" ng-model="TX_CHOICES.SignWhenReCall" ng-disabled="!TX_CHOICES.AllowReCall">
                         <label for="txChoicRejCom2" style="font-weight: inherit;">撤回时必须签署意见</label>
                     </button>
                 </div>
@@ -143,8 +120,8 @@
                         <input type="checkbox" class="btn btn-default" id="txChoicAlwVeto" ng-model="TX_CHOICES.AllowVeto">
                         <label for="txChoicAlwVeto" style="font-weight: inherit;">允许否决</label>
                     </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
-                        <input type="checkbox" class="btn btn-default" id="txChoicVetoCom" ng-model="TX_CHOICES.SignWhenVeto">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowVeto">
+                        <input type="checkbox" class="btn btn-default" id="txChoicVetoCom" ng-model="TX_CHOICES.SignWhenVeto" ng-disabled="!TX_CHOICES.AllowVeto">
                         <label for="txChoicVetoCom" style="font-weight: inherit;">否决时必须签署意见</label>
                     </button>
                 </div>
@@ -160,27 +137,27 @@
                             <label for="txpComOnCom" style="font-weight: inherit;">提交时必须签署意见</label>
                         </button>
                         <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="txpNotifyNextOnPro" ng-model="task.TX_PR_CHOICES.NoticeNextAfterGo">
+                            <input type="checkbox" class="btn btn-default" id="txpNotifyNextOnPro" ng-model="task.TX_PR_CHOICES.NoticeNextAfterGo" ng-click="selectNotify($event)">
                             <label for="txpNotifyNextOnPro" style="font-weight: inherit;">处理后通知下一步事务处理人</label>
                         </button>
                         <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="txpNotifyCreOnPro" ng-model="task.TX_PR_CHOICES.NoticeFirstAfterGo">
+                            <input type="checkbox" class="btn btn-default" id="txpNotifyCreOnPro" ng-model="task.TX_PR_CHOICES.NoticeFirstAfterGo" ng-click="selectNotify($event)">
                             <label for="txpNotifyCreOnPro" style="font-weight: inherit;">处理后通知创建人</label>
                         </button>
                         <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="txpNotifyPreOnPro" ng-model="task.TX_PR_CHOICES.NoticePreviousAfterGo">
+                            <input type="checkbox" class="btn btn-default" id="txpNotifyPreOnPro" ng-model="task.TX_PR_CHOICES.NoticePreviousAfterGo" ng-click="selectNotify($event)">
                             <label for="txpNotifyPreOnPro" style="font-weight: inherit;">处理后通知上一步事务处理人</label>
                         </button>
-                        <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="txpNotifyCsOnPro" ng-model="task.TX_PR_CHOICES.NoticeElseAfterGo">
+                        <button type="button" class="btn btn-default text-left" style="text-align:left"  ng-disabled="!csFlag">
+                            <input type="checkbox" class="btn btn-default" id="txpNotifyCsOnPro" ng-model="task.TX_PR_CHOICES.NoticeElseAfterGo" ng-disabled="!csFlag">
                             <label for="txpNotifyCsOnPro" style="font-weight: inherit;">处理后通知其他会签人</label>
                         </button>
-                        <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="txpNotifyMsg" ng-model="task.TX_PR_CHOICES.MsgAlert">
+                        <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!needNotifyFlag">
+                            <input type="checkbox" class="btn btn-default" id="txpNotifyMsg" ng-model="task.TX_PR_CHOICES.MsgAlert" ng-disabled="!needNotifyFlag">
                             <label for="txpNotifyMsg" style="font-weight: inherit;">消息提醒</label>
                         </button>
-                        <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="txpNotifySms" ng-model="task.TX_PR_CHOICES.SmsAlert">
+                        <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!needNotifyFlag">
+                            <input type="checkbox" class="btn btn-default" id="txpNotifySms" ng-model="task.TX_PR_CHOICES.SmsAlert" ng-disabled="!needNotifyFlag">
                             <label for="txpNotifySms" style="font-weight: inherit;">短信提醒</label>
                         </button>
 
@@ -204,14 +181,14 @@
                 <div class="bs-example" data-example-id="vertical-button-group">
                     <div>会签选项</div>
                     <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="csAllCom" ng-model="task.SIGN_CHOICES.AllHandledThenGo">
+                        <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!csFlag">
+                            <input type="checkbox" class="btn btn-default" id="csAllCom" ng-model="task.SIGN_CHOICES.AllHandledThenGo" ng-disabled="!csFlag">
                             <label for="csAllCom" style="font-weight: inherit;">全部会签人员提交后流程提交下一步</label>
                         </button>
-                        <button type="button" class="btn btn-default text-left" style="text-align:left">
-                            <input type="checkbox" class="btn btn-default" id="csLeastCom" ng-model="task.SIGN_CHOICES.PartHandledThenGo">
+                        <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!csFlag">
+                            <input type="checkbox" class="btn btn-default" id="csLeastCom" ng-model="task.SIGN_CHOICES.PartHandledThenGo" ng-disabled="!csFlag">
                             <label for="csLeastCom" style="font-weight: inherit;">
-                                至少<input type="text" class="input-sm" style="width:30px" ng-model="task.SIGN_CHOICES.AtLeastHandled">会签人员提交后流程提交
+                                至少<input type="text" class="input-sm" style="width:50px" ng-model="task.SIGN_CHOICES.AtLeastHandled" ng-disabled="!csFlag">会签人员提交后流程提交
                             </label>
                         </button>
                     </div>
@@ -219,7 +196,7 @@
             </div>
         </div>
     </form>
-    <form id="updateTaskPropertiesForm2" style="display: none">
+    <form id="updateTaskPropertiesForm2" style="display: none" ng-show="showAssignerEdit">
         <div class="col-xs-12">
             <table class="table table-striped" id="selectedAssignersTable">
                 <thead><tr>

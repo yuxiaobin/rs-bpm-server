@@ -71,6 +71,14 @@ angular.module('taskApp', [ ])
             })
         });
         $scope.task = taskData;
+        if(taskData.taskType==RS_TYPE_START || taskData.taskType==RS_TYPE_END){
+            $scope.showAssignerEdit = false;
+            $scope.isStartEndNode = true;
+        }else{
+            $scope.showAssignerEdit = true;
+            $scope.isStartEndNode = false;
+        }
+
         $scope.TX_CHOICES = taskData.TX_CHOICES;//to avoid data convert issue when save
 
         $scope.updateTaskProperties = function(){
@@ -88,17 +96,25 @@ angular.module('taskApp', [ ])
                assigns.push(assigner);
             });
             taskData.assigners = assigns;
-            //
             taskData.txCode = $scope.task.txCode;
-            taskData.txType = $("#txType").attr("rs-attr-txType");
-            taskData.buzStatus = $("#buzStatus").attr("rs-attr-buzStatus");
+            taskData.txType = $scope.task.txType;
+            taskData.buzStatus = $scope.task.buzStatus;
             taskData.timeLimit =  $scope.task.timeLimit;
-            taskData.timeLimitTp = $("#timeLimitTp").attr("rs-attr-timeLimitTp");
+            taskData.timeLimitTp =  $scope.task.timeLimitTp;
             taskData.alarmTime = $scope.task.alarmTime;
-            taskData.alarmTimeTp = $("#alarmTimeTp").attr("rs-attr-alarmTimeTp");
+            taskData.alarmTimeTp =  $scope.task.alarmTimeTp;
             taskData.moduleId = $scope.task.moduleId;
             taskData.runParam = $scope.task.runParam;
             taskData.TX_CHOICES = $scope.TX_CHOICES;
+            if(!taskData.TX_CHOICES.AllowGoBack){
+                taskData.TX_CHOICES.SignWhenGoBack = false;
+            }
+            if(!taskData.TX_CHOICES.AllowReCall){
+                taskData.TX_CHOICES.SignWhenReCall = false;
+            }
+            if(!taskData.TX_CHOICES.AllowVeto){
+                taskData.TX_CHOICES.SignWhenVeto = false;
+            }
             taskData.TX_PR_CHOICES = $scope.task.TX_PR_CHOICES;
             taskData.TX_BK_CHOICES = $scope.task.TX_BK_CHOICES;
             taskData.SIGN_CHOICES = $scope.task.SIGN_CHOICES;
@@ -233,6 +249,30 @@ angular.module('taskApp', [ ])
             $("#selModeTxt").text(sel_target.text()).attr("def-sel-mod",sel_target.attr("def-sel-mod"));
             sel_target.parent().addClass("active");
             sel_target.parent().siblings().removeClass("active");
+        }
+
+        $scope.csFlag = false;
+        $scope.$watch('task.txType', function(newVal, oldVal) {
+            if(newVal=="M"){
+                $scope.csFlag = true;
+            }else{
+                $scope.csFlag = false;
+                $scope.task.SIGN_CHOICES.AllHandledThenGo = false;
+                $scope.task.SIGN_CHOICES.PartHandledThenGo = false;
+                $scope.task.SIGN_CHOICES.AtLeastHandled = "";
+                $scope.task.TX_PR_CHOICES.NoticeElseAfterGo = false;
+            }
+        });
+
+        $scope.needNotifyFlag = false;
+        $scope.selectNotify = function(event){
+            if($("#txpNotifyNextOnPro").is(':checked') || $("#txpNotifyCreOnPro").is(':checked') || $("#txpNotifyPreOnPro").is(':checked')){
+                $scope.needNotifyFlag = true;
+            }else{
+                $scope.needNotifyFlag = false;
+                $scope.task.TX_PR_CHOICES.MsgAlert = false;
+                $scope.task.TX_PR_CHOICES.SmsAlert = false;
+            }
         }
     }]);
 
