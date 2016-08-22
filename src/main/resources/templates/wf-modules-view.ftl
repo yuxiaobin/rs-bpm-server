@@ -6,7 +6,6 @@
     <script>
         var basePath = "${base.contextPath}";
         var module_task_flag = "modules";
-//        var role = "${role}";
     </script>
 
 </head>

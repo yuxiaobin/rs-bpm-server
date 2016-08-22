@@ -7,9 +7,8 @@ public class MyWebMvcConfigAdapter extends WebMvcConfigurerAdapter {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		// TODO Auto-generated method stub
 //		registry.addResourceHandler(pathPatterns)
-		registry.addResourceHandler("/static");
+//		registry.addResourceHandler("/static");
 		registry.addResourceHandler("/static/**").addResourceLocations(
 				"classpath:/static/");
 		super.addResourceHandlers(registry);
