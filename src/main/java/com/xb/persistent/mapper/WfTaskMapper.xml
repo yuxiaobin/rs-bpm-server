@@ -41,9 +41,9 @@ select distinct task.*,
 case when hist.task_id is not null then 'Y' else '' end as proc_flag,
 awt.TASK_ID_CURR as CURR_TASK_ID
 from wf_task task
-left join WF_INST_HIST hist on hist.TASK_ID= task.TASK_ID and hist.INST_ID = #{instId}
+left join wf_inst_hist hist on hist.TASK_ID= task.TASK_ID and hist.INST_ID = #{instId}
 left join wf_awt awt on awt.TASK_ID_CURR=task.task_id and (COMPLETE_FLAG is null or COMPLETE_FLAG='N') and awt.inst_id=#{instId} 
-join WF_INSTANCE inst on inst.WF_ID=task.WF_ID and inst.INST_ID=#{instId} 
+join wf_instance inst on inst.WF_ID=task.WF_ID and inst.INST_ID=#{instId} 
 </select>
 
 

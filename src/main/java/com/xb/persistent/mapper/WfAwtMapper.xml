@@ -31,7 +31,7 @@ case when awt.HIST_ID_PRE is null then awt.ASSIGNER_ID
 else hist_prev.NEXT_ASSIGNER end as task_owner,
 task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
 from wf_awt awt
-left join WF_INST_HIST hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
+left join wf_inst_hist hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 join wf_instance inst on inst.INST_ID=awt.INST_ID
 where awt.ASSIGNER_ID=#{userId} and (awt.complete_flag is null or awt.complete_flag!='Y')
@@ -44,7 +44,7 @@ else hist_prev.NEXT_ASSIGNER end as task_owner,
 task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
 from wf_awt awt
 join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
-left join WF_INST_HIST hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
+left join wf_inst_hist hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 where inst.RS_WF_ID=#{rsWfId} and inst.INST_NUM=#{instNum} 
 <if test="currUserId != null ">
