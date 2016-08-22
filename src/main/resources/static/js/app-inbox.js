@@ -31,6 +31,14 @@ angular.module('app', [ ])
 
         $scope.viewAwtInMK = function(rsWfId, instNum, refMkid){
             $window.location.href = basePath+"/mk/task?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid;
+        };
+
+        window.reloadTask = function(){
+            inboxService.getTaskInbox().then(function(success){
+                $scope.taskvList = success.records;
+            },function(fail){
+                console.error("getTaskInbox failed"+fail);
+            });
         }
 
         $scope.selectTableRow = function(evt){

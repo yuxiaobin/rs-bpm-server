@@ -118,7 +118,10 @@
         if(recvData.opt=="C"){
             $("#myModal").modal("hide");
         }
-
     }
+
+    $('#myModal').on('hide.bs.modal', function (e) {
+        window.reloadTask();
+    });
 </script>
 </html>
