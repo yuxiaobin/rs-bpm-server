@@ -128,55 +128,6 @@
 			<version>3.4</version>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<finalName>rs-bpm-server</finalName>
-		<filters>
-			<filter>src/main/resources/config/config_${env}.properties</filter>
-		</filters>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<excludes>
-					<exclude>jdbc.properties</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<excludes>
-					<exclude>application.properties</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>src/main/java</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</resource>
-		</resources>
-
-
-		<plugins>			
-			<plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-			        <mainClass>${start-class}</mainClass>
-			        <!-- layout>ZIP</layout>  -->
-			      </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-		</plugins>
-	</build>
-
 	<profiles>
 		<profile>
 			<id>tomcat</id>
@@ -210,24 +161,104 @@
 		</profile>
 		<profile>
 			<id>dev</id>
-			<properties>
-				<env>dev</env>
+			<properties> 
+				<profiles.active>dev</profiles.active>
 			</properties>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<property>
+                	<name>env</name>  
+                	<value>dev</value>  
+				</property>
 			</activation>
+			
+			<build>
+                <filters>  
+                    <filter>src/main/resources/config/config_dev.properties</filter>  
+                </filters>  
+            </build> 
 		</profile>
 		<profile>
 			<id>sit</id>
-			<properties>
-				<env>sit</env>
+			<properties> 
+				<profiles.active>sit</profiles.active>  <!-- mvn clean install -P sit -->
 			</properties>
+			<activation>  
+            	<property>  <!-- mvn clean install -Denv=sit -->
+                	<name>env</name>  
+                	<value>sit</value>  
+				</property>  
+            </activation>  
+			<build>  
+                <filters>  
+                    <filter>src/main/resources/config/config_sit.properties</filter>  
+                </filters>  
+            </build>  
 		</profile>
 		<profile>
 			<id>prd</id>
 			<properties>
-				<env>prd</env>
+				<profiles.active>prd</profiles.active>  
 			</properties>
+			<activation>  
+            	<property>  
+                	<name>env</name>  
+                	<value>prd</value>  
+				</property>  
+            </activation>  
+			<build>  
+                <filters>  
+                    <filter>src/main/resources/config/config_prd.properties</filter>  
+                </filters>  
+            </build> 
 		</profile>
 	</profiles>
+	<build>
+		<finalName>rs-bpm-server</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>jdbc.properties</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>application.properties</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		
+		<filters>
+            <filter>src/main/resources/config/config_${profiles.active}.properties</filter>
+        </filters>
+
+		<plugins>			
+			<plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+			        <mainClass>${start-class}</mainClass>
+			        <!-- layout>ZIP</layout>  -->
+			      </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
+
+
 </project>
