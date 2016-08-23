@@ -208,11 +208,15 @@
                     <th>执行条件</th>
                 </tr></thead>
                 <tbody>
-                <tr ng-repeat="assign in assignerList" def-sel-mod="{{assign.defSelMod}}" assign-type="{{assign.assignTypeCode}}" assign-id="{{assign.id}}">
+                <tr ng-repeat="assign in assignerList" def-sel-mod="{{assign.defSelMod}}" assign-type="{{assign.assignTypeCode}}"
+                        assign-id="{{assign.id}}" exe-conn="{{assign.exeConn}}" ng-click="selectAddedUserGroup($event)">
                     <td>{{assign.assignTypeDesc}}</td>
                     <td>{{assign.name}}</td>
                     <td>{{assign.defSelModTxt}}</td>
-                    <td><input type="checkbox" ng-checked="{{assign.checkFlag}}"></td>
+                    <td>
+                        <input type="checkbox" ng-if="assign.checkFlag" checked="checked" ng-disabled="true">
+                        <input type="checkbox" ng-if="!assign.checkFlag" ng-disabled="true">
+                    </td>
                     <td>{{assign.exeConn}}</td>
                 </tr>
                 </tbody>
@@ -223,7 +227,8 @@
             <div class="row">
                 <div class="btn-group" role="group" aria-label="...">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false" ng-click="cancelAddUserGroup()">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true" id="addDropdownTxt">添加</span>
                             <span class="caret"></span>
                         </button>
@@ -234,70 +239,50 @@
                             <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('Z',$event)">添加自定义</a></li>
                         </ul>
                     </div>
-                    <button type="button" class="btn btn-default">
-                        <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>修改
-                    </button>
-                    <button type="button" class="btn btn-default">
+                    <!--<button type="button" class="btn btn-default">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改
+                    </button>-->
+                    <button type="button" class="btn btn-default" ng-click="deleteAddedUserGroup()">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>删除
                     </button>
                     <button type="button" class="btn btn-default" ng-click="saveUserGroup()">
                         <span class="glyphicon glyphicon-save" aria-hidden="true"></span>保存
                     </button>
-                    <button type="button" class="btn btn-default">
+                    <button type="button" class="btn btn-default" ng-click="cancelAddUserGroup()">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>放弃
                     </button>
                 </div>
             </div>
-            <div class="row" id="addUserGroupId" style="display:none">
-                <div class="list-group col-xs-6" style="max-height: 500px;overflow: auto;display:none" id="showUsers">
-                    <a class="list-group-item" id="selectAllUsersId" href="javascript:void(0)">
-                        <div class="input-group">
-                                  <span class="input-group-addon" title="Select All">
-                                    <label for="allUsersCheckbox">Select All:</label>&nbsp;<input type="checkbox" id="allUsersCheckbox" aria-label="Select All" ng-click="selectAllUserChange()"><!--onclick="selectAllUserChange(this)" -->
-                                  </span>
-                            <input type="text" class="input-sm" aria-label="..." placeholder="filter" ng-model="userFilter">
-                        </div>
-                    </a>
-                    <a href="javascript:void(0)" ng-repeat="user in userList | filter:userFilter" class="list-group-item {{user.extClass}}"  rs-data-asname="{{user.name}}"  rs-data-asid="{{user.id}}" ng-click="selectUser(user.id)"><!--onclick="selectUser(this)"-->
-                        {{user.name}}
-                    </a>
+        </div>
+        <div class="col-xs-12 bs-example" id="addUserGroupId" style="display:none">
+            <div class="row">
+                <div class="col-xs-5" >
+                    <select id="selectedUserGroup" class="selectpicker" multiple data-live-search="true"
+                            ng-model="userGroupChoices.userGroupIds">
+                        <option ng-repeat="item in userGroupOptList" value="{{item.id}}">{{item.name}}</option>
+                    </select>
                 </div>
-                <div class="list-group col-xs-6" style="max-height: 500px;overflow: auto;display:none" id="showGroups">
-                    <a class="list-group-item" id="selectAllGroupId" href="javascript:void(0)">
-                        <div class="input-group">
-                              <span class="input-group-addon" title="Select All">
-                                <label for="allGroupsCheckbox">Select All:</label>&nbsp;<input type="checkbox" id="allGroupsCheckbox" aria-label="Select All" value="true" ng-click="selectAllGroupChange()">
-                              </span>
-                            <input type="text" class="input-sm" aria-label="..." placeholder="filter" ng-model="groupFilter">
-                        </div>
-                    </a>
-                    <a href="javascript:void(0)"  ng-repeat="group in groupList | filter:groupFilter" class="list-group-item {{group.extClass}}" rs-data-asname="{{group.groupName}}" rs-data-asid="{{group.groupId}}" ng-click="selectGroup(group.groupId)">
-                        {{group.groupName}}
-                    </a>
+                <div class="col-xs-5">
+                    <label>选中模式：</label>
+                    <select id="selectMode" class="selectpicker">
+                        <option value="0">默认不选中</option>
+                        <option value="1">默认选中，允许取消</option>
+                        <option value="2">默认选中，不允许取消</option>
+                    </select>
                 </div>
-                <div class="list-group col-xs-6">
-                    <div class="input-group">
-                        <span class="input-group-addon" id="basic-addon1">选中模式：</span>
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                <span id="selModeTxt">{{defSelModTxt_no}}</span>
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <li><a href="#" ng-click="selectAssignerDefSelMode($event)" def-sel-mod="N">{{defSelModTxt_no}}</a></li>
-                                <li><a href="#" ng-click="selectAssignerDefSelMode($event)" def-sel-mod="Y">{{defSelModTxt_yes}}</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <span class="input-group-addon">
-                            <input type="checkbox" aria-label="..." id="selAllFlag">
-                        </span>
-                        整体选择
-                    </div>
+                <div class="col-xs-2">
+                    <button type="button" class="btn btn-default">
+                        <input type="checkbox" class="btn btn-default" id="allSelected" ng-model="userGroupChoices.allSelected" >
+                        <label for="allSelected" style="font-weight: inherit;">整体选择</label>
+                    </button>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
                     <div class="input-group">
                         <span class="input-group-addon" >执行条件：</span>
-                        <textarea class="form-control" id="exeConn" ng-model="exeConn"></textarea>
+                        <textarea class="form-control" id="exeConn" ng-model="userGroupChoices.exeConn"></textarea>
                     </div>
                 </div>
             </div>

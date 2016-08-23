@@ -1,11 +1,14 @@
 package com.xb.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.persistent.TblGroup;
@@ -35,7 +38,21 @@ public class UserGroupController extends BaseController {
 	@ResponseBody
 	public Object getAllUsers(){
 		JSONObject result = new JSONObject();
-		result.put("records", userService.selectList(new TblUser()));
+		List<TblUser> userList = userService.selectList(new TblUser());
+		if(userList!=null){
+			JSONArray userArray = new JSONArray();
+			JSONObject ob = null;
+			for(TblUser usr:userList){
+				ob = new JSONObject();
+				ob.put("id", usr.getId());
+				ob.put("name", usr.getName());
+				userArray.add(ob);
+			}
+			result.put("records", userArray);
+		}
+		else{
+			result.put("records", "[]");
+		}
 		return result;
 	}
 	
@@ -43,7 +60,21 @@ public class UserGroupController extends BaseController {
 	@ResponseBody
 	public Object getAllGroups(){
 		JSONObject result = new JSONObject();
-		result.put("records", groupService.selectList(new TblGroup()));
+		List<TblGroup> groupList = groupService.selectList(new TblGroup());
+		if(groupList!=null){
+			JSONArray groupArray = new JSONArray();
+			JSONObject ob = null;
+			for(TblGroup gp:groupList){
+				ob = new JSONObject();
+				ob.put("id", gp.getGroupId());
+				ob.put("name", gp.getGroupName());
+				groupArray.add(ob);
+			}
+			result.put("records", groupArray);
+		}
+		else{
+			result.put("records", "[]");
+		}
 		return result;
 	}
 	

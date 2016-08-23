@@ -108,10 +108,10 @@
 
 
 		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>com.alibaba</groupId>
@@ -218,17 +218,18 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
-				<excludes>
-					<exclude>jdbc.properties</exclude>
-				</excludes>
+				<excludes>  
+                    <exclude>static/fonts/**</exclude>  
+                </excludes>  
 			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<excludes>
-					<exclude>application.properties</exclude>
-				</excludes>
-			</resource>
+			<!-- fonts file cannot use filter as the data structure of byte file will be changed via filter -->
+			<resource>  
+                <directory>src/main/resources</directory>  
+                <filtering>false</filtering>  
+                <includes>  
+                    <include>static/fonts/**</include>  
+                </includes>  
+            </resource>  
 			<resource>
 				<directory>src/main/java</directory>
 				<includes>

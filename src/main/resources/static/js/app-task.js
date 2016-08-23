@@ -43,6 +43,11 @@ angular.module('taskApp', [ ])
         $scope.assignTypeDesc_user = "用户";
         $scope.assignTypeDesc_group = "用户组";
         $scope.assignTypeDesc_other = "其他";
+
+        if(angular.isUndefined( $scope.userGroupChoices)){
+            $scope.userGroupChoices = {};
+        }
+        $scope.selectModeOptList = [{value:0,descp:"默认不选中"},{value:1,descp:"默认选中，允许取消"},{value:2,descp:"默认选中，不允许取消"}];
         userGroupService.getAllUsers().then(function(success){
             $scope.userList = success.records;
             userGroupService.getAllGroups().then(function(success){
@@ -110,7 +115,9 @@ angular.module('taskApp', [ ])
         if($scope.task.TX_PR_CHOICES.NoticeNextAfterGo || $scope.task.TX_PR_CHOICES.NoticeFirstAfterGo || $scope.task.TX_PR_CHOICES.NoticePreviousAfterGo || $scope.task.TX_PR_CHOICES.NoticeElseAfterGo){
             $scope.needNotifyFlag = true;
         }
-
+        /**
+         * Click Save button to save task properties
+         */
         $scope.updateTaskProperties = function(){
             if(angular.isUndefined($scope.task.TX_PR_CHOICES)){
                 $scope.task.TX_PR_CHOICES = {};
@@ -227,20 +234,30 @@ angular.module('taskApp', [ ])
                 });
             }
         }
-
+        /**
+         * 保存选择的用户、用户组或其他，以及附属的属性
+         */
         $scope.saveUserGroup = function(){
             if(angular.isUndefined($scope.assignerList)){
                 $scope.assignerList = [];
             }
-            var assignListId = "";
-            if($scope.ugflag=="U"){
-                assignListId = "selectAllUsersId";
-            }else if($scope.ugflag=="G"){
-                assignListId = "selectAllGroupId";
-            }else{
-                assignListId = "selectAllGroupId";//TODO:
+            if(angular.isUndefined($scope.userGroupChoices.userGroupIds) || $scope.userGroupChoices.userGroupIds==""){
+                alert("请选择需要添加的用户或用户组");
+                return;
             }
-            $("#"+assignListId).siblings(".active").each(function(){
+            var userGroupIdsArray = $scope.userGroupChoices.userGroupIds.toString().split(",");
+            var selectedOptList = $.grep($scope.userGroupOptList,function(value){
+                for(var i=0;i<userGroupIdsArray.length;++i){
+                    if(userGroupIdsArray[i]==value.id){
+                        return true;
+                    }
+                }
+                return false;
+            });
+            var selectedModeOpt = $.grep($scope.selectModeOptList,function(value){
+               return value.value==$("#selectMode").val();
+            });
+            for(var i=0;i<selectedOptList.length;++i){
                 var assigner = {};
                 if($scope.ugflag=="U"){
                     assigner.assignTypeDesc = "用户";
@@ -252,40 +269,116 @@ angular.module('taskApp', [ ])
                     assigner.assignTypeDesc = "自定义";
                 }
                 assigner.assignTypeCode = $scope.ugflag;
-                assigner.name = $(this).attr("rs-data-asname");
-                assigner.id = $(this).attr("rs-data-asid");
-                assigner.defSelModTxt = $("#selModeTxt").text();
-                assigner.defSelMod = $("#selModeTxt").attr("def-sel-mod");
-                if($("#selAllFlag").is(':checked')){
-                    assigner.checkFlag = true;
-                }else{
-                    assigner.checkFlag = false;
-                }
-                assigner.exeConn = $scope.exeConn;
+                assigner.name = selectedOptList[i].name;
+                assigner.id = selectedOptList[i].id;
+                assigner.defSelMod = $("#selectMode").val();
+                assigner.defSelModTxt = selectedModeOpt[0].descp;
+                assigner.checkFlag = $scope.userGroupChoices.allSelected;
+                assigner.exeConn = $scope.userGroupChoices.exeConn;
                 if(isAssignerSelected($scope.assignerList,assigner)){
-                    console.log("same user/group already existed");
+                    $.grep($scope.assignerList,function(value){
+                        if(value.id==assigner.id && value.assignTypeCode==assigner.assignTypeCode){
+                            value.defSelMod = assigner.defSelMod;
+                            value.defSelModTxt = assigner.defSelModTxt;
+                            value.checkFlag = assigner.checkFlag;//fixed by using ng-if
+                            value.exeConn = assigner.exeConn;
+                        }
+                        return true;
+                    });
                 }else{
                     $scope.assignerList[$scope.assignerList.length] = assigner;
                 }
-                $(this).removeClass("active");
-
-            });
-            $("#selectAllGroupId").siblings(".active").each(function(){
-//                assignedGroupsStr+=$(this).attr("rs-data-gpname")+",";
-            });
+            }
+            $("#selectMode").selectpicker('val', "0");
+            $("#selectedUserGroup").selectpicker('val', "");
+            $scope.userGroupChoices = {};
+            $("#selectedAssignersTable .active").removeClass("active");
         };
+        /**
+         * 放弃添加、修改 用户、用户组等
+         */
+        $scope.cancelAddUserGroup = function(){
+            $("#selectMode").selectpicker('val', "0");
+            $("#selectedUserGroup").selectpicker('val', "");
+            $scope.userGroupChoices = {};
+            $("#selectedAssignersTable .active").removeClass("active");
+        };
+        $scope.deleteAddedUserGroup = function(){
+            if(angular.isUndefined($scope.userGroupChoices.userGroupIds)){
+                return;
+            }
+            var idArray = $scope.userGroupChoices.userGroupIds.toString().split(",");
+            $scope.assignerList = $.grep($scope.assignerList,function(val){
+                for(var i=0;i<idArray.length;++i){
+                    if(idArray[i] == val.id){
+                        return false;
+                    }
+                }
+                return true;
+            })
+            $("#selectMode").selectpicker('val', "0");
+            $("#selectedUserGroup").selectpicker('val', "");
+            $scope.userGroupChoices = {};
+            $("#selectedAssignersTable .active").removeClass("active");
+        };
+        /**
+         * 选择一条已选的用户或用户组
+         * @param evt
+         */
+        $scope.selectAddedUserGroup = function(evt){
+            var selectedTr = $(evt.target).parent();
+            selectedTr.addClass("active").siblings().removeClass("active");
+            var assign_id = selectedTr.attr("assign-id");
+            var assign_type = selectedTr.attr("assign-type");
+            if(assign_type=="U"){
+                $scope.userGroupOptList = $scope.userList;
+            }else if(assign_type=="G"){
+                $scope.userGroupOptList = $scope.groupList;
+            }
+            var def_sel_mod = selectedTr.attr("def-sel-mod");
+            var exe_conn = selectedTr.attr("exe-conn");
+            $scope.userGroupChoices.userGroupIds = assign_id;
+            $("#selectedUserGroup").selectpicker('hide').selectpicker("destroy");
+            $("#selectMode").selectpicker('hide').selectpicker("destroy");
+            setTimeout(function(){
+                $("#selectedUserGroup").selectpicker('show').selectpicker('val', assign_id);
+                $("#selectMode").selectpicker('show').selectpicker('val', def_sel_mod);
+            },100);
+            $("#selectMode").val(def_sel_mod);
+            $scope.userGroupChoices.allSelected = selectedTr.find("input").eq(0).is(":checked")
+            $scope.userGroupChoices.exeConn = exe_conn;
+        };
+        /**
+         * 选择添加用户、用户组、其他等
+         * @param ugflag
+         * @param evt
+         */
         $scope.selectAddUserGroups = function(ugflag,evt){
             $scope.ugflag = ugflag;
-            $("#addUserGroupId").css("display","");
             if("U"==ugflag){
                 $("#showUsers").css("display","");
                 $("#showGroups").css("display","none");
+                $scope.userGroupOptList = $scope.userList;
+                $("#selectedUserGroup").selectpicker('hide').selectpicker("destroy");
+                setTimeout(function(){
+                    $("#selectedUserGroup").selectpicker('show')
+                },100);
+                $("#addUserGroupId").css("display","");
             }
             else if("G"==ugflag){
                 $("#showGroups").css("display","");
                 $("#showUsers").css("display","none");
+                $scope.userGroupOptList = $scope.groupList;
+                $("#selectedUserGroup").selectpicker('hide').selectpicker("destroy");
+                setTimeout(function(){
+                    $("#selectedUserGroup").selectpicker('show')
+                },100);
+                $("#addUserGroupId").css("display","");
+            }else{
+                //TODO for other types
             }
             $("#addDropdownTxt").text($(evt.target).text());
+
         }
         $scope.selectAssignerDefSelMode = function(evt){
             var sel_target = $(evt.target);
@@ -348,5 +441,6 @@ function isAssignerSelected(assignerList, assigner){
     if(existed==undefined || existed==""){
         return false;
     }
+    existed.exeConn ="update test todo";//TODO:for testing only to be removed
     return true;
 }
