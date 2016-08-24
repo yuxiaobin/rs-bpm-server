@@ -97,15 +97,6 @@
         $("#taskDescpId").val(taskData.taskDescp);
         $("#taskPgId").val(taskData.taskPgId);
         $("#taskType").val(taskData.taskType);
-
-        if(RS_TYPE_USER==taskData.taskType){
-            $("#nextAssignerDisplay").show();
-        }else{
-            $("#nextAssignerDisplay").hide();
-        }
-        if(RS_TYPE_START == taskData.taskType || RS_TYPE_END == taskData.taskType){
-            $("#deleteBtn").hide();
-        }
     }
 
 

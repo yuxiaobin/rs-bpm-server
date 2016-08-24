@@ -4,6 +4,7 @@
  * Popup page for Edit Task
  */
 var basePath = "";
+var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{TYPE:"G",DESCP:"添加用户组"}};
 angular.module('taskApp', [ ])
     .service('userGroupService',['$http', '$q', function ($http, $q) {
         this.getAllUsers = function(){
@@ -56,9 +57,9 @@ angular.module('taskApp', [ ])
                     $timeout(function(){
                         $scope.assignerList = taskData.assigners;
                         angular.forEach($scope.assignerList,function(item,index){
-                            if(item.assignTypeCode=="U"){
+                            if(item.assignTypeCode==addUserGroupTypes.ADD_USER.CODE){
                                 item.assignTypeDesc = $scope.assignTypeDesc_user;
-                            }else if(item.assignTypeCode=="G"){
+                            }else if(item.assignTypeCode==addUserGroupTypes.ADD_GROUP.CODE){
                                 item.assignTypeDesc =  $scope.assignTypeDesc_group;
                             } else{
                                 item.assignTypeDesc = $scope.assignTypeDesc_other;
@@ -143,6 +144,7 @@ angular.module('taskApp', [ ])
                 assigner.id = item.id;
                 assigner.defSelModTxt = item.defSelModTxt;
                 assigner.checkFlag = item.checkFlag;
+                assigner.exeConn = item.exeConn;
                assigns.push(assigner);
             });
             taskData.assigners = assigns;
@@ -168,7 +170,7 @@ angular.module('taskApp', [ ])
             taskData.TX_PR_CHOICES = $scope.task.TX_PR_CHOICES;
             taskData.TX_BK_CHOICES = $scope.task.TX_BK_CHOICES;
             taskData.SIGN_CHOICES = $scope.task.SIGN_CHOICES;
-            taskData.opt = "U";
+            taskData.opt = addUserGroupTypes.ADD_USER.CODE;
             window.parent.postMessage(JSON.stringify(taskData), '*');
             $("#successMsg").css("display","");
         }
@@ -259,9 +261,9 @@ angular.module('taskApp', [ ])
             });
             for(var i=0;i<selectedOptList.length;++i){
                 var assigner = {};
-                if($scope.ugflag=="U"){
+                if($scope.ugflag==addUserGroupTypes.ADD_USER.CODE){
                     assigner.assignTypeDesc = "用户";
-                }else if($scope.ugflag=="G"){
+                }else if($scope.ugflag==addUserGroupTypes.ADD_GROUP.CODE){
                     assigner.assignTypeDesc = "用户组";
                 }else if($scope.ugflag=="R"){
                     assigner.assignTypeDesc = "岗位";
@@ -330,10 +332,13 @@ angular.module('taskApp', [ ])
             selectedTr.addClass("active").siblings().removeClass("active");
             var assign_id = selectedTr.attr("assign-id");
             var assign_type = selectedTr.attr("assign-type");
-            if(assign_type=="U"){
-                $scope.userGroupOptList = $scope.userList;
-            }else if(assign_type=="G"){
+            $scope.ugflag = assign_type;
+             $scope.userGroupOptList = $scope.userList;
+            if(assign_type==addUserGroupTypes.ADD_USER.CODE){
+                $("#addDropdownTxt").text(addUserGroupTypes.ADD_USER.DESCP);
+            }else if(assign_type==addUserGroupTypes.ADD_GROUP.CODE){
                 $scope.userGroupOptList = $scope.groupList;
+                $("#addDropdownTxt").text(addUserGroupTypes.ADD_GROUP.DESCP);
             }
             var def_sel_mod = selectedTr.attr("def-sel-mod");
             var exe_conn = selectedTr.attr("exe-conn");
@@ -347,6 +352,7 @@ angular.module('taskApp', [ ])
             $("#selectMode").val(def_sel_mod);
             $scope.userGroupChoices.allSelected = selectedTr.find("input").eq(0).is(":checked")
             $scope.userGroupChoices.exeConn = exe_conn;
+            $("#addUserGroupId").css("display","");
         };
         /**
          * 选择添加用户、用户组、其他等
@@ -355,7 +361,7 @@ angular.module('taskApp', [ ])
          */
         $scope.selectAddUserGroups = function(ugflag,evt){
             $scope.ugflag = ugflag;
-            if("U"==ugflag){
+            if(addUserGroupTypes.ADD_USER.CODE==ugflag){
                 $("#showUsers").css("display","");
                 $("#showGroups").css("display","none");
                 $scope.userGroupOptList = $scope.userList;
@@ -365,7 +371,7 @@ angular.module('taskApp', [ ])
                 },100);
                 $("#addUserGroupId").css("display","");
             }
-            else if("G"==ugflag){
+            else if(addUserGroupTypes.ADD_GROUP.CODE==ugflag){
                 $("#showGroups").css("display","");
                 $("#showUsers").css("display","none");
                 $scope.userGroupOptList = $scope.groupList;

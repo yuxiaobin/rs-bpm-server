@@ -265,9 +265,7 @@
                 <div class="col-xs-5">
                     <label>选中模式：</label>
                     <select id="selectMode" class="selectpicker">
-                        <option value="0">默认不选中</option>
-                        <option value="1">默认选中，允许取消</option>
-                        <option value="2">默认选中，不允许取消</option>
+                        <option ng-repeat="opt in selectModeOptList" value="{{opt.value}}">{{opt.descp}}</option>
                     </select>
                 </div>
                 <div class="col-xs-2">
@@ -315,14 +313,6 @@
        $("#taskPgId").val(taskData.taskPgId);
        $("#taskType").val(taskData.taskType);
 
-       if(RS_TYPE_USER==taskData.taskType){
-           $("#nextAssignerDisplay").show();
-       }else{
-           $("#nextAssignerDisplay").hide();
-       }
-       if(RS_TYPE_START == taskData.taskType || RS_TYPE_END == taskData.taskType){
-           $("#deleteBtn").hide();
-       }
    }
 
 
