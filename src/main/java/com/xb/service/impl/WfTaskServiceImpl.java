@@ -320,6 +320,17 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		if(awt==null){
 			return null;
 		}
-		return taskAssignerService.getUsersGroupsByTaskId(awt.getTaskIdCurr()).toJSONObject();
+		String optCode = optVO.getOptCode();
+		String currTaskId = awt.getTaskIdCurr();
+		String nextTaskId = null;
+		if(WFConstants.OptTypes.REJECT.equals(optCode)){
+			nextTaskId = getPrevTaskId(currTaskId);
+		}else if(WFConstants.OptTypes.COMMIT.equals(optCode)){
+			nextTaskId = getNextTaskId(currTaskId);
+		}else{
+			System.out.println("Currently not support other option code:"+optCode);//TODO: other OptCode , get assigners
+			return null;
+		}
+		return taskAssignerService.getUsersGroupsByTaskId(nextTaskId).toJSONObject();
 	}
 }

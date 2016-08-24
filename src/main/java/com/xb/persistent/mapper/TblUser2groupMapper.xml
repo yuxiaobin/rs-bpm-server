@@ -34,7 +34,7 @@ where id in
 select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
 from tbl_user u, tbl_user2group ug, tbl_group g
 where u.id=ug.user_id and ug.group_id=g.GROUP_ID
-and GROUP_ID in
+and ug.GROUP_ID in
 <foreach collection="groupidList" index="index" item="groupid" open="("
     separator="," close=")">
   #{groupid}
