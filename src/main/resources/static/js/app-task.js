@@ -4,7 +4,9 @@
  * Popup page for Edit Task
  */
 var basePath = "";
-var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{CODE:"G",DESCP:"添加用户组"}};
+var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{CODE:"G",DESCP:"添加用户组"}, ADD_POST:{CODE:"R",DESCP:"添加岗位"}};
+var selectModeTypes = {NOT_SELECTED:"默认不选中", SELECTED_WITH_CANCEL:"默认选中，允许取消", SELECTED_WITHOUT_CANCEL:"默认选中，不允许取消"};
+var assignTypeDescps = {USER:"用户", GROUP:"用户组", POST:"岗位", OTHER:"自定义"};
 angular.module('taskApp', [ ])
     .service('userGroupService',['$http', '$q', function ($http, $q) {
         this.getAllUsers = function(){
@@ -39,16 +41,10 @@ angular.module('taskApp', [ ])
         };
     }])
     .controller('taskCtrl', ['$scope','$timeout', 'userGroupService', function ($scope,$timeout, userGroupService) {
-        $scope.defSelModTxt_yes = "默认选中";
-        $scope.defSelModTxt_no = "默认不选中";
-        $scope.assignTypeDesc_user = "用户";
-        $scope.assignTypeDesc_group = "用户组";
-        $scope.assignTypeDesc_other = "其他";
-
         if(angular.isUndefined( $scope.userGroupChoices)){
             $scope.userGroupChoices = {};
         }
-        $scope.selectModeOptList = [{value:0,descp:"默认不选中"},{value:1,descp:"默认选中，允许取消"},{value:2,descp:"默认选中，不允许取消"}];
+        $scope.selectModeOptList = [{value:0,descp:selectModeTypes.NOT_SELECTED},{value:1,descp:selectModeTypes.SELECTED_WITH_CANCEL},{value:2,descp:selectModeTypes.SELECTED_WITHOUT_CANCEL}];
         userGroupService.getAllUsers().then(function(success){
             $scope.userList = success.records;
             userGroupService.getAllGroups().then(function(success){
@@ -58,17 +54,20 @@ angular.module('taskApp', [ ])
                         $scope.assignerList = taskData.assigners;
                         angular.forEach($scope.assignerList,function(item,index){
                             if(item.assignTypeCode==addUserGroupTypes.ADD_USER.CODE){
-                                item.assignTypeDesc = $scope.assignTypeDesc_user;
+                                item.assignTypeDesc = assignTypeDescps.USER;
                             }else if(item.assignTypeCode==addUserGroupTypes.ADD_GROUP.CODE){
-                                item.assignTypeDesc =  $scope.assignTypeDesc_group;
-                            } else{
-                                item.assignTypeDesc = $scope.assignTypeDesc_other;
-                            }
-                            if(item.defSelMod=="Y"){
-                                item.defSelModTxt = $scope.defSelModTxt_yes;
-
+                                item.assignTypeDesc =  assignTypeDescps.GROUP;
+                            } else if(item.assignTypeCode==addUserGroupTypes.ADD_POST.CODE){
+                                item.assignTypeDesc =  assignTypeDescps.POST;
                             }else{
-                                item.defSelModTxt = $scope.defSelModTxt_no;
+                                item.assignTypeDesc = assignTypeDescps.OTHER;
+                            }
+                            if(item.defSelMod=="1"){
+                                item.defSelModTxt = selectModeTypes.SELECTED_WITH_CANCEL;
+                            }else if(item.defSelMod=="2"){
+                                item.defSelModTxt = selectModeTypes.SELECTED_WITHOUT_CANCEL;
+                            }else{
+                                item.defSelModTxt = selectModeTypes.NOT_SELECTED;
                             }
                         });
 
@@ -262,14 +261,14 @@ angular.module('taskApp', [ ])
             });
             for(var i=0;i<selectedOptList.length;++i){
                 var assigner = {};
-                if($scope.ugflag==addUserGroupTypes.ADD_USER.CODE){
-                    assigner.assignTypeDesc = "用户";
-                }else if($scope.ugflag==addUserGroupTypes.ADD_GROUP.CODE){
-                    assigner.assignTypeDesc = "用户组";
-                }else if($scope.ugflag=="R"){
-                    assigner.assignTypeDesc = "岗位";
+                if($scope.ugflag == addUserGroupTypes.ADD_USER.CODE){
+                    assigner.assignTypeDesc = assignTypeDescps.USER;
+                }else if($scope.ugflag == addUserGroupTypes.ADD_GROUP.CODE){
+                    assigner.assignTypeDesc = assignTypeDescps.GROUP;
+                }else if($scope.ugflag == addUserGroupTypes.ADD_POST.CODE){
+                    assigner.assignTypeDesc = assignTypeDescps.POST;
                 }else{
-                    assigner.assignTypeDesc = "自定义";
+                    assigner.assignTypeDesc = assignTypeDescps.OTHER;
                 }
                 assigner.assignTypeCode = $scope.ugflag;
                 assigner.name = selectedOptList[i].name;
