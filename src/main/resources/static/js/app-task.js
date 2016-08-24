@@ -4,7 +4,7 @@
  * Popup page for Edit Task
  */
 var basePath = "";
-var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{TYPE:"G",DESCP:"添加用户组"}};
+var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{CODE:"G",DESCP:"添加用户组"}};
 angular.module('taskApp', [ ])
     .service('userGroupService',['$http', '$q', function ($http, $q) {
         this.getAllUsers = function(){
@@ -142,6 +142,7 @@ angular.module('taskApp', [ ])
                 assigner.assignTypeCode = item.assignTypeCode;
                 assigner.name = item.name;
                 assigner.id = item.id;
+                assigner.defSelMod = item.defSelMod;
                 assigner.defSelModTxt = item.defSelModTxt;
                 assigner.checkFlag = item.checkFlag;
                 assigner.exeConn = item.exeConn;
