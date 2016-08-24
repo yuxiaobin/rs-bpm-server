@@ -79,7 +79,7 @@ public class WfTask extends CUBaseTO implements Serializable {
 
 	/**  */
 	@TableField(value = "MODULE_ID")
-	private String moduleId;
+	private String moduleId;//事务定义>功能模块
 
 	/**  */
 	@TableField(value = "Run_Param")

@@ -3,7 +3,6 @@ package com.xb.vo;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xb.persistent.RsModule;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfDef;
 import com.xb.persistent.WfTask;
@@ -15,7 +14,7 @@ public class WFDetailVO {
 
 	private RsWorkflow rsWF;
 	private WfDef wfDef;// latest record > max Version
-	private RsModule module;
+//	private RsModule module;
 
 	List<WfTask> tasks;
 	List<WfTaskConn> conns;
@@ -60,13 +59,13 @@ public class WFDetailVO {
 		this.wfData = wfData;
 	}
 
-	public RsModule getModule() {
-		return module;
-	}
-
-	public void setModule(RsModule module) {
-		this.module = module;
-	}
+//	public RsModule getModule() {
+//		return module;
+//	}
+//
+//	public void setModule(RsModule module) {
+//		this.module = module;
+//	}
 
 	
 }

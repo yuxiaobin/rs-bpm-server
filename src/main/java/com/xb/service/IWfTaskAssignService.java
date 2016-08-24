@@ -2,9 +2,9 @@ package com.xb.service;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.ICommonService;
 import com.xb.persistent.WfTaskAssign;
-import com.xb.vo.UsersGroupsVO4Task;
 
 /**
  *
@@ -21,5 +21,5 @@ public interface IWfTaskAssignService extends ICommonService<WfTaskAssign> {
 	 * @param taskId
 	 * @return
 	 */
-	public UsersGroupsVO4Task getUsersGroupsByTaskId(String taskId);
+	public JSONObject getUsersGroupsByTaskId(String taskId);
 }

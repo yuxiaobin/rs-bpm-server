@@ -6,7 +6,6 @@ import com.xb.persistent.WfInstHist;
 public class TaskVO {
 	private WfAwt awt;//待办事宜
 	
-	
 	private WfInstHist instHist;//上一条历史记录
 	public WfInstHist getInstHist() {
 		return instHist;
@@ -19,6 +18,29 @@ public class TaskVO {
 	}
 	public void setAwt(WfAwt awt) {
 		this.awt = awt;
+	}
+	
+	private String taskId;
+	private String taskDescpDisp;
+	private String taskType;//start-task, end-task, user-task, rs-cond-task
+	//TODO: other fields for reject
+	public String getTaskDescpDisp() {
+		return taskDescpDisp;
+	}
+	public void setTaskDescpDisp(String taskDescpDisp) {
+		this.taskDescpDisp = taskDescpDisp;
+	}
+	public String getTaskType() {
+		return taskType;
+	}
+	public void setTaskType(String taskType) {
+		this.taskType = taskType;
+	}
+	public String getTaskId() {
+		return taskId;
+	}
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
 	}
 	
 }

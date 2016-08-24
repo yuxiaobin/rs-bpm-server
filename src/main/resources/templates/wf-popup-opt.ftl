@@ -17,6 +17,9 @@
         <#if optCode?exists>
             var optCode = "${optCode}";
         </#if>
+        <#if TX_PR_CHOICES?exists>
+            var TX_PR_CHOICES = ${TX_PR_CHOICES};
+        </#if>
     </script>
 </head>
 <body ng-app="taskApp" ng-controller="taskCtrl">
@@ -29,7 +32,7 @@
         <div class="col-xs-7">
             <div style="width: 100%;">
                 <div class="panel panel-default">
-                    <div class="panel-heading">1、请填写处理意见：</div>
+                    <div class="panel-heading">1、请填写处理意见{{SignWhenGoDisp}}：</div>
                     <textarea rows="8" style="width:100%" id="comments"></textarea>
                 </div>
             </div>
@@ -38,7 +41,10 @@
                     <div class="panel-heading">2、请选择下一步处理事务：</div>
                     <table class="table" id="taskTable">
                         <tr ng-repeat="task in taskList">
-                            <td><input type="checkbox" value="{{task.taskId}}"></td>
+                            <td ng-switch="task.checkedFlag">
+                                <input ng-switch-when="true" ng-checked="true" ng-disabled="true" type="checkbox" value="{{task.taskId}}">
+                                <input ng-switch-default type="checkbox" value="{{task.taskId}}">
+                            </td>
                             <td>{{task.taskDescpDisp}}</td>
                         </tr>
                     </table>
@@ -48,36 +54,44 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">已选择待处理人员</div>
                     <div class="panel-body">
-                        <p style="word-break: break-all;" ng-bind="selectedAssigners"></p>
+                        <p style="word-break: break-word;" ng-bind="selectedAssigners"></p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xs-5">
-            <div class="panel panel-default">
+        <div class="col-xs-5" id="selectAssignerPanel">
+            <div class="panel panel-default" style="max-height: 500px;overflow: auto">
                 <div class="panel-heading"> 3、请选择下一步处理人员：</div>
-                <table class="table" id="userTable">
-                    <tr>
-                        <td colspan="3">类型：用户</td>
-                    </tr>
+                <div class="panel-body">
+                    <span class="glyphicon glyphicon-minus" style="cursor: pointer;" aria-hidden="true" onclick="expandClick(this)">类型：用户</span>
+                </div>
+                <table class="table" id="userTable" style="max-height: 500px;overflow: auto">
                     <tr ng-repeat="user in userList">
-                        <td><input type="checkbox" value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)"></td>
+                        <td ng-switch="user.defSelMod">
+                            <input type="checkbox" ng-switch-when="1" ng-checked="true"  value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
+                            <input type="checkbox" ng-switch-when="2" ng-checked="true" ng-disabled="true" value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
+                            <input type="checkbox" ng-switch-default value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
+                        </td>
                         <td>{{user.id}}</td>
                         <td>{{user.name}}</td>
                     </tr>
                 </table>
+                <div class="panel-body">
+                    <span class="glyphicon glyphicon-minus" style="cursor: pointer;" aria-hidden="true" onclick="expandClick(this)">类型：用户组</span>
+                </div>
                 <table class="table" id="groupTable">
-                    <tr>
-                        <td colspan="3">类型：用户组</td>
-                    </tr>
                     <tr ng-repeat="group in groupList">
-                        <td><input type="checkbox" value="{{group.id}}" rs-attr-name="{{group.usersInGroup}}" ng-click="selectGroups($event)"></td>
+                        <td ng-switch="group.defSelMod">
+                            <input type="checkbox" ng-switch-when="1" ng-checked="true"  value="{{group.id}}" rs-attr-name="{{group.usersInGroup}}" ng-click="selectGroups($event)">
+                            <input type="checkbox" ng-switch-when="2" ng-checked="true" ng-disabled="true"  value="{{group.id}}" rs-attr-name="{{group.usersInGroup}}" ng-click="selectGroups($event)">
+                            <input type="checkbox" ng-switch-default value="{{group.id}}" rs-attr-name="{{group.usersInGroup}}" ng-click="selectGroups($event)">
+                        </td>
                         <td>{{group.id}}</td>
                         <td>{{group.name}}</td>
                     </tr>
                 </table>
             </div>
-            </div>
+        </div>
     </div>
 </div>
 <div class="modal-footer">
@@ -90,15 +104,4 @@
 <script src="${base.contextPath}/static/js/angular.js"></script>
 <script src="${base.contextPath}/static/js/bootstrap.js"></script>
 <script src="${base.contextPath}/static/js/app-opt.js"></script>
-<script>
-    if(typeof(taskData)=='undefined'){
-        console.log("taskData is undefined");
-    }else{
-        $("#taskDescpId").val(taskData.taskDescp);
-        $("#taskPgId").val(taskData.taskPgId);
-        $("#taskType").val(taskData.taskType);
-    }
-
-
-</script>
 </html>

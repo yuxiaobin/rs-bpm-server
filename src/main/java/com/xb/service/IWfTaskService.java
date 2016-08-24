@@ -7,6 +7,7 @@ import com.baomidou.framework.service.ICommonService;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfTask;
 import com.xb.vo.TaskOptVO;
+import com.xb.vo.TaskVO;
 import com.xb.vo.WFDetailVO;
 
 /**
@@ -19,9 +20,6 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	public List<WfAwt> getTasksInbox(String userId);
 	
 	public void startWF4Module(String moduleId, String rsWfId, String userId);
-	
-	@Deprecated
-	public void processTask(String instId, String userId, String opt);
 	
 	public void processTask(TaskOptVO optVO, String currUserId);
 	/**
@@ -42,7 +40,7 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 * @param optVO
 	 * @return
 	 */
-	public List<WfTask> getNextTasksByOptCode(TaskOptVO optVO);
+	public List<TaskVO> getNextTasksByOptCode(TaskOptVO optVO);
 	
 	/**
 	 * 根据操作的类型（提交/退回等等）获取下一步的任务节点Assigners
@@ -51,4 +49,10 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 */
 	public JSONObject getNextAssignersByOptCode(TaskOptVO optVO);
 	
+	/**
+	 * 根据rsWfId,instNum等参数获取当前待办事宜对应的task
+	 * @param optVO
+	 * @return
+	 */
+	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO);
 }

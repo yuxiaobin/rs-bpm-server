@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
+import com.xb.persistent.WfTask;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
@@ -45,8 +46,6 @@ public class WFTaskController extends BaseController {
 	
 	@RequestMapping("/loadprocess")
 	public Object loadProcessTask(HttpSession session, HttpServletRequest req){
-//		Map<String,Object> userInfo = getUserInfo(session);
-//		String userId = (String) userInfo.get("userId");
 		
 		String rsWfId = req.getParameter("rsWfId");
 		String instNum = req.getParameter("instNum");
@@ -60,6 +59,12 @@ public class WFTaskController extends BaseController {
 		}else{
 			req.setAttribute("optCode", optCode);
 			//提交，退回，否决等操作事务页面
+			TaskOptVO optVO = new TaskOptVO();
+			optVO.setRsWfId(rsWfId);
+			optVO.setInstNum(Integer.parseInt(instNum));
+			optVO.setRefMkid(refMkid);
+			optVO.setOptCode(optCode);
+			req.setAttribute("TX_PR_CHOICES",taskService.getCurrentTaskByRefNum(optVO).getTxPrChoices());
 			return "wf-popup-opt";
 		}
 	}

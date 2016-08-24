@@ -172,7 +172,8 @@ public class WfDataUtil {
 					asn.setAssignType(assigner.getString("assignTypeCode"));
 					asn.setAssignRelId(assigner.getString("id"));
 					asn.setDefSelFlag(assigner.getString("defSelMod"));
-					asn.setSelAllFlag(assigner.getBoolean("checkFlag")?WFConstants.TaskSelectAllFlag.YES:WFConstants.TaskSelectAllFlag.NO);
+					Boolean checkFlag = assigner.getBoolean("checkFlag") ==null ? false:assigner.getBoolean("checkFlag") ;
+					asn.setSelAllFlag(checkFlag?WFConstants.TaskSelectAllFlag.YES:WFConstants.TaskSelectAllFlag.NO);
 					asn.setExeCondition(assigner.getString("exeConn"));
 					asn.setTaskId(task.getTaskId());
 					assignerList.add(asn);

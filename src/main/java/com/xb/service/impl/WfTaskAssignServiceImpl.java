@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.mysql.jdbc.StringUtils;
 import com.xb.common.WFConstants;
@@ -34,12 +35,12 @@ public class WfTaskAssignServiceImpl extends CommonServiceImpl<WfTaskAssignMappe
 	}
 
 	@Override
-	public UsersGroupsVO4Task getUsersGroupsByTaskId(String taskId) {
+	public JSONObject getUsersGroupsByTaskId(String taskId) {
 		WfTaskAssign parm = new WfTaskAssign();
 		parm.setTaskId(taskId);
 		List<WfTaskAssign> assignerList = this.selectList(parm);
 		if(assignerList==null || assignerList.isEmpty()){
-			return userGroupService.getUsersGroupsDtlList(null, null);
+			return userGroupService.getUsersGroupsDtlList(null, null).toJSONObject(assignerList);
 		}else{
 			List<String> userIdList = new ArrayList<String>();
 			List<String> groupIdList = new ArrayList<String>();
@@ -50,7 +51,7 @@ public class WfTaskAssignServiceImpl extends CommonServiceImpl<WfTaskAssignMappe
 					groupIdList.add(assigner.getAssignRelId());
 				}
 			}
-			return userGroupService.getUsersGroupsDtlList(userIdList, groupIdList);
+			return userGroupService.getUsersGroupsDtlList(userIdList, groupIdList).toJSONObject(assignerList);
 		}
 	}
 }

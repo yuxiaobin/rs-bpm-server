@@ -15,11 +15,9 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.common.WFConstants;
-import com.xb.persistent.RsModule;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfDef;
-import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskAssign;
@@ -35,6 +33,7 @@ import com.xb.service.IWfTaskAssignService;
 import com.xb.service.IWfTaskConnService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskOptVO;
+import com.xb.vo.TaskVO;
 import com.xb.vo.WFDetailVO;
 
 /**
@@ -143,53 +142,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		awtService.renewAwt(awt, task, wfInst, optVO, currUserId);
 	}
 	
-	@Deprecated
-	@Transactional
-	public void processTask(String instId, String userId, String opt){
-		WfInstance inst = instService.selectById(instId);
-		if(inst==null || WFConstants.WFStatus.DONE.equals(inst.getWfStatus())){
-			System.out.println("processTask===== current instance status is DONE,  process is rejected");
-			return;
-		}
-		WfInstHist histParm = new WfInstHist();
-		histParm.setInstId(instId);
-		WfInstHist histCurr = histService.selectOne(histParm);
-		if(histCurr==null){
-			System.err.println("processTask====no IN_PROCESS history found for instId"+instId);
-			return;
-		}
-		histService.updateById(histCurr);
-		WfTask taskCurrNext = null;
-		if(WFConstants.OptTypes.REJECT.equals(histCurr.getOptType())){
-			taskCurrNext = baseMapper.selectById(getPrevTaskId(histCurr.getTaskId()));
-		}else{
-			taskCurrNext = this.selectById(getNextTaskId(histCurr.getTaskId()));
-		}
-		
-		WfInstHist histNext = new WfInstHist();
-		histNext.setInstId(histCurr.getInstId());
-		histNext.setOptSeq(histCurr.getOptSeq()+1);
-		histNext.setOptType(opt);//AP:Approve, RJ:Reject, RQ:Request
-		histNext.setOptUser(userId);
-//		histNext.setWfId(histCurr.getWfId());
-		histNext.setTaskId(taskCurrNext.getTaskId());
-		if(WFConstants.OptTypes.REJECT.equals(opt)){
-			//for rejected task, should get who requested it
-			histParm = new WfInstHist();
-			histParm.setInstId(instId);
-			histParm.setTaskId(getPrevTaskId(histNext.getTaskId()));
-			List<WfInstHist> prevSameTaskHistList = histService.selectList(histParm, "OPT_SEQ desc");
-			if(prevSameTaskHistList!=null && !prevSameTaskHistList.isEmpty()){
-				histNext.setNextAssigner(prevSameTaskHistList.get(0).getOptUser());
-			}else{
-				histNext.setNextAssigner(histCurr.getOptUser());
-			}
-		}else{
-//			histNext.setNextAssigner(taskCurrNext.getAssignUsers());//TODO: set assngiers
-		}
-		histService.insert(histNext);
-	}
-	
 	private String getPrevTaskId(String currTaskId){
 		WfTaskConn connParm = new WfTaskConn();
 		connParm.setTargetTaskId(currTaskId);
@@ -238,14 +190,14 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			return result;
 		}
 		result.setRsWF(rsWf);
-		RsModule modParm = new RsModule();
-		modParm.setRsWfId(rsWf.getRsWfId());
-		RsModule rsModule = moduleService.selectOne(modParm);
-		if(rsModule==null){
-			System.out.println("getWFStatus===rsModule is null for rsWfId="+rsWf.getRsWfId());
-			return result;
-		}
-		result.setModule(rsModule);
+//		RsModule modParm = new RsModule();
+//		modParm.setRsWfId(rsWf.getRsWfId());
+//		RsModule rsModule = moduleService.selectOne(modParm);
+//		if(rsModule==null){
+//			System.out.println("getWFStatus===rsModule is null for rsWfId="+rsWf.getRsWfId());
+//			return result;
+//		}
+//		result.setModule(rsModule);
 		List<WfTask> taskList = baseMapper.getTaskListWithStatus(instance.getInstId());
 		
 		if(WFConstants.WFStatus.DONE.equals(instance.getWfStatus())){
@@ -286,7 +238,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return taskList;
 	}
 	
-	public List<WfTask> getNextTasksByOptCode(TaskOptVO optVO){
+	public List<TaskVO> getNextTasksByOptCode(TaskOptVO optVO){
 		String optCode = optVO.getOptCode();
 		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
 		if(awt==null){
@@ -295,15 +247,25 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		if(awt==null){
 			return null;
 		}
-		List<WfTask> nextTaskList = null;
+		List<TaskVO> nextTaskList = null;
 		if(WFConstants.OptTypes.COMMIT.equals(optCode)){
-			nextTaskList = new ArrayList<WfTask>(1);
-			nextTaskList.add(this.selectById(getNextTaskId(awt.getTaskIdCurr())));
+			nextTaskList = new ArrayList<TaskVO>(1);
+			WfTask task = this.selectById(getNextTaskId(awt.getTaskIdCurr()));
+			TaskVO taskVO = new TaskVO();
+			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
+			taskVO.setTaskId(task.getTaskId());
+			nextTaskList.add(taskVO);
 			return nextTaskList;
 		}
 		else if(WFConstants.OptTypes.REJECT.equals(optCode)){
-			nextTaskList = new ArrayList<WfTask>(1);
-			nextTaskList.add(this.selectById(getPrevTaskId(awt.getTaskIdCurr())));
+			nextTaskList = new ArrayList<TaskVO>(1);
+			WfTask task = this.selectById(getPrevTaskId(awt.getTaskIdCurr()));
+			TaskVO taskVO = new TaskVO();
+			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+			nextTaskList.add(taskVO);
+			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
+			taskVO.setTaskId(task.getTaskId());
 			//TODO: how to get previous tasks??
 			return nextTaskList;
 		}
@@ -331,6 +293,17 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			System.out.println("Currently not support other option code:"+optCode);//TODO: other OptCode , get assigners
 			return null;
 		}
-		return taskAssignerService.getUsersGroupsByTaskId(nextTaskId).toJSONObject();
+		return taskAssignerService.getUsersGroupsByTaskId(nextTaskId);
+	}
+	
+	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO){
+		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
+		if(awt==null){
+			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
+		}
+		if(awt==null){
+			return null;
+		}
+		return this.selectById(awt.getTaskIdCurr());
 	}
 }
