@@ -27,7 +27,7 @@
     <div class="container">
         <ul class="nav nav-pills nav-justified">
             <li role="presentation" class="active"><a href="#">待办事宜</a></li>
-            <li><a href="/wf/modules/page">发起请求页面</a></li>
+            <li><a href="${base.contextPath}/wf/modules/page">发起请求页面</a></li>
         </ul>
 
         <div class="row">
