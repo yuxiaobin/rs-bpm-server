@@ -25,7 +25,11 @@ jsPlumb.ready(function () {
             var clone_div = $(ui.draggable).clone();
             var rs_type = clone_div.attr(RS_ATTR_TASK_TYPE);
             var userNode = {pgId:new Date().getTime(),rsType:rs_type,taskDescpDisp:clone_div.text(), position:{top:pos_y,left:pos_x},
-                txType:"S",buzStatus:"I",timeLimitTp:"H",alarmTimeTp:"H",timeLimit:24};
+                txType:"S",buzStatus:"I",timeLimitTp:"H",alarmTimeTp:"H",timeLimit:24,
+                SIGN_CHOICES:{AllHandledThenGo:true,AtLeastHandled:1},
+                TX_CHOICES:{AllowGoBack:true,SignWhenGoBack:true,AllowVeto:true,SignWhenVeto:true,SignWhenReCall:true},
+                TX_BK_CHOICES:{GoBackToPrevious:true}
+            };
             newNodeById(userNode);
         }
     });
@@ -230,9 +234,17 @@ jsPlumb.ready(function () {
 
     var initEmptyWF = function(){
         var startNode = {pgId:RS_TYPE_START,rsType:RS_TYPE_START,taskDescpDisp:"开始", position:{top:70,left:350},
-            txCode:"0000",txType:"B",TX_BK_CHOICES:{GoBackToPrevious:true}};
+            txCode:"0000",txType:"B",buzStatus:"I",timeLimitTp:"H",alarmTimeTp:"H",
+            TX_CHOICES:{AllowEdit:true,AllowDelete:true},
+            TX_BK_CHOICES:{GoBackToPrevious:true},
+            SIGN_CHOICES:{AllHandledThenGo :true}
+        };
         var endNode = {rsType:RS_TYPE_END,rsType:RS_TYPE_END,taskDescpDisp:"结束", position:{top:370,left:350},
-            txCode:"9999",txType:"E",TX_BK_CHOICES:{GoBackToPrevious:true}};
+            txCode:"9999",txType:"E",buzStatus:"C",timeLimitTp:"H",alarmTimeTp:"H",
+            TX_CHOICES:{AllowEdit:false,AllowDelete:false},
+            TX_BK_CHOICES:{GoBackToPrevious:true},
+            SIGN_CHOICES:{AllHandledThenGo :true}
+        };
         newNodeById(startNode);
         newNodeById(endNode);
     }
@@ -325,7 +337,6 @@ jsPlumb.ready(function () {
                 left:pos_.left
             };
             task_json.position = pos_;
-            //TODO: new properties to be added
             task_json.txCode = jqObj.attr("txCode");
             task_json.txType = jqObj.attr("txType");
             task_json.buzStatus = jqObj.attr("buzStatus");

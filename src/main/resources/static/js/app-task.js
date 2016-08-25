@@ -75,34 +75,16 @@ angular.module('taskApp', [ ])
             })
         });
         $scope.task = taskData;
-        $scope.TX_CHOICES = taskData.TX_CHOICES;//to avoid data convert issue when save
         if(taskData.taskType==RS_TYPE_START || taskData.taskType==RS_TYPE_END){
             $scope.showAssignerEdit = false;
             $scope.isStartEndNode = true;
             if(taskData.taskType==RS_TYPE_START){
                 $scope.isStartNode = true;
                 $scope.isEndNode = false;
-                $scope.task.txType = "B";
-                $scope.task.buzStatus = "I";
-                if(angular.isUndefined($scope.TX_CHOICES)){
-                    $scope.TX_CHOICES = {};
-                }
-                $scope.TX_CHOICES.AllowEdit = true;
-                $scope.TX_CHOICES.AllowDelete = true;
             }else{
                 $scope.isStartNode = false;
                 $scope.isEndNode = true;
-                $scope.task.txType = "E";
-                $scope.task.buzStatus = "C";
-                if(angular.isUndefined($scope.TX_CHOICES)){
-                    $scope.TX_CHOICES = {};
-                }
-                $scope.TX_CHOICES.AllowEdit = false;
-                $scope.TX_CHOICES.AllowDelete = false;
             }
-            $scope.task.timeLimitTp = "H";
-            $scope.task.alarmTimeTp = "H";
-            $scope.task.SIGN_CHOICES.AllHandledThenGo = true;
             $scope.txTypeOptions = [{value:"B",descp:"开始"},{value:"E",descp:"结束"}]
         }else{
             $scope.showAssignerEdit = true;
@@ -156,7 +138,7 @@ angular.module('taskApp', [ ])
             taskData.alarmTimeTp =  $scope.task.alarmTimeTp;
             taskData.moduleId = $scope.task.moduleId;
             taskData.runParam = $scope.task.runParam;
-            taskData.TX_CHOICES = $scope.TX_CHOICES;
+            taskData.TX_CHOICES = $scope.task.TX_CHOICES;
             if(!taskData.TX_CHOICES.AllowGoBack){
                 taskData.TX_CHOICES.SignWhenGoBack = false;
             }
@@ -396,6 +378,7 @@ angular.module('taskApp', [ ])
         $scope.$watch('task.txType', function(newVal, oldVal) {
             if(newVal=="M"){
                 $scope.csFlag = true;
+                $scope.task.SIGN_CHOICES.AllHandledThenGo = true;
             }else if(newVal=="S"){
                 $scope.csFlag = false;
                 $scope.task.SIGN_CHOICES.AllHandledThenGo = false;

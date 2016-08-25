@@ -31,10 +31,10 @@
     <div class="container">
         <div class="row">
             <ul class="nav nav-pills nav-justified">
-                <li role="presentation" class="active"><a href="#" onclick="viewTab('staff')">Staff Role</a></li>
-                <li><a href="#" onclick="viewTab('manager')">Manager Role</a></li>
-                <li><a href="#" onclick="viewTab('admin')">Admin Role</a></li>
-                <li><a href="#" onclick="viewTab('history')">History</a></li>
+                <li role="presentation" class="active" id="staffMenu"><a href="#" onclick="viewTab('staff')">Staff Role</a></li>
+                <li id="managerMenu"><a href="#" onclick="viewTab('manager')">Manager Role</a></li>
+                <li id="adminMenu"><a href="#" onclick="viewTab('admin')">Admin Role</a></li>
+                <li id="historyMenu"><a href="#" onclick="viewTab('history')">History</a></li>
             </ul>
         </div>
         <div class="row tab" id="staffTab">
@@ -75,6 +75,7 @@
     function viewTab(role){
         $("#"+role+"Tab").css("display","")
                 .siblings(".tab").hide();
+        $("#"+role+"Menu").addClass("active").siblings().removeClass("active");
     }
 
     function viewHistory(){

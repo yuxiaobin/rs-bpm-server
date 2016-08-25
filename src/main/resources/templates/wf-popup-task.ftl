@@ -88,41 +88,41 @@
                 <div>事务选项</div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
-                        <input type="checkbox" class="btn btn-default" id="txChoicUpdData" ng-model="TX_CHOICES.AllowEdit" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicUpdData" ng-model="task.TX_CHOICES.AllowEdit" ng-disabled="isStartEndNode">
                         <label for="txChoicUpdData" style="font-weight: inherit;">允许修改数据</label>
                     </button>
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
-                        <input type="checkbox" class="btn btn-default" id="txChoicDelData" ng-model="TX_CHOICES.AllowDelete" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicDelData" ng-model="task.TX_CHOICES.AllowDelete" ng-disabled="isStartEndNode">
                         <label for="txChoicDelData" style="font-weight: inherit;">允许删除数据</label>
                     </button>
                 </div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
-                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej" ng-model="TX_CHOICES.AllowGoBack" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej" ng-model="task.TX_CHOICES.AllowGoBack" ng-disabled="isStartEndNode">
                         <label for="txChoicAlwRej" style="font-weight: inherit;">允许退回</label>
                     </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowGoBack">
-                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom" ng-model="TX_CHOICES.SignWhenGoBack" ng-disabled="!TX_CHOICES.AllowGoBack">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!task.TX_CHOICES.AllowGoBack">
+                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom" ng-model="task.TX_CHOICES.SignWhenGoBack" ng-disabled="!task.TX_CHOICES.AllowGoBack">
                         <label for="txChoicRejCom" style="font-weight: inherit;">退回时必须签署意见</label>
                     </button>
                 </div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartNode">
-                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej2" ng-model="TX_CHOICES.AllowReCall" ng-disabled="isStartNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicAlwRej2" ng-model="task.TX_CHOICES.AllowReCall" ng-disabled="isStartNode">
                         <label for="txChoicAlwRej2" style="font-weight: inherit;">允许撤回</label>
                     </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowReCall">
-                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom2" ng-model="TX_CHOICES.SignWhenReCall" ng-disabled="!TX_CHOICES.AllowReCall">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!task.TX_CHOICES.AllowReCall">
+                        <input type="checkbox" class="btn btn-default" id="txChoicRejCom2" ng-model="task.TX_CHOICES.SignWhenReCall" ng-disabled="!task.TX_CHOICES.AllowReCall">
                         <label for="txChoicRejCom2" style="font-weight: inherit;">撤回时必须签署意见</label>
                     </button>
                 </div>
                 <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
                     <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="isStartEndNode">
-                        <input type="checkbox" class="btn btn-default" id="txChoicAlwVeto" ng-model="TX_CHOICES.AllowVeto" ng-disabled="isStartEndNode">
+                        <input type="checkbox" class="btn btn-default" id="txChoicAlwVeto" ng-model="task.TX_CHOICES.AllowVeto" ng-disabled="isStartEndNode">
                         <label for="txChoicAlwVeto" style="font-weight: inherit;">允许否决</label>
                     </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!TX_CHOICES.AllowVeto">
-                        <input type="checkbox" class="btn btn-default" id="txChoicVetoCom" ng-model="TX_CHOICES.SignWhenVeto" ng-disabled="!TX_CHOICES.AllowVeto">
+                    <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!task.TX_CHOICES.AllowVeto">
+                        <input type="checkbox" class="btn btn-default" id="txChoicVetoCom" ng-model="task.TX_CHOICES.SignWhenVeto" ng-disabled="!task.TX_CHOICES.AllowVeto">
                         <label for="txChoicVetoCom" style="font-weight: inherit;">否决时必须签署意见</label>
                     </button>
                 </div>
