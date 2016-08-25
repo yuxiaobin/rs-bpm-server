@@ -383,7 +383,7 @@ angular.module('taskApp', [ ])
                 $scope.csFlag = false;
                 $scope.task.SIGN_CHOICES.AllHandledThenGo = false;
                 $scope.task.SIGN_CHOICES.PartHandledThenGo = false;
-                $scope.task.SIGN_CHOICES.AtLeastHandled = "";
+                $scope.task.SIGN_CHOICES.AtLeastHandled = 1;
                 $scope.task.TX_PR_CHOICES.NoticeElseAfterGo = false;
             }
         });
@@ -395,6 +395,15 @@ angular.module('taskApp', [ ])
                 $scope.needNotifyFlag = false;
                 $scope.task.TX_PR_CHOICES.MsgAlert = false;
                 $scope.task.TX_PR_CHOICES.SmsAlert = false;
+            }
+        }
+        $scope.csOptionSelect = function(csOptCode){
+            if("ALL"==csOptCode){
+                $scope.task.SIGN_CHOICES.AllHandledThenGo=true;
+                $scope.task.SIGN_CHOICES.PartHandledThenGo=false;
+            }else{
+                $scope.task.SIGN_CHOICES.PartHandledThenGo=true;
+                $scope.task.SIGN_CHOICES.AllHandledThenGo=false;
             }
         }
     }]);

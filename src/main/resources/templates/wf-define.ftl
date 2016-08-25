@@ -151,9 +151,17 @@
         parmJson.txCode		=el.attr("txCode");
         parmJson.txType		=el.attr("txType");
         parmJson.buzStatus	=el.attr("buzStatus");
-        parmJson.timeLimit	=el.attr("timeLimit");
+        var timeLimit = el.attr("timeLimit");
+        if(timeLimit!=""){
+            timeLimit = parseInt(timeLimit);
+        }
+        parmJson.timeLimit	=timeLimit;
         parmJson.timeLimitTp=el.attr("timeLimitTp");
-        parmJson.alarmTime	=el.attr("alarmTime");
+        var alarmTime = el.attr("alarmTime");
+        if(alarmTime!=""){
+            alarmTime = parseInt(alarmTime);
+        }
+        parmJson.alarmTime	=alarmTime;
         parmJson.alarmTimeTp=el.attr("alarmTimeTp");
         parmJson.moduleId	=el.attr("moduleId");
         parmJson.runParam	=el.attr("runParam");

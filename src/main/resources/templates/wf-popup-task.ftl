@@ -48,14 +48,14 @@
                     <option value="C">完成</option>
                 </select><br>
                 <label for="timeLimitTp" class="control-label">完成期限:</label>
-                <input type="text" class="input-sm" id="durTime" style="width:80" ng-model="task.timeLimit" ng-disabled="isStartEndNode">
+                <input type="number" min="1" class="input-sm" id="durTime" style="width:80" ng-model="task.timeLimit" ng-disabled="isStartEndNode">
                 <select id="timeLimitTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.timeLimitTp" ng-disabled="isStartEndNode">
                     <option value="M">分钟</option>
                     <option value="H">小时</option>
                     <option value="D">天</option>
                 </select><br>
                 <label for="alarmTime" class="control-label">预警提前期:</label>
-                <input class="input-sm" aria-label="Text input with dropdown button" id="alarmTime" style="width:80" ng-model="task.alarmTime" ng-disabled="isStartEndNode">
+                <input type="number" min="1" class="input-sm" aria-label="Text input with dropdown button" id="alarmTime" style="width:80" ng-model="task.alarmTime" ng-disabled="isStartEndNode">
                 <select id="alarmTimeTp" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.alarmTimeTp" ng-disabled="isStartEndNode">
                     <option value="M">分钟</option>
                     <option value="H">小时</option>
@@ -183,13 +183,13 @@
                     <div>会签选项</div>
                     <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
                         <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!csFlag">
-                            <input type="checkbox" class="btn btn-default" id="csAllCom" ng-model="task.SIGN_CHOICES.AllHandledThenGo" ng-disabled="!csFlag">
+                            <input type="checkbox" class="btn btn-default" id="csAllCom" ng-model="task.SIGN_CHOICES.AllHandledThenGo" ng-click="csOptionSelect('ALL')" ng-disabled="!csFlag">
                             <label for="csAllCom" style="font-weight: inherit;">全部会签人员提交后流程提交下一步</label>
                         </button>
                         <button type="button" class="btn btn-default text-left" style="text-align:left" ng-disabled="!csFlag">
-                            <input type="checkbox" class="btn btn-default" id="csLeastCom" ng-model="task.SIGN_CHOICES.PartHandledThenGo" ng-disabled="!csFlag">
+                            <input type="checkbox" class="btn btn-default" id="csLeastCom" ng-model="task.SIGN_CHOICES.PartHandledThenGo" ng-click="csOptionSelect('LEAST')" ng-disabled="!csFlag">
                             <label for="csLeastCom" style="font-weight: inherit;">
-                                至少<input type="text" class="input-sm" style="width:50px" ng-model="task.SIGN_CHOICES.AtLeastHandled" ng-disabled="!csFlag">会签人员提交后流程提交
+                                至少<input type="number" min="1" class="input-sm" style="width:55px" ng-model="task.SIGN_CHOICES.AtLeastHandled" ng-disabled="!csFlag">会签人员提交后流程提交
                             </label>
                         </button>
                     </div>

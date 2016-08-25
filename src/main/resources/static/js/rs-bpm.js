@@ -340,9 +340,17 @@ jsPlumb.ready(function () {
             task_json.txCode = jqObj.attr("txCode");
             task_json.txType = jqObj.attr("txType");
             task_json.buzStatus = jqObj.attr("buzStatus");
-            task_json.timeLimit = jqObj.attr("timeLimit");
+            var timeLimit = jqObj.attr("timeLimit");
+            if(timeLimit!=""){
+                timeLimit = parseInt(timeLimit);
+            }
+            task_json.timeLimit = timeLimit;
             task_json.timeLimitTp = jqObj.attr("timeLimitTp");
-            task_json.alarmTime = jqObj.attr("alarmTime");
+            var alarmTime = jqObj.attr("alarmTime");
+            if(alarmTime!=""){
+                alarmTime = parseInt(alarmTime);
+            }
+            task_json.alarmTime = alarmTime;
             task_json.alarmTimeTp = jqObj.attr("alarmTimeTp");
             task_json.moduleId = jqObj.attr("moduleId");
             task_json.runParam = jqObj.attr("runParam");
