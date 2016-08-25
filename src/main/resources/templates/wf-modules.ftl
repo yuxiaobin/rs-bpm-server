@@ -6,7 +6,9 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/font-awesome.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/site.min.css">
-    
+    <script>
+        var basePath = "${base.contextPath}";
+    </script>
 </head>
 <body class="home-template" ng-app="app" ng-controller="ctrl">
 <header class="site-header jumbotron">

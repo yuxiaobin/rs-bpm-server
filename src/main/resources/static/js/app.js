@@ -9,7 +9,7 @@ angular.module('app', [ ])
             var delay = $q.defer();
             var req = {
                 method: 'POST',
-                url: '/wfadmin/module',
+                url: basePath+'/wfadmin/module',
                 data:{moduleName:moduleName}
             };
             $http(req)
@@ -25,7 +25,7 @@ angular.module('app', [ ])
             var delay = $q.defer();
             var req = {
                 method: 'GET',
-                url: '/wfadmin/modules/list'
+                url:basePath+ '/wfadmin/modules/list'
             };
             $http(req)
                 .success(function(data, status, headers, config){

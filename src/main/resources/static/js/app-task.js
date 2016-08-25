@@ -3,7 +3,6 @@
  *
  * Popup page for Edit Task
  */
-var basePath = "";
 var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{CODE:"G",DESCP:"添加用户组"}, ADD_POST:{CODE:"R",DESCP:"添加岗位"}};
 var selectModeTypes = {NOT_SELECTED:"默认不选中", SELECTED_WITH_CANCEL:"默认选中，允许取消", SELECTED_WITHOUT_CANCEL:"默认选中，不允许取消"};
 var assignTypeDescps = {USER:"用户", GROUP:"用户组", POST:"岗位", OTHER:"自定义"};

@@ -25,7 +25,7 @@ jsPlumb.ready(function () {
             var clone_div = $(ui.draggable).clone();
             var rs_type = clone_div.attr(RS_ATTR_TASK_TYPE);
             var userNode = {pgId:new Date().getTime(),rsType:rs_type,taskDescpDisp:clone_div.text(), position:{top:pos_y,left:pos_x},
-                txType:"S",buzStatus:"I",timeLimitTp:"H",alarmTimeTp:"H"};
+                txType:"S",buzStatus:"I",timeLimitTp:"H",alarmTimeTp:"H",timeLimit:24};
             newNodeById(userNode);
         }
     });
@@ -115,7 +115,7 @@ jsPlumb.ready(function () {
                 var id_ = $(el).attr("id");
                 if (action == 'edit') {
                     console.log("edit");
-                    editCondition(id_);
+                    editCondition(id_);//TODO 0825
                 }
                 else if (action == 'delete') {
                     var removeItem = $(el).attr("connection_id");
