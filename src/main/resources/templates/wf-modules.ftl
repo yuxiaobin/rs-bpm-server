@@ -15,7 +15,7 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-                <div style="position: absolute;right: 10px;"> <h3><a href="/wf">回首页</a></h3></div>
+                <div style="position: absolute;right: 10px;"> <h3><a href="${base.contextPath}/wf">回首页</a></h3></div>
                 <h1>Welcome, Admin Role</h1>
             </div>
         </div>

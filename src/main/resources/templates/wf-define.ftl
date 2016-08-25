@@ -27,7 +27,7 @@
                 <input type="hidden" name="moduleId" value="${moduleId}" id="moduleId">
             </div>
             <div class="col-xs-6">
-                <div style="position: absolute;right: 10px;"> <h3><a href="/wf">回首页</a></h3></div>
+                <div style="position: absolute;right: 10px;"> <h3><a href="${base.contextPath}/wf">回首页</a></h3></div>
             </div>
 
         </div>
