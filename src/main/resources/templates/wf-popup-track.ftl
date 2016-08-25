@@ -50,7 +50,7 @@
     </div>
     <div class="row" style="display:none" id="wfHist" ng-controller="ctrl">
         <div class="col-md-9">
-        <table class="table" style="width:75%;margin:auto">
+        <table class="table" style="width:95%;margin:auto">
             <thead>
             <tr>
                 <th>事务名称</th>
@@ -66,11 +66,15 @@
             <tr ng-repeat="hist in histList">
                 <td>{{hist.taskDescpDisp}}</td>
                 <td>{{hist.optUser}}</td>
-                <td>{{hist.optType}}</td>
+                <td ng-switch="hist.optType">
+                    <ANY ng-switch-when="C">提交</ANY>
+                    <ANY ng-switch-when="RJ">退回</ANY>
+                    <ANY ng-switch-when="V">否决</ANY>
+                </td>
                 <td>{{hist.taskBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                 <td>{{hist.taskEnd | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                 <td>{{hist.taskRend | date:'yyyy-MM-dd hh:mm:ss'}}</td>
-                <td>{{hist.taskOwner}}</td>
+                <td style="word-break: break-word">{{hist.taskOwner}}</td>
             </tr>
             </tbody>
         </table>
