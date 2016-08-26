@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/jsPlumbToolkit-defaults.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/main.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/jsPlumbToolkit-demo.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/jquery.contextMenu.css">
+    <link rel="stylesheet" href="${base.contextPath}/static/css/plugin/jquery.contextMenu.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/rs-bpm.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/theme/base/jquery.ui.all.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/properties.css">
@@ -110,7 +110,7 @@
 <script src="${base.contextPath}/static/js/bootstrap.js"></script>
 <script src="${base.contextPath}/static/js/jquery-ui.js"></script>
 <!--<script src="${base.contextPath}/static/js/jquery.ui.dialog.js"></script>-->
-<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>
+<script src="${base.contextPath}/static/js/plugin/jquery.contextMenu.js"></script>
 <!--  demo code -->
 <script src="${base.contextPath}/static/js/common.js"></script>
 <script src="${base.contextPath}/static/js/rs-bpm.js"></script>

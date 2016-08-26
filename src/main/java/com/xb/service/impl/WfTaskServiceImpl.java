@@ -139,7 +139,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		}else{
 			optVO.setNextEndTaskFlag(false);
 		}
-		awtService.renewAwt(awt, task, wfInst, optVO, currUserId);
+		awtService.renewAwt(awt, task, nextTask, wfInst, optVO, currUserId);
 	}
 	
 	private String getPrevTaskId(String currTaskId){

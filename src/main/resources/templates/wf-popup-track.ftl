@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/jsPlumbToolkit-defaults.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/main.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/jsPlumbToolkit-demo.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/jquery.contextMenu.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/rs-bpm.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/theme/base/jquery.ui.all.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/properties.css">

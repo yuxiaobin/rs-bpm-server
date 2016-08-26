@@ -52,7 +52,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		return null;
 	}
 	
-	public void renewAwt(WfAwt prev, WfTask currtask, WfInstance wfInst, TaskOptVO optVO, String currUserId){
+	public void renewAwt(WfAwt prev, WfTask currtask,WfTask nextTask,  WfInstance wfInst, TaskOptVO optVO, String currUserId){
 		String instId = prev.getInstId();
 		if(WFConstants.TxCodes.COUNTERSIGN.equals(currtask.getTxCode())){
 			prev.setCompleteFlag("Y");
@@ -97,8 +97,8 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			String[] nextAssignersArr = nextAssigners.split(",");
 			WfAwt awt = null;
 			Date beginDate = new Date();
-			Date limitDate = calculateDate(beginDate, currtask.getTimeLimitTp(), currtask.getTimeLimit());
-			Date alarmDate = currtask.getAlarmTime()==null?null:calculateDate(beginDate, currtask.getAlarmTimeTp(), currtask.getAlarmTime());
+			Date limitDate = calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit());
+			Date alarmDate = nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime());
 			for(String assigner : nextAssignersArr){
 				if(!StringUtils.isEmpty(assigner)){
 					awt = new WfAwt();

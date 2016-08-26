@@ -3,20 +3,11 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/font-awesome.css">
     <link rel="stylesheet" href="${base.contextPath}/static/css/site.min.css">
-    <link rel="stylesheet" href="${base.contextPath}/static/css/jquery.contextMenu.css">
+    <link rel="stylesheet" href="${base.contextPath}/static/css/plugin/bootstrap-select.min.css">
     <script>
         var basePath = "${base.contextPath}";
         <#if userId?exists>
             var userId = "${userId}";
-        </#if>
-        <#if rsWfId?exists>
-            var rsWfId = "${rsWfId}";
-        </#if>
-        <#if instNum?exists>
-            var instNum = "${instNum}";
-        </#if>
-        <#if refMkid?exists>
-            var refMkid = "${refMkid}";
         </#if>
     </script>
 
@@ -29,15 +20,6 @@
                 <div style="position: absolute;right: 10px;"> <h3><a href="${base.contextPath}/wf">回首页</a></h3></div>
                 <h1>Welcome, {{userId}}</h1>
                 <p>模拟业务功能页面的待办事宜：
-                    <#if rsWfId?exists>
-                        rsWfId=${rsWfId},
-                    </#if>
-                    <#if instNum?exists>
-                        instNum= ${instNum},
-                    </#if>
-                    <#if refMkid?exists>
-                        refMkid= ${refMkid},
-                    </#if>
                 </p>
             </div>
         </div>
@@ -46,9 +28,34 @@
 
 <main class="packages-list-container" id="all-packages">
     <div class="container">
-        <ul class="nav nav-pills nav-justified">
-            <li role="presentation" class="active"><a href="#">Inbox</a></li>
-        </ul>
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-default" role="navigation">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <a class="navbar-brand" href="javascript:void(0) ">工作流</a>
+                        </div>
+                        <form class="navbar-form navbar-left" role="search">
+                            <div class="form-group">
+                                <select id="wfOptionsId" class="selectpicker" ng-change="chooseOption(taskOption)" ng-model="taskOption">
+                                    <option value="">请选择</option>
+                                    <optgroup ng-repeat="optGroup in optGroupList">
+                                        <!--<option ng-repeat="opt in optGroup.opts" value="{{opt.value}}">{{opt.descp}}-{{opt.disflag}}</option>-->
+                                        <option ng-repeat="opt in optGroup.opts" value="{{opt.value}}" ng-if="!opt.disflag">
+                                            {{opt.descp}}
+                                        </option>
+                                        <option ng-repeat="opt in optGroup.opts" value="{{opt.value}}" disabled  ng-if="opt.disflag">
+                                            {{opt.descp}}
+                                        </option>
+                                    </optgroup>
+                                </select>
+
+                            </div>
+                        </form>
+                    </div>
+                </nav>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-md-12">
@@ -68,7 +75,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="taskv in taskvList" ng-click="selectTableRow($event)" rs-wf-id="{{taskv.rsWfId}}" rs-inst-num="{{taskv.instNum}}" rs-ref-mkid="{{taskv.refMkid}}">
+                    <tr ng-repeat="taskv in taskvList"  ng-click="selectTableRow($event)"
+                        rs-wf-id="{{taskv.rsWfId}}"   rs-inst-num="{{taskv.instNum}}"  rs-ref-mkid="{{taskv.refMkid}}"
+                        >
                         <td>{{taskv.taskDescpDisp}}</td>
                         <td>{{taskv.awtTitle}}</td>
                         <td>{{taskv.awtBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
@@ -94,23 +103,12 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
-
-<ul id="taskMenu" class="contextMenu">
-    <li class=""><a href="#commit">流程提交</a></li>
-    <li class=""><a href="#back">流程退回</a></li>
-    <li class=""><a href="#veto">流程否决</a></li>
-    <li class=""><a href="#forward">流程转交</a></li>
-    <li class=""><a href="#redo">流程撤回</a></li>
-    <li class=""><a href="#handme">我来处理</a></li>
-    <li class=""><a href="#transfer">流程调度</a></li>
-    <li class=""><a href="#track">流程跟踪</a></li>
-</ul>
 </body>
 <script src="${base.contextPath}/static/js/angular.js"></script>
 <script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
-<script src="${base.contextPath}/static/js/jquery.contextMenu.js"></script>
 <script src="${base.contextPath}/static/js/bootstrap.js"></script>
 <script src="${base.contextPath}/static/js/app-inbox.js"></script>
+<script src="${base.contextPath}/static/js/plugin/bootstrap-select.min.js"></script>
 <script>
     window.addEventListener('message', receiveMessage, false);
     function receiveMessage(evt) {
