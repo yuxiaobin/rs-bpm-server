@@ -75,6 +75,7 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		hist.setTaskBegin(awt.getAwtBegin());
 		hist.setTaskEnd(awt.getAwtEnd());
 		hist.setTaskRend(new Date());
+		hist.setOptComm(optVO.getComments());
 		this.insert(hist);
 		return hist.getHistId();
 	}

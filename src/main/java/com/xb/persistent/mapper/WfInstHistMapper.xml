@@ -4,12 +4,13 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 HIST_ID AS histId, INST_ID AS instId, WF_ID AS wfId, TASK_ID AS taskId, OPT_USER AS optUser, OPT_TYPE AS optType, OPT_SEQ AS optSeq, NEXT_ASSIGNER AS nextAssigner, TASK_OWNER AS taskOwner, TASK_BEGIN AS taskBegin, TASK_END AS taskEnd, TASK_REND AS taskRend, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+		 HIST_ID AS histId, INST_ID AS instId, WF_ID AS wfId, TASK_ID AS taskId, OPT_USER AS optUser, OPT_TYPE AS optType,OPT_COMM AS optComm, OPT_SEQ AS optSeq, NEXT_ASSIGNER AS nextAssigner, TASK_OWNER AS taskOwner, TASK_BEGIN AS taskBegin, TASK_END AS taskEnd, TASK_REND AS taskRend, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
 	</sql>
 
 	<resultMap id="getInstHistByInstIdResultMap" type="com.xb.persistent.WfInstHist">
 	  <result property="optUser" column="OPT_USER"/>
 	  <result property="optType" column="OPT_TYPE"/>
+	  <result property="optComm" column="OPT_COMM"/>
 	  <result property="optSeq" column="OPT_SEQ"/>
 	  <result property="nextAssigner" column="NEXT_ASSIGNER"/>
 	  <result property="taskOwner" column="TASK_OWNER"/>

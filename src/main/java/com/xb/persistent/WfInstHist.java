@@ -43,6 +43,9 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 	/**  */
 	@TableField(value = "OPT_TYPE")
 	private String optType;
+	
+	@TableField(value = "OPT_COMM")
+	private String optComm;
 
 	/**  */
 	@TableField(value = "OPT_SEQ")
@@ -174,4 +177,21 @@ public class WfInstHist extends CUBaseTO implements Serializable {
 	public void setTaskRend(Date taskRend) {
 		this.taskRend = taskRend;
 	}
+
+	public String getOptComm() {
+		return optComm;
+	}
+
+	public void setOptComm(String optComm) {
+		this.optComm = optComm;
+	}
+
+	@Override
+	public String toString() {
+		return "WfInstHist [histId=" + histId + ", instId=" + instId + ", wfId=" + wfId + ", taskId=" + taskId
+				+ ", optUser=" + optUser + ", optType=" + optType + ", optComm=" + optComm + ", optSeq=" + optSeq
+				+ ", nextAssigner=" + nextAssigner + ", taskOwner=" + taskOwner + ", taskBegin=" + taskBegin
+				+ ", taskEnd=" + taskEnd + ", taskRend=" + taskRend + ", taskDescpDisp=" + taskDescpDisp + "]";
+	}
+	
 }

@@ -55,6 +55,7 @@
                 <th>事务名称</th>
                 <th>处理人</th>
                 <th>处理</th>
+                <th>处理意见</th>
                 <th>开始时间</th>
                 <th>要求完成时间</th>
                 <th>实际完成时间</th>
@@ -70,6 +71,7 @@
                     <ANY ng-switch-when="RJ">退回</ANY>
                     <ANY ng-switch-when="V">否决</ANY>
                 </td>
+                <td>{{hist.optComm}}</td>
                 <td>{{hist.taskBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                 <td>{{hist.taskEnd | date:'yyyy-MM-dd hh:mm:ss'}}</td>
                 <td>{{hist.taskRend | date:'yyyy-MM-dd hh:mm:ss'}}</td>
