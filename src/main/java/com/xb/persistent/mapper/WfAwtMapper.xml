@@ -50,6 +50,7 @@ where inst.RS_WF_ID=#{rsWfId} and inst.INST_NUM=#{instNum}
 <if test="currUserId != null ">
 and awt.ASSIGNER_ID=#{currUserId}
 </if>
+order by awt.created_dt
 </select>
 
 </mapper>
