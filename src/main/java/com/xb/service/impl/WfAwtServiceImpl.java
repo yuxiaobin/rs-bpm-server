@@ -137,7 +137,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			limitDate = DateUtils.addDays(beginDate, amount);
 			break;
 		default:
-			limitDate = beginDate;
+//			limitDate = beginDate;
 			break;
 		}
 		return limitDate;
