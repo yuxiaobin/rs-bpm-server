@@ -63,14 +63,14 @@
             <div class="panel panel-default" style="max-height: 500px;overflow: auto">
                 <div class="panel-heading"> 3、请选择下一步处理人员：</div>
                 <div class="panel-heading" ng-show="actExecLabelFlag">
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
+                    <div class="btn btn-default text-left" style="text-align:left">
                         <input type="checkbox" class="btn btn-default" id="actExecFlag" ng-model="actExecFlag" ng-click="selectNextAssignerType('actExecFlag')">
                         <label for="actExecFlag" style="font-weight: inherit;">实际执行人员</label>
-                    </button>
-                    <button type="button" class="btn btn-default text-left" style="text-align:left">
+                    </div>
+                    <div class="btn btn-default text-left" style="text-align:left">
                         <input type="checkbox" class="btn btn-default" id="repickPeople" ng-model="repickPeople" ng-click="selectNextAssignerType('repickPeople')">
                         <label for="repickPeople" style="font-weight: inherit;">重新选择人员</label>
-                    </button>
+                    </div>
                 </div>
                 <div class="panel-body" ng-show="actExecFlag">
                     <span class="glyphicon glyphicon-minus" style="cursor: pointer;" aria-hidden="true" onclick="expandClick(this)">类型：用户</span>
