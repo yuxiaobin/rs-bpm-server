@@ -67,29 +67,14 @@ angular.module('taskApp', [ ])
             var result = succ.result;
             $scope.userList = result.users;
             $scope.groupList = result.groups;
-            $timeout(function(){
-                if(!angular.isUndefined(result.users)){
-                    for(var i=0;i<result.users.length;++i){
-                        var user_ = result.users[i];
-                        if(user_.defSelMod=="1" || user_.defSelMod=="2"){
-                            checkAndAddUser(user_);
-                        }
-                    }
-                }
-                if(!angular.isUndefined(result.groups)){
-                    for(var i=0;i<result.groups.length;++i){
-                        var group_ = result.groups[i];
-                        if(group_.defSelMod=="1" || group_.defSelMod=="2"){
-                            checkAndAddGroup(group_.usersInGroup);
-                        }
-                    }
-                }
-                var selAs =",";
-                for(var i=0;i<selectedUsersArray.length;++i){
-                    selAs += selectedUsersArray[i].name+", ";
-                }
-                $scope.selectedAssigners=selAs;
-            },200);
+            if(!angular.isUndefined(result.prevProcessers) && result.prevProcessers.length!=0 ){
+                $scope.actExecLabelFlag = true;
+                $scope.actExecFlag = true;
+                $scope.actExecList = result.prevProcessers;
+                $scope.renderActExecerSelection();
+            }else{
+                $scope.renderDefaultUserGroupSelection();
+            }
         });
         taskService.getNextTasks(rsWfId ,instNum, refMkid, optCode).then(function(succ){
            $scope.taskList = succ.records;//[{taskDescpDisp:"xxx",taskType:"start-task"}]
@@ -103,6 +88,49 @@ angular.module('taskApp', [ ])
                }
            }
         });
+
+        /**
+         * 处理实际执行人默认选中的方法
+         */
+        $scope.renderActExecerSelection = function(){
+            $timeout(function(){
+                var selAs =",";
+                for(var i=0;i<$scope.actExecList.length;++i){
+                    var actEr = $scope.actExecList[i];
+                    selectedUsersArray.push(actEr);
+                    selAs += actEr.name+", ";
+                }
+                $scope.selectedAssigners=selAs;
+            },200);
+        };
+        /**
+         * 处理非退回操作下的默认人员和组选中，或者退回操作下，选择“重新选择人员”按钮时的默认选中
+         */
+        $scope.renderDefaultUserGroupSelection = function(){
+            $timeout(function(){
+                if(!angular.isUndefined($scope.userList)){
+                    for(var i=0;i<$scope.userList.length;++i){
+                        var user_ = $scope.userList[i];
+                        if(user_.defSelMod=="1" || user_.defSelMod=="2"){
+                            checkAndAddUser(user_);
+                        }
+                    }
+                }
+                if(!angular.isUndefined($scope.groupList)){
+                    for(var i=0;i<$scope.groupList.length;++i){
+                        var group_ = $scope.groupList[i];
+                        if(group_.defSelMod=="1" || group_.defSelMod=="2"){
+                            checkAndAddGroup(group_.usersInGroup);
+                        }
+                    }
+                }
+                var selAs =",";
+                for(var i=0;i<selectedUsersArray.length;++i){
+                    selAs += selectedUsersArray[i].name+", ";
+                }
+                $scope.selectedAssigners=selAs;
+            },200);
+        }
         $scope.selectedAssigners = ",";
         /**
          * 点击选择用户的checkbox事件：
@@ -187,6 +215,55 @@ angular.module('taskApp', [ ])
             },function(fail){
                 alert( $scope.optTitle+"失败了");
             });
+        };
+        /**
+         * 退回操作时，选择实际执行人/重新选择人员 按钮事件
+         *
+         * @param evt
+         */
+        $scope.selectNextAssignerType = function(id_){
+            if("actExecFlag"==id_){
+                $scope.actExecFlag = true;
+                $scope.repickPeople = false;
+                var actExecList = $scope.actExecList;
+                $scope.actExecList = [];
+                selectedUsersArray = [];
+                $timeout(function(){
+                    $scope.actExecList = actExecList;
+                    $scope.renderActExecerSelection();
+                },200);
+            }else{
+                $scope.actExecFlag = false;
+                $scope.repickPeople = true;
+                var userlist = $scope.userList;
+                var grouplist = $scope.groupList;
+                $scope.userList = [];
+                $scope.groupList = [];
+                selectedUsersArray = [];
+                $timeout(function(){
+                    $scope.userList = userlist;
+                    $scope.groupList = grouplist;
+                    $scope.renderDefaultUserGroupSelection();
+                },200);
+            }
+        };
+
+        $scope.selectActExecAssigner = function(evt){
+            var checkbox_ = $(event.target);
+            var user_id = checkbox_.val();
+            var user_name = checkbox_.attr("rs-attr-name");
+            var user_ = {id:user_id,name:user_name};
+            if(checkbox_.is(':checked')){
+                if(checkAndAddUser(user_)){
+                    $scope.selectedAssigners+= user_name+", "
+                }
+            }else{
+                if(checkAndRemoveUser(user_)){
+                    var selAs = $scope.selectedAssigners.toString();
+                    selAs = selAs.replace(user_name+", ","");
+                    $scope.selectedAssigners=selAs;
+                }
+            }
         }
 
         if(optCode=="C"){

@@ -80,8 +80,8 @@
                         >
                         <td>{{taskv.taskDescpDisp}}</td>
                         <td>{{taskv.awtTitle}}</td>
-                        <td>{{taskv.awtBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
-                        <td>{{taskv.awtEnd | date:'yyyy-MM-dd hh:mm:ss'}}</td>
+                        <td>{{taskv.awtBegin | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{taskv.awtEnd | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                         <td> - </td>
                         <td>{{taskv.assignerId}}</td>
                         <td> - </td>

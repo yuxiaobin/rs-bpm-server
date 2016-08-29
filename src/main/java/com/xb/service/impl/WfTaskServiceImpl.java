@@ -2,8 +2,10 @@ package com.xb.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -12,12 +14,14 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.common.WFConstants;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfDef;
+import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskAssign;
@@ -190,14 +194,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			return result;
 		}
 		result.setRsWF(rsWf);
-//		RsModule modParm = new RsModule();
-//		modParm.setRsWfId(rsWf.getRsWfId());
-//		RsModule rsModule = moduleService.selectOne(modParm);
-//		if(rsModule==null){
-//			System.out.println("getWFStatus===rsModule is null for rsWfId="+rsWf.getRsWfId());
-//			return result;
-//		}
-//		result.setModule(rsModule);
 		List<WfTask> taskList = baseMapper.getTaskListWithStatus(instance.getInstId());
 		
 		if(WFConstants.WFStatus.DONE.equals(instance.getWfStatus())){
@@ -263,10 +259,30 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			WfTask task = this.selectById(getPrevTaskId(awt.getTaskIdCurr()));
 			TaskVO taskVO = new TaskVO();
 			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
-			nextTaskList.add(taskVO);
 			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
 			taskVO.setTaskId(task.getTaskId());
-			//TODO: how to get previous tasks??
+			nextTaskList.add(taskVO);
+			//check if allow to goBack to first node
+			WfTask awtTask = this.selectById(awt.getTaskIdCurr());
+			JSONObject choices = JSONObject.parseObject(awtTask.getTxBkChoices());
+			Boolean goBackToFirst = choices.getBoolean("GoBackToFirst");
+			if(goBackToFirst!=null && goBackToFirst){
+				if(WFConstants.TaskTypes.S.getTypeCode().equals(task.getTaskType())){
+					//already first node, no need add to list
+				}else{
+					WfTask parmTask = new WfTask();
+					parmTask.setWfId(task.getWfId());
+					parmTask.setTaskType(WFConstants.TaskTypes.S.getTypeCode());
+					WfTask firstNode = this.selectOne(parmTask);
+					if(firstNode!=null){
+						taskVO = new TaskVO();
+						taskVO.setTaskType(WFConstants.TaskTypes.valueOf(firstNode.getTaskType()).getTypeDescp());
+						taskVO.setTaskDescpDisp(firstNode.getTaskDescpDisp());
+						taskVO.setTaskId(firstNode.getTaskId());
+						nextTaskList.add(0, taskVO);
+					}
+				}
+			}
 			return nextTaskList;
 		}
 		//TODO: other cases, if need to get next task list.
@@ -293,7 +309,49 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			System.out.println("Currently not support other option code:"+optCode);//TODO: other OptCode , get assigners
 			return null;
 		}
-		return taskAssignerService.getUsersGroupsByTaskId(nextTaskId);
+		JSONObject result = taskAssignerService.getUsersGroupsByTaskId(nextTaskId);
+		if(WFConstants.OptTypes.REJECT.equals(optCode)){
+			//get prev node execution members
+			WfInstHist parmHist = new WfInstHist();
+			parmHist.setInstId(awt.getInstId());
+			List<WfInstHist> histList = histService.selectList(parmHist, "OPT_SEQ desc");
+			if(histList!=null){
+				JSONArray prevProcessers = new JSONArray();
+				boolean startPrevStepHist = false;
+				Set<String> idSet = new HashSet<String>();
+				for(WfInstHist hist:histList){
+					if(!startPrevStepHist){
+						if(nextTaskId.equals(hist.getTaskId())){
+							startPrevStepHist=true;
+							JSONObject processer = new JSONObject();
+							processer.put("id", hist.getOptUser());
+							processer.put("name", hist.getOptUser());//TODO: get username
+							processer.put("checkFlag", true);
+							prevProcessers.add(processer);
+						}else{
+							continue;
+						}
+					}else{
+						if(nextTaskId.equals(hist.getTaskId())){
+							String userId = hist.getOptUser();
+							if(idSet.contains(userId)){
+								continue;
+							}
+							idSet.add(userId);
+							JSONObject processer = new JSONObject();
+							processer.put("id", userId);
+							processer.put("name", hist.getOptUser());//TODO: get username
+							processer.put("checkFlag", true);
+							prevProcessers.add(processer);
+						}else{
+							break;
+						}
+					}
+				}
+				result.put("prevProcessers", prevProcessers);
+			}
+		}
+		return result;
 	}
 	
 	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO){

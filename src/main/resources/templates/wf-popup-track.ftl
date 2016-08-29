@@ -72,9 +72,9 @@
                     <ANY ng-switch-when="V">否决</ANY>
                 </td>
                 <td>{{hist.optComm}}</td>
-                <td>{{hist.taskBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
-                <td>{{hist.taskEnd | date:'yyyy-MM-dd hh:mm:ss'}}</td>
-                <td>{{hist.taskRend | date:'yyyy-MM-dd hh:mm:ss'}}</td>
+                <td>{{hist.taskBegin | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                <td>{{hist.taskEnd | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                <td>{{hist.taskRend | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                 <td style="word-break: break-word">{{hist.taskOwner}}</td>
             </tr>
             </tbody>

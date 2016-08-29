@@ -45,7 +45,17 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	/**
 	 * 根据操作的类型（提交/退回等等）获取下一步的任务节点Assigners
 	 * @param optVO:rsWfId,instNum
-	 * @return
+	 * @return {
+	 * 		users:[ //事务定义对应用户
+	 * 			{id:xxx,name:xxx,defSelMod:true/false, checkFlag:true/false},... 
+	 * 		], 
+	 * 		groups:[ //事务定义的对应用户组
+	 * 			{id:xxx,name:xxx,defSelMod:true/false, checkFlag:true/false},... 
+	 * 		],
+	 * 		prevProcessers:[//退回时，上一步实际操作人
+	 * 			{id:xxx,name:xxx, checkFlag:true/false},... 
+	 * 		]
+	 * 	},
 	 */
 	public JSONObject getNextAssignersByOptCode(TaskOptVO optVO);
 	
