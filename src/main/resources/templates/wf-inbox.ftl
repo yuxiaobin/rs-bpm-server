@@ -48,7 +48,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="taskv in taskvList" ng-dblclick="viewAwtInMK(taskv.rsWfId, taskv.instNum, taskv.refMkid)">
+                    <tr ng-repeat="taskv in taskvList"
+                        ng-click="selectTableRowInbox($event)"
+                        ng-dblclick="viewAwtInMK(taskv.rsWfId, taskv.instNum, taskv.refMkid)"
+                            >
                         <td>{{taskv.taskDescpDisp}}</td>
                         <td>{{taskv.awtTitle}}</td>
                         <td>{{taskv.awtBegin | date:'yyyy-MM-dd hh:mm:ss'}}</td>
@@ -69,5 +72,6 @@
 
 </body>
 <script src="${base.contextPath}/static/js/angular.js"></script>
+<script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
 <script src="${base.contextPath}/static/js/app-inbox.js"></script>
 </html>

@@ -84,7 +84,10 @@ angular.module('app', [ ])
             $scope.taskOption = "";
             $('#wfOptionsId').selectpicker('val', '');
             $scope.selectedRcdInstNum = "";
-        }
+        };
+        $scope.selectTableRowInbox = function(evt){
+            $(evt.target).parent().addClass("active").siblings().removeClass("active");
+        };
         $scope.selectTableRow = function(evt){
             $(evt.target).parent().addClass("active").siblings().removeClass("active");
             var tr_ = $(evt.target).parent();

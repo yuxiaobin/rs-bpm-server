@@ -55,9 +55,8 @@ public class MyAop {
 
 	@Before("embeddedPt()")
 	public void doBeforeModify(JoinPoint joinPoint) throws Throwable {
-		// 接收到请求，记录请求内容
-		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = attributes.getRequest();
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		@SuppressWarnings("unchecked")
 		Map<String,Object> userinfo = (Map<String, Object>) request.getSession().getAttribute("USERINFO");
 		String userId = null;
 		if(userinfo==null || userinfo.get("userId") ==null){
@@ -75,7 +74,10 @@ public class MyAop {
 			isUpdate = true;
 		}
 		logger.debug("doBeforeModify=========isInsert="+isInsert+",isUpdate="+isUpdate);
-		CUBaseTO baseTO = new CUBaseTO();
+		CUBaseTO baseTO = ServiceImpl.threadLocal.get();
+		if(baseTO==null){
+			baseTO = new CUBaseTO();
+		}
 		baseTO.setCreatedBy(userId);
 		baseTO.setUpdatedBy(userId);
 		ServiceImpl.threadLocal.set(baseTO);
@@ -113,10 +115,6 @@ public class MyAop {
 				}
 			}
 		}*/
-//		System.out.println("userId = " + userId);
-//		System.out.println("target = " + target);
-//		System.out.println("args = " + args);
-
 		// // 记录下请求内容
 		// logger.info("URL : " + request.getRequestURL().toString());
 		// logger.info("HTTP_METHOD : " + request.getMethod());
