@@ -20,4 +20,8 @@ public interface TblUser2groupMapper extends CommonMapper<TblUser2group> {
 	public List<TblUser> getGroupListWithUsersByIdList(@Param("groupidList") List<String> groupIdList);
 	
 	public List<TblUser> getGroupListWithUsersAll();
+	
+	public List<TblUser> getUsersInSpecGroup(@Param("groupId") String groupId);
+	
+	public List<TblUser> getAddableUsers(@Param("groupId") String groupId);
 }

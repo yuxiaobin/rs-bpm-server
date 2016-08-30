@@ -120,18 +120,3 @@ angular.module('app', [ ])
 
     }])
    ;
-
-var options = {aaa11:"aaa11"};
-function getTaskOptions(){
-    $.ajax(
-        {
-            type: "POST",
-            async: false,
-            method: 'GET',
-            url: basePath+'/inbox/tasks',
-            success: function (msg) {
-                options = {aaa:"aaa",bbb:"bbb"}
-            }
-        }
-    );
-}

@@ -3,6 +3,8 @@ package com.xb.service;
 import java.util.List;
 
 import com.baomidou.framework.service.ICommonService;
+import com.xb.persistent.TblGroup;
+import com.xb.persistent.TblUser;
 import com.xb.persistent.TblUser2group;
 import com.xb.vo.UsersGroupsVO4Task;
 
@@ -19,5 +21,11 @@ public interface ITblUser2groupService extends ICommonService<TblUser2group> {
 	 * @return
 	 */
 	public UsersGroupsVO4Task getUsersGroupsDtlList(List<String> userIdList, List<String> groupIdList);
+	
+	public List<TblGroup> getAllGroupsWithUsers();
+	
+	public List<TblUser> getUserInSpecGroup(String groupId);
+	
+	public List<TblUser> getAddableUsers(String groupId);
 	
 }
