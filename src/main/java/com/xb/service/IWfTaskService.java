@@ -19,7 +19,7 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	
 	public List<WfAwt> getTasksInbox(String userId);
 	
-	public void startWF4Module(String moduleId, String rsWfId, String userId);
+	public boolean startWF4Module(String moduleId, String rsWfId, String userId);
 	
 	public void processTask(TaskOptVO optVO, String currUserId);
 	/**

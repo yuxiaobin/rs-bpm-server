@@ -75,7 +75,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 	
 	@Transactional
-	public void startWF4Module(String refMkid, String rsWfId, String currUserId){
+	public boolean startWF4Module(String refMkid, String rsWfId, String currUserId){
 //		RsModule rsModule = moduleService.selectById(moduleId);
 //		if (rsModule == null) {
 //			return;
@@ -84,7 +84,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		wfDefParm.setRsWfId(rsWfId);
 		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
 		if (wfDefList == null || wfDefList.isEmpty()) {
-			return;
+			return false;
 		}
 		String wfId = wfDefList.get(0).getWfId();
 		WfInstance instParm = new WfInstance();
@@ -122,6 +122,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		awt.setAwtBegin(new Date());
 		
 		awtService.insert(awt);
+		return true;
 	}
 
 	@Transactional
