@@ -33,6 +33,7 @@
                 <li role="presentation" class="active" id="staffMenu"><a href="#" onclick="viewTab('staff')">Staff Role</a></li>
                 <li id="managerMenu"><a href="#" onclick="viewTab('manager')">Manager Role</a></li>
                 <li id="adminMenu"><a href="#" onclick="viewTab('admin')">Admin Role</a></li>
+                <li id="userGroup"><a href="#" onclick="viewTab('userGroup')">User Group</a></li>
                 <li id="historyMenu"><a href="#" onclick="viewTab('history')">History</a></li>
             </ul>
         </div>
@@ -53,6 +54,11 @@
         <div class="row tab" id="adminTab" style="display: none">
             <ul class="nav nav-pills nav-stacked">
                 <li><a href="#" onclick="viewWf('admin')">admin</a></li>
+            </ul>
+        </div>
+        <div class="row tab" id="userGroupTab" style="display: none">
+            <ul class="nav nav-pills nav-stacked">
+                <li><a href="#" onclick="viewUserGroup()">View User Group</a></li>
             </ul>
         </div>
         <div class="row tab" id="historyTab" style="display: none">
@@ -77,6 +83,9 @@
         $("#"+role+"Menu").addClass("active").siblings().removeClass("active");
     }
 
+    function viewUserGroup(){
+        window.location = basePath +"/usergroup";
+    }
     function viewHistory(){
 
     }
