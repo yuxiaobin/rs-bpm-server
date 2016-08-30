@@ -46,6 +46,12 @@ select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
 from tbl_user u, tbl_user2group ug, tbl_group g
 where u.id=ug.user_id and ug.group_id=g.GROUP_ID
 </select>
+	<select id="getGroupListWithWithoutUsersAll"  resultMap="getGroupListWithUsersByIdListResultMap">
+select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
+from tbl_group g
+left join tbl_user2group ug on ug.group_id=g.GROUP_ID
+left join tbl_user u on u.id=ug.user_id 
+</select>
 
 	<select id="getUsersInSpecGroup"  resultMap="getGroupListWithUsersByIdListResultMap">
 select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME

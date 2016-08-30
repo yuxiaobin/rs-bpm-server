@@ -24,6 +24,8 @@ public interface ITblUser2groupService extends ICommonService<TblUser2group> {
 	
 	public List<TblGroup> getAllGroupsWithUsers();
 	
+	public List<TblGroup> getAllGroupsWithWithoutUsers();
+	
 	public List<TblUser> getUserInSpecGroup(String groupId);
 	
 	public List<TblUser> getAddableUsers(String groupId);

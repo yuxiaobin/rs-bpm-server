@@ -81,6 +81,22 @@ angular.module('app', [ ])
                 });
             return delay.promise;
         };
+        this.updateGroupName = function(group){
+            var delay = $q.defer();
+            var req = {
+                method: 'POST',
+                data:group,
+                url: basePath+'/usergroup/group/update'
+            };
+            $http(req)
+                .success(function(data, status, headers, config){
+                    delay.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                    delay.reject(data);
+                });
+            return delay.promise;
+        };
     }])
     .controller('ctrl', ['$scope','$window','$timeout', 'groupService', function ($scope,$window,$timeout, groupService) {
         $scope.back2GroupIndex = function(){
@@ -112,6 +128,35 @@ angular.module('app', [ ])
         };
 
         $scope.loadUserData4Group();
+        $scope.groupName = groupName;
+        $scope.showUpdateSucc = false;
+        $scope.showUpdateFail = false;
+
+        $scope.updateGroupName = function(){
+            var groupname = $scope.groupName.toString();
+            if($.trim(groupname)==""){
+                $scope.groupName = groupName;
+            }else if(groupname == groupName){
+                return;
+            }else{
+                var group = {groupId:groupId, groupName:groupname};
+                groupService.updateGroupName(group).then(function(succ){
+                    if(succ.result=="succ"){
+                        $scope.showUpdateSucc = true;
+                        groupName = groupname;
+                        $timeout(function(){
+                            $scope.showUpdateSucc = false;
+                        },1500)
+                    }else{
+                        $scope.showUpdateFail = true;
+                        $scope.groupName = groupName;
+                        $timeout(function(){
+                            $scope.showUpdateFail = false;
+                        },1500)
+                    }
+                },function(fail){});
+            }
+        };
 
         $scope.saveUser2Group = function(){
             //selectedUsers result is an array
@@ -126,7 +171,7 @@ angular.module('app', [ ])
             },function(fail){
                 alert("添加失败");
             });
-        }
+        };
 
         $scope.deleteGroup = function(){
             groupService.deleteGroup(groupId).then(function(succ){

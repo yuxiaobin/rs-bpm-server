@@ -125,8 +125,10 @@ public class UserGroupController extends BaseController {
 	
 	@RequestMapping(value="/group/edit", method=RequestMethod.GET )
 	public String viewEditGroup(HttpServletRequest req){
-		req.setAttribute("groupId", req.getParameter("groupId"));
-		req.setAttribute("groupName", req.getParameter("groupName"));
+		String groupId = req.getParameter("groupId");
+		req.setAttribute("groupId", groupId);
+		TblGroup group = groupService.selectById(groupId);
+		req.setAttribute("groupName", group==null?"":group.getGroupName());
 		return "wf-group";
 	}
 	
@@ -244,6 +246,51 @@ public class UserGroupController extends BaseController {
 		String groupId = req.getParameter("groupId");
 		JSONObject result = new JSONObject();
 		groupService.deleteById(groupId);
+		result.put("result", "succ");
+		return result;
+	}
+	
+	@RequestMapping(value="/group", method=RequestMethod.POST )
+	@ResponseBody
+	public Object addGroup(@RequestBody JSONObject parm){
+		String groupName = parm.getString("groupName");
+		TblGroup group = new TblGroup();
+		group.setGroupName(groupName);
+		List<TblGroup> groupList = groupService.selectList(group);
+		JSONObject result = new JSONObject();
+		if(groupList!=null && groupList.size()!=0){
+			result.put("result", "duplicate");
+			return result;
+		}
+		groupService.insert(group);
+		result.put("result", "succ");
+		return result;
+	}
+	
+	@RequestMapping(value="/group/update", method=RequestMethod.POST )
+	@ResponseBody
+	public Object updateGroup(@RequestBody JSONObject parm){
+		String groupName = parm.getString("groupName");
+		String groupId = parm.getString("groupId");
+		TblGroup group = new TblGroup();
+		group.setGroupName(groupName);
+		List<TblGroup> groupList = groupService.selectList(group);
+		boolean hasSameGroup = false;
+		if(groupList!=null){
+			for(TblGroup gp:groupList){
+				if(!gp.getGroupId().equals(groupId)){
+					hasSameGroup = true;
+					break;
+				}
+			}
+		}
+		JSONObject result = new JSONObject();
+		if(hasSameGroup){
+			result.put("result", "duplicate");
+			return result;
+		}
+		group.setGroupId(groupId);
+		groupService.updateById(group);
 		result.put("result", "succ");
 		return result;
 	}

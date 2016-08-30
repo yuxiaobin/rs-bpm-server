@@ -32,7 +32,20 @@
         <div class="row">
             <div class="col-md-12">
             <div class="panel panel-default">
-				  <div class="panel-heading">用户组名称: ${groupName}</div>
+				  <div class="panel-heading">
+                          <div class="input-group" style="width:50%">
+                              <span class="input-group-addon" id="basic-addon3">用户组名称：</span>
+                              <input type="text" class="form-control" aria-describedby="basic-addon3" ng-model="groupName" ng-blur="updateGroupName()">
+                          </div>
+                      <div class="input-group" style="width:50%">
+                        <div class="alert alert-success" role="alert" ng-show="showUpdateSucc" style="width:40%">
+                            更新用户组名称成功！
+                        </div>
+                        <div class="alert alert-danger" role="alert" ng-show="showUpdateFail" style="width:40%">
+                            相同的用户组已存在！
+                        </div>
+                          </div>
+				  </div>
 				  <input type="hidden" name="groupId" value="${groupId}" id="groupId">
                 <table class="table">
                     <thead>
@@ -107,13 +120,13 @@
                 <h4 class="modal-title" id="myModalLabel"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span></h4>
             </div>
             <div class="modal-body" ng-model="confirmBody">
-                确认要删除该用户组吗？
+                <label>确认要删除该用户组吗？</label>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteGroup()">
                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>确认删除
                 </button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->

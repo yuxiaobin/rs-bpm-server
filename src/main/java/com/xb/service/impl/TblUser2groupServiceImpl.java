@@ -56,21 +56,29 @@ public class TblUser2groupServiceImpl extends CommonServiceImpl<TblUser2groupMap
 		return processUsers2Group(baseMapper.getGroupListWithUsersAll());
 	}
 	
+	public List<TblGroup> getAllGroupsWithWithoutUsers(){
+		return processUsers2Group(baseMapper.getGroupListWithWithoutUsersAll());
+	}
+	
 	private List<TblGroup> processUsers2Group(List<TblUser> groupUserList){
 		Map<String,TblGroup> groupIdMap = new HashMap<String,TblGroup>();
 		if(groupUserList!=null && !groupUserList.isEmpty()){
 			for(TblUser user:groupUserList){
 				String groupId = user.getGroupId();
 				if(groupIdMap.containsKey(groupId)){
-					groupIdMap.get(groupId).addUser(user);
+					if(user.getId()!=null){
+						groupIdMap.get(groupId).addUser(user);
+					}
 				}
 				else{
 					TblGroup group = new TblGroup();
 					group.setGroupId(user.getGroupId());
 					group.setGroupName(user.getGroupName());
-					List<TblUser> usersInGp = new ArrayList<TblUser>();
-					usersInGp.add(user);
-					group.setUserlist(usersInGp);
+					if(user.getId()!=null){
+						List<TblUser> usersInGp = new ArrayList<TblUser>();
+						usersInGp.add(user);
+						group.setUserlist(usersInGp);
+					}
 					groupIdMap.put(groupId, group);
 				}
 			}

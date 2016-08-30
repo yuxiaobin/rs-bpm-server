@@ -28,7 +28,7 @@ public class TblGroupServiceImpl extends CommonServiceImpl<TblGroupMapper, TblGr
 	ITblUser2groupService user2GroupService;
 	
 	public List<TblGroup> getGroupsWithUsers(){
-		return user2GroupService.getAllGroupsWithUsers();
+		return user2GroupService.getAllGroupsWithWithoutUsers();
 	}
 	
 	public List<TblUser> getUserInSpecGroup(String groupId){
