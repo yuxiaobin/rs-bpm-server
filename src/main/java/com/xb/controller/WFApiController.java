@@ -20,6 +20,7 @@ public class WFApiController extends BaseController {
 	
 	private static final String RETURN_CODE = "return_code";
 	private static final String RETURN_MSG = "return_msg";
+	private static final String RETURN_WF_INST_NUM = "wf_inst_num";
 	
 	@Autowired
 	IWfTaskService taskService;
@@ -32,24 +33,69 @@ public class WFApiController extends BaseController {
 		return result;
 	}
 	
+	@RequestMapping(value="/start",method=RequestMethod.GET )
+	public Object startWf(){
+		JSONObject result = new JSONObject();
+		result.put(RETURN_CODE, STATUS_CODE_FAIL);
+		result.put(RETURN_MSG, "GET method is not allowed");
+		return result;
+	}
+	
 	@RequestMapping(value="/start",method=RequestMethod.POST )
 	public Object startWf(@RequestBody JSONObject parm){
 		String userId = parm.getString("userId");
 		String gnmkId = parm.getString("gnmkId");
-		String wfRefNo = parm.getString("wfRefNo");
 		JSONObject result = new JSONObject();
-		if(StringUtils.isEmpty(wfRefNo) || StringUtils.isEmpty(userId)){
+		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(userId)){
 			result.put(RETURN_CODE, STATUS_CODE_FAIL);
-			result.put(RETURN_MSG, "data is empty");
+			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
 		}
 		try{
-			if(taskService.startWF4Module(gnmkId, wfRefNo, userId)){
+			Integer instNum = taskService.startWFByGnmkId(gnmkId, userId);
+			if(instNum!=null){
 				result.put(RETURN_CODE, STATUS_CODE_SUCC);
+				result.put(RETURN_WF_INST_NUM, instNum);
+				result.put(RETURN_MSG, "succ");
 			}else{
 				result.put(RETURN_CODE, STATUS_CODE_FAIL);
 				result.put(RETURN_MSG, "no wf record found");
 			}
+		}catch(Exception e){
+			result.put(RETURN_CODE, STATUS_CODE_FAIL);
+			result.put(RETURN_MSG, "failed to start workflow");
+		}
+		return result;
+	}
+	
+	@RequestMapping(value="/options",method=RequestMethod.POST )
+	public Object getTaskOptions(@RequestBody JSONObject parm){
+		String userId = parm.getString("userId");
+		String wfRefNo = parm.getString("wfRefNo");
+		String wfInstNumStr = parm.getString("wfInstNum");
+		JSONObject result = new JSONObject();
+		if(StringUtils.isEmpty(wfRefNo) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(wfInstNumStr)){
+			result.put(RETURN_CODE, STATUS_CODE_FAIL);
+			result.put(RETURN_MSG, "passed in data is empty");
+			return result;
+		}
+		Integer instNum = null;
+		try{
+			instNum = Integer.parseInt(wfInstNumStr);
+		}
+		catch(Exception e){
+			result.put(RETURN_CODE, STATUS_CODE_FAIL);
+			result.put(RETURN_MSG, "wfInstNum is not a number");
+			return result;
+		}
+		try{
+				//TODO:
+				result.put(RETURN_CODE, STATUS_CODE_SUCC);
+				result.put(RETURN_WF_INST_NUM, instNum);
+				
+				
+				result.put(RETURN_CODE, STATUS_CODE_FAIL);
+				result.put(RETURN_MSG, "no wf record found");
 		}catch(Exception e){
 			result.put(RETURN_CODE, STATUS_CODE_FAIL);
 			result.put(RETURN_MSG, "failed to start workflow");

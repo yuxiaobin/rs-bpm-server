@@ -15,33 +15,16 @@ CREATE DATABASE IF NOT EXISTS `mybatis-plus` /*!40100 DEFAULT CHARACTER SET utf8
 USE `mybatis-plus`;
 
 
--- 导出  表 mybatis-plus.rs_module 结构
-CREATE TABLE IF NOT EXISTS `rs_module` (
-  `MOD_ID` varchar(50) COLLATE utf8_bin NOT NULL,
-  `NAME` varchar(50) COLLATE utf8_bin NOT NULL,
-  `OUTPUT_CLASS` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `OUTPUT_OPT` varchar(5) COLLATE utf8_bin DEFAULT NULL,
-  `WF_FLAG` varchar(2) COLLATE utf8_bin DEFAULT NULL,
-  `RS_WF_ID` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `CREATED_BY` varchar(50) COLLATE utf8_bin NOT NULL,
-  `CREATED_DT` datetime NOT NULL,
-  `UPDATED_BY` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `UPDATED_DT` datetime DEFAULT NULL,
-  PRIMARY KEY (`MOD_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- 数据导出被取消选择。
-
-
 -- 导出  表 mybatis-plus.rs_workflow 结构
 CREATE TABLE IF NOT EXISTS `rs_workflow` (
   `RS_WF_ID` varchar(50) COLLATE utf8_bin NOT NULL,
-  `RS_WF_NAME` varchar(50) COLLATE utf8_bin NOT NULL,
+  `GNMK_ID` varchar(50) COLLATE utf8_bin NOT NULL,
   `CREATED_BY` varchar(50) COLLATE utf8_bin NOT NULL,
   `CREATED_DT` datetime NOT NULL,
   `UPDATED_BY` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `UPDATED_DT` datetime DEFAULT NULL,
-  PRIMARY KEY (`RS_WF_ID`)
+  PRIMARY KEY (`RS_WF_ID`),
+  UNIQUE KEY `GNMK_ID` (`GNMK_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- 数据导出被取消选择。
@@ -208,7 +191,7 @@ CREATE TABLE IF NOT EXISTS `wf_task_assign` (
   `ASSIGN_TYPE` varchar(2) COLLATE utf8_bin NOT NULL,
   `ASSIGN_REL_ID` varchar(50) COLLATE utf8_bin NOT NULL,
   `DEF_SEL_FLAG` varchar(1) COLLATE utf8_bin DEFAULT NULL,
-  `SEL_ALL_FLAG` varchar(1) COLLATE utf8_bin DEFAULT NULL,
+  `SEL_ALL_FLAG` varchar(5) COLLATE utf8_bin DEFAULT NULL,
   `EXE_CONDITION` varchar(500) COLLATE utf8_bin DEFAULT NULL,
   `CREATED_BY` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `CREATED_DT` datetime DEFAULT NULL,

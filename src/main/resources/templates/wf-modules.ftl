@@ -23,8 +23,8 @@
     <div class="container-fluid">
         <div class="collapse navbar-collapse">
             <form class="navbar-form navbar-left">
-                <div class="form-group" style="margin-top: auto;"><input type="text" class="form-control" ng-model="moduleName"  placeholder="Module Name"></div>
-                <input type="button" class="btn btn-default" name="New Module"
+                <div class="form-group" style="margin-top: auto;"><input type="text" class="form-control" ng-model="gnmkId"  placeholder="功能模块编号"></div>
+                <input type="button" class="btn btn-default" name="新建工作流"
                        value="New Module" ng-click="newModule()">
             </form>
         </div>
@@ -34,13 +34,23 @@
 <main class="packages-list-container" id="all-packages">
     <div class="container">
         <div class="list-group packages">
-            <a class="package list-group-item" ng-repeat="module in moduleList" href="${base.contextPath}/wfadmin/define/{{module.modId}}" >
+            <a class="package list-group-item">
                 <div class="row">
                     <div class="col-md-3">
-                        <h4 class="package-name" ng-bind="module.name">Module Name</h4>
+                        <h4 class="package-name">功能模块编号</h4>
                     </div>
                     <div class="col-md-9 hidden-xs">
-                        <p class="package-description">Workflow</p>
+                        <p class="package-description">点击查看工作流</p>
+                    </div>
+                </div>
+            </a>
+            <a class="package list-group-item" ng-repeat="module in moduleList" href="${base.contextPath}/wfadmin/define/{{module.rsWfId}}" >
+                <div class="row">
+                    <div class="col-md-3">
+                        <h4 class="package-name" ng-bind="module.gnmkId">功能模块编号</h4>
+                    </div>
+                    <div class="col-md-9 hidden-xs">
+                        <p class="package-description">工作流</p>
                     </div>
                     <!-- <div class="package-extra-info col-md-9 col-md-offset-3 col-xs-12">
                         <span><i class="fa fa-star"></i> 98666</span>

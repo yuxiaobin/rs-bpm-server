@@ -66,7 +66,6 @@ public class WFTaskController extends BaseController {
 			TaskOptVO optVO = new TaskOptVO();
 			optVO.setRsWfId(rsWfId);
 			optVO.setInstNum(Integer.parseInt(instNum));
-			optVO.setRefMkid(refMkid);
 			optVO.setOptCode(optCode);
 			req.setAttribute("TX_PR_CHOICES",taskService.getCurrentTaskByRefNum(optVO).getTxPrChoices());
 			return "wf-popup-opt";

@@ -16,6 +16,9 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <script>
         var basePath = "${base.contextPath}";
+        <#if rsWfId?exists>
+            var rsWfId = "${rsWfId}";
+        </#if>
     </script>
 </head>
 <body data-demo-id="statemachine" data-library="dom" class="home-template" ng-app="taskApp">
@@ -23,8 +26,7 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-6">
-                <h1>${moduleName}</h1>
-                <input type="hidden" name="moduleId" value="${moduleId}" id="moduleId">
+                <h1>功能模块ID：${gnmkId}</h1>
             </div>
             <div class="col-xs-6">
                 <div style="position: absolute;right: 10px;"> <h3><a href="${base.contextPath}/wf">回首页</a></h3></div>
@@ -173,7 +175,6 @@
     
     window.addEventListener('message', receiveMessage, false);
     function receiveMessage(evt) {
-        console.log("got message from child page:"+evt.data);
         var taskData = $.parseJSON(evt.data);
         if(taskData.opt=="U"){
             $("#"+taskData.taskPgId).attr(RS_ATTR_ASSIGNERS, JSON.stringify(taskData.assigners))

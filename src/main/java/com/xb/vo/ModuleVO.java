@@ -2,23 +2,34 @@ package com.xb.vo;
 
 public class ModuleVO {
 	
-	private String moduleId;
-	private String moduleName;
-
-	public String getModuleName() {
-		return moduleName;
-	}
-
-	public void setModuleName(String moduleName) {
-		this.moduleName = moduleName;
-	}
-
-	public String getModuleId() {
-		return moduleId;
-	}
-
-	public void setModuleId(String moduleId) {
-		this.moduleId = moduleId;
-	}
+	private String rsWfId;
 	
+	private String gnmkId;
+	
+	private String statusCode;
+	
+	public String getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(String statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public String getGnmkId() {
+		return gnmkId;
+	}
+
+	public void setGnmkId(String gnmkId) {
+		this.gnmkId = gnmkId;
+	}
+
+	public String getRsWfId() {
+		return rsWfId;
+	}
+
+	public void setRsWfId(String rsWfId) {
+		this.rsWfId = rsWfId;
+	}
+
 }

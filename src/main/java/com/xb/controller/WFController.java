@@ -20,11 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
-import com.xb.persistent.RsModule;
+import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
-import com.xb.persistent.WfDef;
 import com.xb.persistent.WfInstHist;
-import com.xb.service.IRsModuleService;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.ITblUser2groupService;
 import com.xb.service.ITblUserService;
@@ -41,8 +39,6 @@ import com.xb.vo.TaskOptVO;
 public class WFController extends BaseController {
 	
 	
-	@Autowired
-	IRsModuleService moduleService;
 	@Autowired
 	IRsWorkflowService wfService;
 	@Autowired
@@ -94,24 +90,8 @@ public class WFController extends BaseController {
 	@RequestMapping(value="/modules/listall",method=RequestMethod.GET )
 	@ResponseBody
 	public Object getAllModulesWithWfDefs(){
-		RsModule parm = new RsModule();
-//		Page<RsModule> page = new Page<>(0, 100);
 		JSONObject page = new JSONObject();
-		List<RsModule> list = moduleService.selectList(parm);
-		if(list!=null){
-			WfDef wfDefParm = new WfDef();
-			for(RsModule module:list){
-				String rsWfId = module.getRsWfId();
-				if(StringUtils.isEmpty(rsWfId)){
-					continue;
-				}
-				wfDefParm.setRsWfId(rsWfId);
-				module.setWfList(wfDefService.selectList(wfDefParm, "version"));
-			}
-		}
-		page.put("records", list);
-//		page.setRecords(list);
-//		page.setTotal(list.size());
+		page.put("records", wfService.selectList(new RsWorkflow()));
 		return page;
 	}
 	
@@ -119,10 +99,7 @@ public class WFController extends BaseController {
 	@RequestMapping(value="/start", method=RequestMethod.POST)
 	@ResponseBody
 	public Object startWf4Module(@RequestBody TaskOptVO optVO, HttpSession session){
-		//TODO:
-		//TODO:
-		//TODO:use refMkid instead of moduleID @0819
-		taskService.startWF4Module(optVO.getRefMkid(),optVO.getRsWfId(), getCurrUserId(session));
+		taskService.startWF4Module(optVO.getRsWfId(), getCurrUserId(session));
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
 		return result;

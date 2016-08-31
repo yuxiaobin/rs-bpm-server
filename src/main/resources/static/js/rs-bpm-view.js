@@ -82,7 +82,6 @@ jsPlumb.ready(function () {
         return d;
     };
 
-    var moduleId = $("#moduleId").val();
     var url_ = basePath+"/wf/status?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid
     $.ajax(
         {

@@ -6,18 +6,15 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
-import com.xb.persistent.RsModule;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfDef;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.mapper.RsWorkflowMapper;
-import com.xb.service.IRsModuleService;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
@@ -39,8 +36,6 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 	@Autowired
 	IWfDefService wfDefService;
 	@Autowired
-	IRsModuleService rsModuleService;
-	@Autowired
 	IWfTaskService wfTaskService;
 	@Autowired
 	IWfTaskConnService wfTaskConnService;
@@ -57,18 +52,7 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 	 */
 	@Transactional
 	public void createWF4Module(ModuleVO module, WFDetailVO wfDetail) {
-		RsModule rsModule = rsModuleService.selectById(module.getModuleId());
-		RsWorkflow rsWf = null;
-		if(!StringUtils.isEmpty(rsModule.getRsWfId())){
-			rsWf = this.selectById(rsModule.getRsWfId());
-		}else{
-			rsWf = new RsWorkflow();
-			rsWf.setRsWfName("Workflow for "+module.getModuleName());
-			this.insert(rsWf);
-			rsModule.setRsWfId(rsWf.getRsWfId());
-			rsModule.setWfFlag("T");
-			rsModuleService.updateById(rsModule);
-		}
+		RsWorkflow rsWf = this.selectById(module.getRsWfId());
 		WfDef wfDefParm = new WfDef();
 		wfDefParm.setRsWfId(rsWf.getRsWfId());
 		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
@@ -103,19 +87,9 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 	 * @param moduleId
 	 * @return
 	 */
-	public WFDetailVO getWF4Module(String moduleId, String wfId) {
+	public WFDetailVO getWF4Module(String rsWfId, String wfId) {
 		WFDetailVO result = new WFDetailVO();
-		RsModule rsModule = rsModuleService.selectById(moduleId);
-		if (rsModule == null) {
-			return result;
-		}
-		if (StringUtils.isEmpty(rsModule.getRsWfId())) {
-			return result;
-		}
-		RsWorkflow rsWf =null;
-		RsWorkflow parm = new RsWorkflow();
-		parm.setRsWfId(rsModule.getRsWfId());
-		rsWf = this.selectOne(parm);
+		RsWorkflow rsWf = this.selectById(rsWfId);
 		if (rsWf == null) {
 			return result;
 		}
@@ -133,6 +107,9 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 				return result;
 			}
 			wfDef = wfDefList.get(0);
+		}
+		if(wfDef==null){//first time define workflow
+			return result;
 		}
 		result.setWfDef(wfDef);
 		wfId = wfDef.getWfId();

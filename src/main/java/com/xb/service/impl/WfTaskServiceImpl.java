@@ -27,7 +27,6 @@ import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskAssign;
 import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.mapper.WfTaskMapper;
-import com.xb.service.IRsModuleService;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfAwtService;
 import com.xb.service.IWfDefService;
@@ -57,8 +56,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	@Autowired
 	IWfInstanceService instService;
 	@Autowired
-	IRsModuleService moduleService;
-	@Autowired
 	IWfDefService wfDefService;
 	@Autowired
 	IRsWorkflowService rsWfService;
@@ -74,17 +71,24 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return awtService.getAwtByUserId(userId);
 	}
 	
+	public Integer startWFByGnmkId(String gnmkId, String userId){
+		RsWorkflow wfparm = new RsWorkflow();
+		wfparm.setGnmkId(gnmkId);
+		RsWorkflow wf = rsWfService.selectOne(wfparm);
+		if(wf==null){
+			return null;
+		}
+		return startWF4Module(wf.getRsWfId(),userId);
+	}
+	
 	@Transactional
-	public boolean startWF4Module(String refMkid, String rsWfId, String currUserId){
-//		RsModule rsModule = moduleService.selectById(moduleId);
-//		if (rsModule == null) {
-//			return;
-//		}
+	public Integer startWF4Module(String rsWfId, String currUserId){
+		RsWorkflow wf = rsWfService.selectById(rsWfId);
 		WfDef wfDefParm = new WfDef();
 		wfDefParm.setRsWfId(rsWfId);
 		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
 		if (wfDefList == null || wfDefList.isEmpty()) {
-			return false;
+			return null;
 		}
 		String wfId = wfDefList.get(0).getWfId();
 		WfInstance instParm = new WfInstance();
@@ -100,7 +104,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
 		wfInst.setRsWfId(rsWfId);
 		wfInst.setInstNum(instNumCurr);
-		wfInst.setRefMkid(refMkid);
+		wfInst.setRefMkid(wf.getGnmkId());
 		instService.insert(wfInst);
 		
 		WfTask taskParm = new WfTask();
@@ -122,7 +126,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		awt.setAwtBegin(new Date());
 		
 		awtService.insert(awt);
-		return true;
+		return instNumCurr;
 	}
 
 	@Transactional
@@ -364,5 +368,16 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			return null;
 		}
 		return this.selectById(awt.getTaskIdCurr());
+	}
+	
+	
+	public JSONArray getTaskOptions(TaskOptVO optVO, boolean needGroup){
+		WfTask currTask = getCurrentTaskByRefNum(optVO);
+		if(currTask==null){
+			return  null;
+		}
+		
+		
+		return null;
 	}
 }

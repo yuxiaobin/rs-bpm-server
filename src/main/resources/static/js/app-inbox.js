@@ -36,11 +36,14 @@ angular.module('app', [ ])
         }
     }])
     .controller('ctrl', ['$scope','$window','$timeout', 'inboxService', function ($scope,$window,$timeout, inboxService) {
-        inboxService.getTaskInbox().then(function(success){
-            $scope.taskvList = success.records;
-        },function(fail){
-            console.error("getTaskInbox failed"+fail);
-        });
+        $scope.getTaskInbox = function(){
+            inboxService.getTaskInbox().then(function(success){
+                $scope.taskvList = success.records;
+            },function(fail){
+                console.error("getTaskInbox failed"+fail);
+            });
+        };
+        $scope.getTaskInbox();
         if(typeof(userId)!='undefined'){
             $scope.userId = userId;
         }
@@ -50,11 +53,7 @@ angular.module('app', [ ])
         };
 
         window.reloadTask = function(){
-            inboxService.getTaskInbox().then(function(success){
-                $scope.taskvList = success.records;
-            },function(fail){
-                console.error("getTaskInbox failed"+fail);
-            });
+            $scope.getTaskInbox();
         };
         $scope.optGroupList =[{"opts":[{"disflag":true,"value":"C","descp":"流程提交"},{"disflag":true,"value":"RJ","descp":"流程退回"},{"disflag":true,"value":"V","descp":"流程否决"}]},{"opts":[{"disflag":true,"value":"F","descp":"流程转交"},{"disflag":true,"value":"RC","descp":"流程撤回"},{"disflag":true,"value":"LMD","descp":"我来处理"}]},{"opts":[{"disflag":true,"value":"DP","descp":"流程调度"},{"disflag":true,"value":"TK","descp":"流程跟踪"}]}]
 

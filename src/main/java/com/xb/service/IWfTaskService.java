@@ -2,6 +2,7 @@ package com.xb.service;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.ICommonService;
 import com.xb.persistent.WfAwt;
@@ -19,7 +20,15 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	
 	public List<WfAwt> getTasksInbox(String userId);
 	
-	public boolean startWF4Module(String moduleId, String rsWfId, String userId);
+	public Integer startWF4Module(String rsWfId, String userId);
+	
+	/**
+	 * API : 根据gnmkId启动工作流
+	 * @param gnmkId
+	 * @param userId
+	 * @return
+	 */
+	public Integer startWFByGnmkId(String gnmkId, String userId);
 	
 	public void processTask(TaskOptVO optVO, String currUserId);
 	/**
@@ -65,4 +74,13 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 * @return
 	 */
 	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO);
+	
+	/**
+	 * 根据rsWfId&instNum 获取当前task的可操作菜单列表
+	 * 
+	 * @param optVO {rsWfId, instNum}
+	 * @param needGroup	是否需要分组
+	 * @return
+	 */
+	public JSONArray getTaskOptions(TaskOptVO optVO, boolean needGroup);
 }

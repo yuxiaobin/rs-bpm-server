@@ -13,6 +13,6 @@ import com.baomidou.framework.service.ICommonService;
 public interface IRsWorkflowService extends ICommonService<RsWorkflow> {
 
 	public void createWF4Module(ModuleVO module, WFDetailVO wfDetail) ;
-	public WFDetailVO getWF4Module(String moduleId, String wfId);
+	public WFDetailVO getWF4Module(String rsWfId, String wfId);
 	
 }

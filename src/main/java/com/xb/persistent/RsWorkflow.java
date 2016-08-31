@@ -23,11 +23,17 @@ public class RsWorkflow extends CUBaseTO implements Serializable {
 	@TableId(value = "RS_WF_ID", type = IdType.UUID)
 	private String rsWfId;
 
-	/**  */
-	@TableField(value = "RS_WF_NAME")
-	private String rsWfName;
-
+	@TableField(value = "GNMK_ID")
+	private String gnmkId;
 	
+
+	public String getGnmkId() {
+		return gnmkId;
+	}
+
+	public void setGnmkId(String gnmkId) {
+		this.gnmkId = gnmkId;
+	}
 
 	public String getRsWfId() {
 		return this.rsWfId;
@@ -36,15 +42,5 @@ public class RsWorkflow extends CUBaseTO implements Serializable {
 	public void setRsWfId(String rsWfId) {
 		this.rsWfId = rsWfId;
 	}
-
-	public String getRsWfName() {
-		return this.rsWfName;
-	}
-
-	public void setRsWfName(String rsWfName) {
-		this.rsWfName = rsWfName;
-	}
-
-	
 
 }

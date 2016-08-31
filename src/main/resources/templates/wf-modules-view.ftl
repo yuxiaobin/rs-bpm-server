@@ -28,33 +28,27 @@
             <li role="presentation" class="active"><a href="#">All Modules</a></li>
         </ul>
         <div class="list-group packages">
-            <a class="package list-group-item" ng-repeat="module in moduleList" href="" >
+            <a class="package list-group-item">
                 <div class="row">
-                    <div class="col-md-12">
-                        <h4 class="package-name" >Module Name : {{module.name}}</h4>
+                    <div class="col-md-3">
+                        <h4 class="package-name">功能模块编号</h4>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Version</th>
-                                <th>发起工作流？</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="wf in module.wfList">
-                                <td>{{$index+1}}</td>
-                                <td>{{wf.version}}</td>
-                                <td><a href="#" ng-click="triggerWF(wf.rsWfId, module.modId)">发起</a></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <div class="col-md-9 hidden-xs">
+                        <p class="package-description">点击发起工作流</p>
                     </div>
                 </div>
             </a>
+            <a class="package list-group-item" ng-repeat="module in moduleList" href="" >
+                <div class="row">
+                    <div class="col-md-3">
+                        <h4 class="package-name" ng-bind="module.gnmkId"></h4>
+                    </div>
+                    <div class="col-md-9 hidden-xs">
+                        <i href="#" ng-click="triggerWF(module.rsWfId)">发起</i>
+                    </div>
+                </div>
+            </a>
+
         </div>
     </div>
 

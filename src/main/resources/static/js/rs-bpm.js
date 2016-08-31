@@ -6,8 +6,6 @@ var RS_ATTR_ASSIGN_USERS = "rs-data-assign-users";
 var RS_ATTR_ASSIGN_GROUPS = "rs-data-assign-groups";
 var RS_ATTR_TASK_TYPE = "rs-data-type";*/
 
-var variableSet = [];//activityId:[propertyArray(name,type,value)]
-
 //var result_data = {"tasks":[{"id":"start-task","rsType":"start-task","descp":"Start","position":{"top":26,"left":312}},{"id":"end-task","rsType":"end-task","descp":"End","position":{"top":370,"left":350}},{"id":"userTask1","rsType":"user-task","descp":"userTask1","position":{"top":200,"left":550}},{"id":"userTask2","rsType":"user-task","descp":"userTask2","position":{"top":370,"left":550}},{"id":"condition","rsType":"rs-cond-task","descp":"condition adjust","position":{"top":173,"left":312}},{"id":"1469524101052","rsType":"rs-cond-task","descp":"Condition Node","position":{"top":231,"left":115}},{"id":"1469524108740","rsType":"user-task","descp":"User Task","position":{"top":376,"left":101}}],"conns":[{"con_id":"con_5","con_descp":"Start to process","con_value":"","source_id":"start-task","target_id":"condition"},{"con_id":"con_11","con_descp":"Yes","con_value":"","source_id":"condition","target_id":"end-task"},{"con_id":"con_17","con_descp":"No","con_value":"","source_id":"condition","target_id":"userTask1"},{"con_id":"con_23","con_descp":"Next step","con_value":"","source_id":"userTask1","target_id":"userTask2"},{"con_id":"con_29","con_descp":"Over","con_value":"","source_id":"userTask2","target_id":"end-task"},{"con_id":"con_35","con_descp":"Next","con_value":"","source_id":"condition","target_id":"1469524101052"},{"con_id":"con_41","con_descp":"Next","con_value":"","source_id":"1469524101052","target_id":"1469524108740"},{"con_id":"con_47","con_descp":"Next","con_value":"","source_id":"1469524108740","target_id":"end-task"}]}
 var result_data = [];
 var nodeList = result_data.tasks;
@@ -248,47 +246,35 @@ jsPlumb.ready(function () {
         newNodeById(startNode);
         newNodeById(endNode);
     }
-    var moduleId = $("#moduleId").val();
-    if(moduleId==undefined || moduleId==""){
-        result_data = [];
-        initEmptyWF();
-    }else{
-        //todo: to use rsWfId instead of moduleId
-        var url_ = basePath+"/wfadmin/module/"+moduleId+"/wf/";
-        if(typeof(wfId)=="undefined" || wfId==""){
-            url_ = url_+"init";
-        }else{
-            url_ = url_+wfId;
-        }
-        $.ajax({
-                type: "GET",
-                url: url_,
-                success: function (msg) {
-                    result_data = msg;
-                    nodeList = result_data.tasks;
-                    connList = result_data.conns;
-                    instance.batch(function () {
-                        if(typeof(nodeList)=="undefined"){
-                            nodeList = [];
+    var url_ = basePath+"/wfadmin/module/"+rsWfId+"/wf";
+    $.ajax({
+            type: "GET",
+            url: url_,
+            success: function (msg) {
+                result_data = msg;
+                nodeList = result_data.tasks;
+                connList = result_data.conns;
+                instance.batch(function () {
+                    if(typeof(nodeList)=="undefined"){
+                        nodeList = [];
+                    }
+                    var nodeSize = nodeList.length;
+                    if(nodeSize!=undefined && nodeSize!=0){
+                        for(var i=0;i<nodeList.length;++i){
+                            newNodeById(nodeList[i]);
                         }
-                        var nodeSize = nodeList.length;
-                        if(nodeSize!=undefined && nodeSize!=0){
-                            for(var i=0;i<nodeList.length;++i){
-                                newNodeById(nodeList[i]);
-                            }
-                            for(var i=0;i<connList.length;++i){
-                                var conn_data = connList[i];
-                                var conn_ = instance.connect({ source: conn_data.source_id, target: conn_data.target_id });
-                                conn_.getOverlay("label").label = "<i>"+conn_data.con_descp+"</i>"
-                            }
-                        }else{
-                            initEmptyWF();
+                        for(var i=0;i<connList.length;++i){
+                            var conn_data = connList[i];
+                            var conn_ = instance.connect({ source: conn_data.source_id, target: conn_data.target_id });
+                            conn_.getOverlay("label").label = "<i>"+conn_data.con_descp+"</i>"
                         }
-                    });
-                }
+                    }else{
+                        initEmptyWF();
+                    }
+                });
             }
-        );
-    }
+        }
+    );
     jsPlumb.fire("jsPlumbDemoLoaded", instance);
 
     $(document).bind("contextmenu",function(e){
@@ -385,7 +371,7 @@ jsPlumb.ready(function () {
         $.ajax(
             {
                 type: "POST",
-                url: basePath+"/wfadmin/module/"+moduleId+"/wf",
+                url: basePath+"/wfadmin/module/"+rsWfId+"/wf",
                 data:json_str,
                 headers: { 'Content-Type': "application/json" },
                 success: function (msg) {

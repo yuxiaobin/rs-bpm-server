@@ -1,6 +1,5 @@
 package com.xb.controller;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
-import com.xb.persistent.RsModule;
-import com.xb.service.IRsModuleService;
+import com.xb.persistent.RsWorkflow;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfDefService;
 import com.xb.utils.WfDataUtil;
@@ -29,8 +27,6 @@ import com.xb.vo.WFDetailVO;
 @RequestMapping("/wfadmin")
 public class WFAdminController extends BaseController {
 	
-	@Autowired
-	IRsModuleService moduleService;
 	@Autowired
 	IRsWorkflowService wfService;
 	@Autowired
@@ -53,59 +49,56 @@ public class WFAdminController extends BaseController {
 	@RequestMapping(value="/module",method=RequestMethod.POST )
 	@ResponseBody
 	public Object createModule(@RequestBody ModuleVO moduleVO){
-		RsModule module = new RsModule();
-		module.setNAME(moduleVO.getModuleName());
-		module.setCreatedBy("system");
-		module.setCreatedDt(new Date());
-		moduleService.insert(module);
-		moduleVO.setModuleId(String.valueOf(module.getModId()));
+		RsWorkflow wf = new RsWorkflow();
+		wf.setGnmkId(moduleVO.getGnmkId());
+		List<RsWorkflow> list = wfService.selectList(wf);
+		if(list!=null && !list.isEmpty()){
+			moduleVO.setStatusCode("dup");
+			return moduleVO;
+		}
+		wfService.insert(wf);
+		moduleVO.setRsWfId(wf.getRsWfId());
 		return moduleVO;
 	}
 	
 	@RequestMapping(value="/modules/list",method=RequestMethod.GET )
 	@ResponseBody
 	public Object getAllModules(){
-		RsModule parm = new RsModule();
 		JSONObject page = new JSONObject();
-		List<RsModule> list = moduleService.selectList(parm);
-		page.put("records", list);
+		page.put("records", wfService.selectList(new RsWorkflow()));
 		return page;
 	}
 	
-	@RequestMapping("/define/{moduleId}")
-	public String viewWf4Module(@PathVariable String moduleId, HttpSession session, HttpServletRequest req){
-		if(StringUtils.isEmpty(moduleId)){
-			System.out.println("viewWf4Module(): moduleId is empty");
+	@RequestMapping("/define/{rsWfId}")
+	public String viewWf4Module(@PathVariable String rsWfId, HttpSession session, HttpServletRequest req) throws Exception{
+		if(StringUtils.isEmpty(rsWfId)){
+			System.out.println("viewWf4Module(): rsWfId is empty");
 			return "";
 		}
-		RsModule moduleParm = new RsModule();
-		moduleParm.setModId(moduleId);
-		RsModule module = moduleService.selectOne(moduleParm);
-		session.setAttribute("moduleId", moduleId);
-		req.setAttribute("moduleName", module.getNAME());
+		RsWorkflow wf = wfService.selectById(rsWfId);
+		if(wf==null){
+			throw new Exception("No record found");
+		}
+		req.setAttribute("rsWfId", rsWfId);
+		req.setAttribute("gnmkId", wf.getGnmkId());
 		return "wf-define";
 	}
 	
-	@RequestMapping(value="/module/{moduleId}/wf/{wfId}",method=RequestMethod.GET )
+	@RequestMapping(value="/module/{rsWfId}/wf",method=RequestMethod.GET )
 	@ResponseBody
-	public Object getWfDtl4Module(@PathVariable String moduleId, @PathVariable String wfId, HttpSession session){
-		if(StringUtils.isEmpty(moduleId)){
-			System.out.println("viewWf4Module(): moduleId is empty");
+	public Object getWfDtl4Module(@PathVariable String rsWfId, HttpSession session){
+		if(StringUtils.isEmpty(rsWfId)){
+			System.out.println("viewWf4Module(): rsWfId is empty");
 			return "";
 		}
-		if(wfId=="init"){
-			wfId = null;
-		}
-		return WfDataUtil.generateWfJson(wfService.getWF4Module(moduleId,wfId));
+		return WfDataUtil.generateWfJson(wfService.getWF4Module(rsWfId,null));
 	}
 	
-	@RequestMapping(value="/module/{moduleId}/wf",method=RequestMethod.POST )
+	@RequestMapping(value="/module/{rsWfId}/wf",method=RequestMethod.POST )
 	@ResponseBody
-	public Object createWF(@PathVariable String moduleId, @RequestBody JSONObject wfData){
-		System.out.println(wfData);
+	public Object createWF(@PathVariable String rsWfId, @RequestBody JSONObject wfData){
 		ModuleVO module = new ModuleVO();
-		module.setModuleId(moduleId);
-		module.setModuleName("moduleName:TODO");//TODO:
+		module.setRsWfId(rsWfId);
 		WFDetailVO wfDetail = new WFDetailVO();
 		wfDetail.setWfData(wfData);
 		wfService.createWF4Module(module, wfDetail);
