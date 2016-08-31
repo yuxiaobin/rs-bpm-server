@@ -25,7 +25,7 @@ public class FilterConfig {
 		
 		FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
 		filterRegistrationBean.setFilter(new CorsFilter());
-		filterRegistrationBean.addUrlPatterns("/wfapi/*");
+		filterRegistrationBean.addUrlPatterns("/wfapi/**");
 		return filterRegistrationBean;
 	}
 	
