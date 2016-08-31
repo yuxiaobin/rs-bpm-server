@@ -10,6 +10,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.service.IWfTaskService;
+import com.xb.vo.TaskOptVO;
 
 @RestController
 @RequestMapping("/wfapi")
@@ -21,6 +22,7 @@ public class WFApiController extends BaseController {
 	private static final String RETURN_CODE = "return_code";
 	private static final String RETURN_MSG = "return_msg";
 	private static final String RETURN_WF_INST_NUM = "wf_inst_num";
+	private static final String RETURN_TASK_OPTIONS = "task_options";
 	
 	@Autowired
 	IWfTaskService taskService;
@@ -71,10 +73,10 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/options",method=RequestMethod.POST )
 	public Object getTaskOptions(@RequestBody JSONObject parm){
 		String userId = parm.getString("userId");
-		String wfRefNo = parm.getString("wfRefNo");
+		String gnmkId = parm.getString("gnmkId");
 		String wfInstNumStr = parm.getString("wfInstNum");
 		JSONObject result = new JSONObject();
-		if(StringUtils.isEmpty(wfRefNo) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(wfInstNumStr)){
+		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(wfInstNumStr)){
 			result.put(RETURN_CODE, STATUS_CODE_FAIL);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
@@ -89,19 +91,17 @@ public class WFApiController extends BaseController {
 			return result;
 		}
 		try{
-				//TODO:
-				result.put(RETURN_CODE, STATUS_CODE_SUCC);
-				result.put(RETURN_WF_INST_NUM, instNum);
-				
-				
-				result.put(RETURN_CODE, STATUS_CODE_FAIL);
-				result.put(RETURN_MSG, "no wf record found");
+			TaskOptVO optVO = new TaskOptVO();
+			optVO.setCurrUserId(userId);
+			optVO.setInstNum(instNum);
+			optVO.setGnmkId(gnmkId);
+			result.put(RETURN_CODE, STATUS_CODE_SUCC);
+			result.put(RETURN_TASK_OPTIONS, taskService.getTaskOptions(optVO, false));
 		}catch(Exception e){
 			result.put(RETURN_CODE, STATUS_CODE_FAIL);
-			result.put(RETURN_MSG, "failed to start workflow");
+			result.put(RETURN_MSG, "error when get options");
 		}
 		return result;
 	}
-
 	
 }

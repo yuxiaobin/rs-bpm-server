@@ -10,7 +10,7 @@ public class TaskOptVO {
 	private String nextTaskId;//当前选择的事务节点ID. Next Task ID
 	private String optCode;//C:提交，V:否决，RJ:退回，RD:撤回
 	
-//	private String refMkid;
+	private String gnmkId;
 	
 	/**********以上为处理事务时必填字段*************/
 	
@@ -53,12 +53,6 @@ public class TaskOptVO {
 	public void setOptCode(String optCode) {
 		this.optCode = optCode;
 	}
-//	public String getInstId() {
-//		return instId;
-//	}
-//	public void setInstId(String instId) {
-//		this.instId = instId;
-//	}
 	public String getRsWfId() {
 		return rsWfId;
 	}
@@ -90,11 +84,16 @@ public class TaskOptVO {
 		this.nextTaskId = nextTaskId;
 	}
 	
-	
+	public String getGnmkId() {
+		return gnmkId;
+	}
+	public void setGnmkId(String gnmkId) {
+		this.gnmkId = gnmkId;
+	}
 	@Override
 	public String toString() {
 		return "TaskOptVO [rsWfId=" + rsWfId + ", instNum=" + instNum + ", comments=" + comments + ", nextAssigners="
-				+ nextAssigners + ", nextTaskId=" + nextTaskId + ", optCode=" + optCode 
+				+ nextAssigners + ", nextTaskId=" + nextTaskId + ", optCode=" + optCode +", gnmkId="+gnmkId
 				+ ", prevInstHistId=" + prevInstHistId
 				+ ", nextEndTaskFlag=" + nextEndTaskFlag + "]";
 	}
