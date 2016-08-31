@@ -17,7 +17,18 @@ public class FilterConfig {
 		filterRegistrationBean.addUrlPatterns("/*");
 		filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
 		filterRegistrationBean.addInitParameter("profileEnable", "true");
-		
 		return filterRegistrationBean;
 	}
+	
+	@Bean
+	public FilterRegistrationBean crossFilterBean() {
+		
+		FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+		filterRegistrationBean.setFilter(new CorsFilter());
+		filterRegistrationBean.addUrlPatterns("/wfapi/*");
+		return filterRegistrationBean;
+	}
+	
+	
+	
 }
