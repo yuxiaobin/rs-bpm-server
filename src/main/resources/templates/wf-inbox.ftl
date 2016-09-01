@@ -43,7 +43,7 @@
                         <th>待处理人</th>
                         <th>已处理人</th>
                         <th>创建人</th>
-                        <th>工作流</th>
+                        <th>工作流ID</th>
                         <th>实例号</th>
                     </tr>
                     </thead>
@@ -56,11 +56,11 @@
                         <td>{{taskv.awtTitle}}</td>
                         <td>{{taskv.awtBegin | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                         <td>{{taskv.awtEnd | date:'yyyy-MM-dd HH:mm:ss'}}</td>
-                        <td> - </td>
+                        <td> {{taskv.taskProcesser}} </td>
                         <td>{{taskv.assignerId}}</td>
-                        <td> - </td>
-                        <td>{{taskv.createdBy}}</td>
-                        <td>{{taskv.rsWfId}}</td>
+                        <td> {{taskv.taskProcesser}} </td>
+                        <td>{{taskv.instCreater}}</td>
+                        <td>{{taskv.refMkid}}</td>
                         <td>{{taskv.instNum}}</td>
                     </tr>
                     </tbody>

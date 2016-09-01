@@ -68,6 +68,12 @@ public class WfAwt extends CUBaseTO implements Serializable {
 	private String taskOwner;//待处理人
 	
 	@TableField(exist = false)
+	private String taskProcesser;//上步处理人
+	
+	@TableField(exist = false)
+	private String instCreater;//创建人
+	
+	@TableField(exist = false)
 	private String taskDescpDisp;
 	
 	@TableField(exist = false)
@@ -79,8 +85,24 @@ public class WfAwt extends CUBaseTO implements Serializable {
 	@TableField(exist = false)
 	private String refMkid;
 	
+	public String getInstCreater() {
+		return instCreater;
+	}
+
+	public void setInstCreater(String instCreater) {
+		this.instCreater = instCreater;
+	}
+
 	public String getRefMkid() {
 		return refMkid;
+	}
+
+	public String getTaskProcesser() {
+		return taskProcesser;
+	}
+
+	public void setTaskProcesser(String taskProcesser) {
+		this.taskProcesser = taskProcesser;
 	}
 
 	public void setRefMkid(String refMkid) {

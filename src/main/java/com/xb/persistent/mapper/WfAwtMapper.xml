@@ -23,10 +23,12 @@
 	  <result property="rsWfId" column="rs_wf_id"/>
 	  <result property="instNum" column="inst_num"/>
 	  <result property="refMkid" column="ref_mkid"/>
+	  <result property="taskProcesser" column="opt_user"/>
+	  <result property="instCreater" column="inst_creater"/>
 	</resultMap>
 	
 	<select id="getAwtByUserId"  resultMap="getAwtByUserIdResultMap">
-select awt.*, 
+select awt.*, hist_prev.opt_user, inst.created_by as inst_creater,
 case when awt.HIST_ID_PRE is null then awt.ASSIGNER_ID 
 else hist_prev.NEXT_ASSIGNER end as task_owner,
 task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
