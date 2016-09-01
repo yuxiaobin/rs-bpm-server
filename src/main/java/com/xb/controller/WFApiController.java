@@ -2,23 +2,34 @@ package com.xb.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
+import com.xb.common.WFConstants;
+import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
+import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskOptVO;
 
-@RestController
+@Controller
 @RequestMapping("/wfapi")
 public class WFApiController extends BaseController {
+	
+	private static Logger log = Logger.getLogger(WFApiController.class);
 	
 	private static final int STATUS_CODE_SUCC = 0;
 	private static final int STATUS_CODE_FAIL = 1;
@@ -30,8 +41,11 @@ public class WFApiController extends BaseController {
 	
 	@Autowired
 	IWfTaskService taskService;
+	@Autowired
+	IRsWorkflowService rsWfService;
 	
 	@RequestMapping(value="/awt",method=RequestMethod.POST )
+	@ResponseBody
 	public Object getAwt(@RequestBody JSONObject parm){
 		String userId = parm.getString("userId");
 		JSONObject result = new JSONObject();
@@ -61,6 +75,7 @@ public class WFApiController extends BaseController {
 	}
 	
 	@RequestMapping(value="/start",method=RequestMethod.GET )
+	@ResponseBody
 	public Object startWf(){
 		JSONObject result = new JSONObject();
 		result.put(RETURN_CODE, STATUS_CODE_FAIL);
@@ -69,6 +84,7 @@ public class WFApiController extends BaseController {
 	}
 	
 	@RequestMapping(value="/start",method=RequestMethod.POST )
+	@ResponseBody
 	public Object startWf(@RequestBody JSONObject parm){
 		String userId = parm.getString("userId");
 		String gnmkId = parm.getString("gnmkId");
@@ -89,6 +105,7 @@ public class WFApiController extends BaseController {
 				result.put(RETURN_MSG, "no wf record found");
 			}
 		}catch(Exception e){
+			log.error("startWf", e);
 			result.put(RETURN_CODE, STATUS_CODE_FAIL);
 			result.put(RETURN_MSG, "failed to start workflow");
 		}
@@ -96,6 +113,7 @@ public class WFApiController extends BaseController {
 	}
 	
 	@RequestMapping(value="/options",method=RequestMethod.POST )
+	@ResponseBody
 	public Object getTaskOptions(@RequestBody JSONObject parm){
 		String userId = parm.getString("userId");
 		String gnmkId = parm.getString("gnmkId");
@@ -123,10 +141,70 @@ public class WFApiController extends BaseController {
 			result.put(RETURN_CODE, STATUS_CODE_SUCC);
 			result.put(RETURN_TASK_OPTIONS, taskService.getTaskOptions(optVO, false));
 		}catch(Exception e){
+			log.error("getTaskOptions", e);
 			result.put(RETURN_CODE, STATUS_CODE_FAIL);
 			result.put(RETURN_MSG, "error when get options");
 		}
 		return result;
 	}
+	
+	@RequestMapping(value="/operate",method=RequestMethod.GET )
+	public Object loadProcessTask(HttpSession session, HttpServletRequest req){
+		String instNumStr = req.getParameter("wfInstNum");
+		String gnmkId = req.getParameter("gnmkId");
+		String optCode = req.getParameter("optCode");
+		if(StringUtils.isEmpty(instNumStr) || StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(optCode)){
+			req.setAttribute(RETURN_CODE, STATUS_CODE_FAIL);
+			req.setAttribute(RETURN_MSG, "passed in data is empty");
+			return "error";
+		}
+		Integer instNum = null;
+		try{
+			instNum = Integer.parseInt(instNumStr);
+		}catch(Exception e){
+			req.setAttribute(RETURN_CODE, STATUS_CODE_FAIL);
+			req.setAttribute(RETURN_MSG, "wfInstNum is not a number");
+			return "error";
+		}
+		if(!isValidOptCode(optCode)){
+			req.setAttribute(RETURN_CODE, STATUS_CODE_FAIL);
+			req.setAttribute(RETURN_MSG, "optCode is invalid");
+			return "error";
+		}
+		
+		try{
+			RsWorkflow wfparm = new RsWorkflow();
+			wfparm.setGnmkId(gnmkId);
+			RsWorkflow wf = rsWfService.selectOne(wfparm);
+			if(wf==null){
+				req.setAttribute(RETURN_CODE, STATUS_CODE_FAIL);
+				req.setAttribute(RETURN_MSG, "no record found for gnmkId="+gnmkId);
+				return "error";
+			}
+			String rsWfId = wf.getRsWfId();
+			req.setAttribute("rsWfId", rsWfId);
+			req.setAttribute("instNum", instNum);
+			req.setAttribute("refMkid", gnmkId);
+			if(WFConstants.OptTypes.TRACK.equals(optCode)){
+				return "wf-popup-track";
+			}else{
+				req.setAttribute("optCode", optCode);
+				//提交，退回，否决等操作事务页面
+				TaskOptVO optVO = new TaskOptVO();
+				optVO.setRsWfId(rsWfId);
+				optVO.setInstNum(instNum);
+				optVO.setOptCode(optCode);
+				req.setAttribute("TX_PR_CHOICES",taskService.getCurrentTaskByRefNum(optVO).getTxPrChoices());
+				return "wf-popup-opt";
+			}
+		}catch(Exception e){
+			log.error("loadProcessTask",e);
+			req.setAttribute(RETURN_CODE, STATUS_CODE_FAIL);
+			req.setAttribute(RETURN_MSG, "系统调用出错");
+			return "error";
+		}
+	}
+	
+	
 	
 }

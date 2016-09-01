@@ -4,10 +4,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.xb.common.WFConstants;
 
 
 public class BaseController {
@@ -56,9 +59,24 @@ public class BaseController {
 
 		return error;
 	}
-	/*
-		
-		
-		*/
+	
+	public boolean isValidOptCode(String code){
+		if(StringUtils.isEmpty(code)){
+			return false;
+		}
+		if(WFConstants.OptTypes.COMMIT.equals(code)
+				||WFConstants.OptTypes.DISPATCH.equals(code)
+				||WFConstants.OptTypes.FORWARD.equals(code)
+				||WFConstants.OptTypes.LET_ME_DO.equals(code)
+				||WFConstants.OptTypes.RECALL.equals(code)
+				||WFConstants.OptTypes.REJECT.equals(code)
+				||WFConstants.OptTypes.TRACK.equals(code)
+				||WFConstants.OptTypes.VETO.equals(code)
+				){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 }

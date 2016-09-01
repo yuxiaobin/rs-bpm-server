@@ -277,11 +277,16 @@ angular.module('taskApp', [ ])
         }
 
     }]);
-
+/**
+ * Close opened modal / child page
+ */
 function hideModal(){
     var data_ = {opt:"C"};
     window.parent.postMessage(JSON.stringify(data_), '*');
+    window.close();
 }
+
+
 var selectedUsersArray = [];//{id:'xx', name:'xx'}
 /**
  *

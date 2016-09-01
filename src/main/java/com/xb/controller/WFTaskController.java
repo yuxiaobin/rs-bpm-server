@@ -58,7 +58,7 @@ public class WFTaskController extends BaseController {
 		req.setAttribute("instNum", instNum);
 		req.setAttribute("refMkid", refMkid);
 		String optCode = req.getParameter("optCode");
-		if("TRACK".equals(optCode)){
+		if(WFConstants.OptTypes.TRACK.equals(optCode)){
 			return "wf-popup-track";
 		}else{
 			req.setAttribute("optCode", optCode);

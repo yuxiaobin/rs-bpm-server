@@ -138,6 +138,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		}
 		if(awt==null){
 			System.err.println("cannot get awt record for optVO="+optVO);
+			return;
 		}
 		WfTask nextTask = this.selectById(optVO.getNextTaskId());
 		optVO.setWfId(nextTask.getWfId());

@@ -77,7 +77,7 @@ angular.module('app', [ ])
                 $('#myModal').modal({backdrop:false});
             }
             else if (val_ == 'TK') {
-                $('iframe').attr("src",url_+"&optCode=TRACK");
+                $('iframe').attr("src",url_+"&optCode=TK");
                 $('#myModal').modal({backdrop:true});
             }
             $scope.taskOption = "";

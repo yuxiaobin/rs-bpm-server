@@ -29,4 +29,5 @@ function hideModal(){
     var data_ = {};
     data_.opt="C";
     window.parent.postMessage(JSON.stringify(data_), '*');
+    window.close();
 }
