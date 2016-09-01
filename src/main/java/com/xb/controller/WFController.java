@@ -1,6 +1,5 @@
 package com.xb.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,7 @@ import com.xb.base.BaseController;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfInstHist;
+import com.xb.persistent.WfInstance;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.ITblUser2groupService;
 import com.xb.service.ITblUserService;
@@ -54,7 +54,7 @@ public class WFController extends BaseController {
 	@Autowired
 	ITblUser2groupService user2GroupService;
 	@Autowired
-	IWfAwtService awtService;;
+	IWfAwtService awtService;
 	
 	@RequestMapping("/")
 	public String hello(HttpSession session){
@@ -116,37 +116,14 @@ public class WFController extends BaseController {
 	@ResponseBody
 	public Object viewInstHistory(HttpSession session,HttpServletRequest req){
 		String rsWfId = req.getParameter("rsWfId");
-		String instNum = req.getParameter("instNum");
-		if(StringUtils.isEmpty(instNum) || !NumberUtils.isNumber(instNum)){
-			System.err.println("getWfStatus(): invalid instNum="+instNum);
+		String instNumStr = req.getParameter("instNum");
+		if(StringUtils.isEmpty(instNumStr) || !NumberUtils.isNumber(instNumStr)){
+			System.err.println("getWfStatus(): invalid instNum="+instNumStr);
 			return "";
 		}
-		int instNumber = NumberUtils.toInt(instNum);
+		int instNum = NumberUtils.toInt(instNumStr);
 		JSONObject result = new JSONObject();
-		List<WfInstHist> list = instHistService.viewWfInstHistory(rsWfId, instNumber);
-		
-		String userId = getCurrUserId(session);
-		WfAwt awt = awtService.getAwtByParam(rsWfId, instNumber, userId);
-		if(awt!=null){
-			WfInstHist awtHist = new WfInstHist();
-			awtHist.setTaskDescpDisp(awt.getTaskDescpDisp());
-			awtHist.setInstId(awt.getInstId());
-			
-			awtHist.setTaskBegin(awt.getAwtBegin());
-			awtHist.setTaskEnd(awt.getAwtEnd());
-			awtHist.setTaskOwner(awt.getTaskOwner());
-			if(list==null){
-				list = new ArrayList<WfInstHist>(1);
-			}else{
-				if(!list.isEmpty()){
-					awtHist.setNextAssigner(list.get(list.size()-1).getNextAssigner());
-				}else{
-					awtHist.setNextAssigner(userId);
-				}
-			}
-			list.add(awtHist);
-		}
-		result.put("records", list);
+		result.put("records", instHistService.viewWfInstHistory(rsWfId, instNum));
 		return result;
 	}
 	

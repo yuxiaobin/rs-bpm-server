@@ -3,6 +3,7 @@ package com.xb.persistent;
 import java.io.Serializable;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
@@ -320,5 +321,17 @@ public class WfTask extends CUBaseTO implements Serializable {
 				+ ", processedFlag=" + processedFlag + ", currTaskId=" + currTaskId + "]";
 	}
 	
+	public JSONObject getTxChoicesJson(){
+		if(txChoices!=null){
+			return JSONObject.parseObject(txChoices);
+		}
+		return null;
+	}
 	
+	public JSONObject getTxPrChoicesJson(){
+		if(txPrChoices!=null){
+			return JSONObject.parseObject(txPrChoices);
+		}
+		return null;
+	}
 }

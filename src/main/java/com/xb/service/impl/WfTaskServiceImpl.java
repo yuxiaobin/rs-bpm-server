@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.transaction.Transactional;
 
@@ -48,7 +46,7 @@ import com.xb.vo.WFDetailVO;
 @Service
 public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> implements IWfTaskService {
 	
-	private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+//	private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
 	@Autowired
 	IWfInstHistService histService;
@@ -132,10 +130,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 
 	@Transactional
 	public void processTask(TaskOptVO optVO, String currUserId){
-		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), currUserId);
-		if(awt==null){
-			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
-		}
+		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
 			System.err.println("cannot get awt record for optVO="+optVO);
 			return;
@@ -158,7 +153,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		connParm.setTargetTaskId(currTaskId);
 		WfTaskConn conn = taskConnService.selectOne(connParm);
 		if(conn!=null){
-			return conn.getSourceTaskId();
+			return conn.getSourceTaskId();//TODO: for condition cases, targetTaskId may have multiple connections@0901
 		}
 		return null;
 	}
@@ -243,10 +238,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	
 	public List<TaskVO> getNextTasksByOptCode(TaskOptVO optVO){
 		String optCode = optVO.getOptCode();
-		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
-		if(awt==null){
-			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
-		}
+		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
 			return null;
 		}
@@ -298,10 +290,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	
 	
 	public JSONObject getNextAssignersByOptCode(TaskOptVO optVO){
-		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
-		if(awt==null){
-			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
-		}
+		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
 			return null;
 		}
@@ -361,11 +350,16 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return result;
 	}
 	
-	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO){
+	private WfAwt getAwtByParm(TaskOptVO optVO){
 		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
 		if(awt==null && optVO.getCurrUserId()!=null){
 			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
 		}
+		return awt;
+	}
+	
+	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO){
+		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
 			return null;
 		}

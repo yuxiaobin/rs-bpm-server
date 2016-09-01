@@ -1,5 +1,6 @@
 package com.xb.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +12,8 @@ import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.mapper.WfInstHistMapper;
+import com.xb.service.IRsWorkflowService;
+import com.xb.service.IWfAwtService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.vo.TaskOptVO;
@@ -25,6 +28,8 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 	
 	@Autowired
 	IWfInstanceService instService;
+	@Autowired
+	IWfAwtService awtService;
 
 	public List<WfInstHist> viewWfInstHistory(String instId){
 		if(instId==null){
@@ -33,7 +38,30 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		}
 		WfInstHist histParm = new WfInstHist();
 		histParm.setInstId(instId);
-		return baseMapper.getInstHistByInstId(instId);
+		List<WfInstHist>list= baseMapper.getInstHistByInstId(instId);
+		
+		WfAwt awtParm = new WfAwt();
+		awtParm.setInstId(instId);
+		List<WfAwt> awtList = awtService.selectList(awtParm);
+		if(awtList!=null && !awtList.isEmpty()){
+			WfAwt awt = awtList.get(0);
+			String nextAssigners = "";
+			WfInstHist awtHist = new WfInstHist();
+			awtHist.setTaskDescpDisp(awt.getTaskDescpDisp());
+			awtHist.setInstId(awt.getInstId());
+			awtHist.setTaskBegin(awt.getAwtBegin());
+			awtHist.setTaskEnd(awt.getAwtEnd());
+			awtHist.setTaskOwner(awt.getTaskOwner());
+			for(WfAwt awtTmp:awtList){
+				nextAssigners += awtTmp.getAssignerId()+", ";
+			}
+			awtHist.setNextAssigner(nextAssigners);
+			if(list == null){
+				list = new ArrayList<WfInstHist>(1);
+			}
+			list.add(awtHist);
+		}
+		return list;
 	}
 	
 	public List<WfInstHist> viewWfInstHistory(String rsWfId, Integer instNum){
@@ -79,4 +107,5 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		this.insert(hist);
 		return hist.getHistId();
 	}
+
 }

@@ -25,6 +25,19 @@ public class WFConstants {
 		public static final String DONE = "D";
 	}
 	
+	public static class ApiParams{
+		public static final int STATUS_CODE_SUCC = 0;
+		public static final int STATUS_CODE_INVALID = 1;
+		public static final int STATUS_CODE_NO_RECORD = 2;
+		public static final int STATUS_CODE_FAIL = 9;
+		
+		public static final String RETURN_CODE = "return_code";
+		public static final String RETURN_MSG = "return_msg";
+		public static final String RETURN_WF_INST_NUM = "wf_inst_num";
+		public static final String RETURN_TASK_OPTIONS = "task_options";
+		public static final String RETURN_RECORDS = "records";
+	}
+	
 	public static class AssignType{
 		public static final String USER = "U";
 		public static final String GROUP = "G";
