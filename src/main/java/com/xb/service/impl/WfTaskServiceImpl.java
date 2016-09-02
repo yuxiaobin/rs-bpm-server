@@ -130,6 +130,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 
 	@Transactional
 	public void processTask(TaskOptVO optVO, String currUserId){
+		optVO.setCurrUserId(currUserId);
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
 			System.err.println("cannot get awt record for optVO="+optVO);

@@ -41,17 +41,27 @@ where awt.ASSIGNER_ID=#{userId} and (awt.complete_flag is null or awt.complete_f
 
 	<select id="getAwtByParam"  parameterType="java.util.Map" resultMap="getAwtByUserIdResultMap" >
 select awt.*, 
-case when awt.HIST_ID_PRE is null then awt.ASSIGNER_ID 
-else hist_prev.NEXT_ASSIGNER end as task_owner,
+case when inst.CURR_ASSIGNERS is null then awt.ASSIGNER_ID 
+else inst.CURR_ASSIGNERS end as task_owner,
 task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
 from wf_awt awt
 join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
 left join wf_inst_hist hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
-where inst.RS_WF_ID=#{rsWfId} and inst.INST_NUM=#{instNum} 
-<if test="currUserId != null ">
-and awt.ASSIGNER_ID=#{currUserId}
-</if>
+<trim prefix="where" prefixOverrides="and |or">
+	<if test="instId != null">
+	    awt.INST_ID = #{instId}
+	</if>
+	<if test="rsWfId != null">
+	    and inst.RS_WF_ID=#{rsWfId}
+	</if>
+	<if test="instNum != null">
+	    and inst.INST_NUM=#{instNum} 
+	</if>
+	<if test="currUserId != null ">
+		and awt.ASSIGNER_ID=#{currUserId}
+	</if>
+</trim>
 order by awt.created_dt
 </select>
 

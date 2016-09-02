@@ -367,6 +367,9 @@ public class WFApiController extends BaseController {
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
 		}
+		if(WFConstants.OptTypes.TRACK.equals(optCode)){
+			return getWFHistory(parm);
+		}
 		if(!validateInstNumAndOptCode(result, wfInstNumStr,optCode)){
 			return result;
 		}
@@ -405,8 +408,6 @@ public class WFApiController extends BaseController {
 			result.put(RETURN_MSG, "系统调用出错");
 		}
 		return result;
-		
-		
 	}
 	
 	
@@ -427,4 +428,5 @@ public class WFApiController extends BaseController {
 		result.put(RETURN_CODE, STATUS_CODE_SUCC);
 		return true;
 	}
+	
 }

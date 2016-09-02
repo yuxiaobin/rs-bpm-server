@@ -28,6 +28,8 @@ public interface IWfAwtService extends ICommonService<WfAwt> {
 	 */
 	public WfAwt getAwtByParam(String rsWfId, int instNum, String currUserId);
 	
+	public List<WfAwt> getAwtListByInstId(String instId);
+	
 	/**
 	 * 更新待办事宜：
 	 * 	删除旧的待办事宜（会签和普通的情况不同）

@@ -12,7 +12,6 @@ import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.mapper.WfInstHistMapper;
-import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfAwtService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
@@ -40,9 +39,10 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		histParm.setInstId(instId);
 		List<WfInstHist>list= baseMapper.getInstHistByInstId(instId);
 		
-		WfAwt awtParm = new WfAwt();
-		awtParm.setInstId(instId);
-		List<WfAwt> awtList = awtService.selectList(awtParm);
+		WfInstance inst = instService.selectById(instId);
+		String currentTaskOwner = inst.getCurrAssigners();
+		
+		List<WfAwt> awtList = awtService.getAwtListByInstId(instId);
 		if(awtList!=null && !awtList.isEmpty()){
 			WfAwt awt = awtList.get(0);
 			String nextAssigners = "";
@@ -51,7 +51,7 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 			awtHist.setInstId(awt.getInstId());
 			awtHist.setTaskBegin(awt.getAwtBegin());
 			awtHist.setTaskEnd(awt.getAwtEnd());
-			awtHist.setTaskOwner(awt.getTaskOwner());
+			awtHist.setTaskOwner(currentTaskOwner==null?awt.getTaskOwner():currentTaskOwner);
 			for(WfAwt awtTmp:awtList){
 				nextAssigners += awtTmp.getAssignerId()+", ";
 			}
@@ -77,35 +77,41 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 	
 	public String createHistRecord(TaskOptVO optVO, WfAwt awt, String currUserId){
 		String instId = awt.getInstId();
-		WfInstHist parm = new WfInstHist();
-		parm.setInstId(instId);
-		List<WfInstHist> histList = this.selectList(parm, "OPT_SEQ desc");
-		int nextOptSeq = 1;
-		WfInstHist prefHist = null;
-		if(histList!=null && !histList.isEmpty()){
-			prefHist = histList.get(0);
-			nextOptSeq = prefHist.getOptSeq()+1;
+		synchronized (instId) {
+			WfInstHist parm = new WfInstHist();
+			parm.setInstId(instId);
+			List<WfInstHist> histList = this.selectList(parm, "OPT_SEQ desc");
+			int nextOptSeq = 1;
+			WfInstHist prefHist = null;
+			if(histList!=null && !histList.isEmpty()){
+				prefHist = histList.get(0);
+				nextOptSeq = prefHist.getOptSeq()+1;
+			}
+			
+			WfInstHist hist = new WfInstHist();
+			hist.setInstId(instId);
+			hist.setNextAssigner(optVO.getNextAssigners());
+			hist.setOptSeq(nextOptSeq);
+			hist.setOptUser(currUserId);
+			hist.setOptType(optVO.getOptCode());
+			hist.setTaskId(awt.getTaskIdCurr());
+			hist.setWfId(optVO.getWfId());
+			if(awt.getTaskOwner()!=null){
+				hist.setTaskOwner(awt.getTaskOwner());
+			}else{
+				if(prefHist!=null){
+					hist.setTaskOwner(prefHist.getNextAssigner());
+				}else{
+					hist.setTaskOwner(currUserId);
+				}
+			}
+			hist.setTaskBegin(awt.getAwtBegin());
+			hist.setTaskEnd(awt.getAwtEnd());
+			hist.setTaskRend(new Date());
+			hist.setOptComm(optVO.getComments());
+			this.insert(hist);
+			return hist.getHistId();
 		}
-		
-		WfInstHist hist = new WfInstHist();
-		hist.setInstId(instId);
-		hist.setNextAssigner(optVO.getNextAssigners());
-		hist.setOptSeq(nextOptSeq);
-		hist.setOptUser(currUserId);
-		hist.setOptType(optVO.getOptCode());
-		hist.setTaskId(awt.getTaskIdCurr());
-		hist.setWfId(optVO.getWfId());
-		if(prefHist!=null){
-			hist.setTaskOwner(prefHist.getNextAssigner());
-		}else{
-			hist.setTaskOwner(currUserId);
-		}
-		hist.setTaskBegin(awt.getAwtBegin());
-		hist.setTaskEnd(awt.getAwtEnd());
-		hist.setTaskRend(new Date());
-		hist.setOptComm(optVO.getComments());
-		this.insert(hist);
-		return hist.getHistId();
 	}
 
 }

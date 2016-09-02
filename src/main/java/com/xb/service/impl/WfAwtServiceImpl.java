@@ -47,6 +47,12 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		parmMap.put("currUserId", currUserId);
 		List<WfAwt> awtList = baseMapper.getAwtByParam(parmMap);
 		if(awtList!=null && !awtList.isEmpty()){
+			for(WfAwt awt:awtList){
+				String completeFlag = awt.getCompleteFlag();
+				if(completeFlag==null || completeFlag.equals("N")){
+					return awt;
+				}
+			}
 			return awtList.get(0);
 		}
 		return null;
@@ -54,7 +60,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	
 	public void renewAwt(WfAwt prev, WfTask currtask,WfTask nextTask,  WfInstance wfInst, TaskOptVO optVO, String currUserId){
 		String instId = prev.getInstId();
-		if(WFConstants.TxCodes.COUNTERSIGN.equals(currtask.getTxCode())){
+		if(WFConstants.TxCodes.COUNTERSIGN.equals(currtask.getTxType())){
 			prev.setCompleteFlag("Y");
 			this.updateById(prev);
 			String csOptJson = currtask.getSignChoices();
@@ -89,7 +95,8 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		//delete by rsWfId&instNum&taskId
 		WfAwt parm = new WfAwt();
 		parm.setInstId(instId);
-		parm.setTaskIdCurr(prev.getTaskIdCurr());
+		parm.setCompleteFlag(null);
+//		parm.setTaskIdCurr(prev.getTaskIdCurr());
 		this.deleteSelective(parm);
 		//create new awt(s) with next taskId
 		String nextAssigners = optVO.getNextAssigners();
@@ -113,13 +120,11 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				}
 			}
 		}
-		WfInstance updateTO = new WfInstance();
-		updateTO.setInstId(wfInst.getInstId());
-		updateTO.setCurrAssigners(nextAssigners);
+		wfInst.setCurrAssigners(nextAssigners);
 		if(optVO.isNextEndTaskFlag()){
-			updateTO.setWfStatus(WFConstants.WFStatus.DONE);
+			wfInst.setWfStatus(WFConstants.WFStatus.DONE);
 		}
-		instService.update(wfInst, updateTO);
+		instService.updateById(wfInst);
 	}
 	
 	private Date calculateDate(Date beginDate, String timeType, Integer amount){
@@ -146,13 +151,18 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	private void updateCurrAssigners4CS(WfInstance wfInst, String currUserId){
 		String currAssigners4Inst = wfInst.getCurrAssigners();
 		if(currAssigners4Inst!=null){
-			if(currAssigners4Inst.contains(","+currUserId+",")){
-				WfInstance parmInst = new WfInstance();
-				parmInst.setInstId(wfInst.getInstId());
-				parmInst.setCurrAssigners(currAssigners4Inst.replace(","+currUserId+",", ""));
-				instService.update(wfInst, parmInst);//更新当前处理人
+			if(currAssigners4Inst.contains(currUserId+",")){
+				wfInst.setCurrAssigners(currAssigners4Inst.replace(currUserId+",", ""));
+				instService.updateById(wfInst );//更新当前处理人
 				wfInst.setCurrAssigners(currAssigners4Inst);
 			}
 		}
+	}
+
+	@Override
+	public List<WfAwt> getAwtListByInstId(String instId) {
+		Map<String,Object> parmMap = new HashMap<String,Object>();
+		parmMap.put("instId", instId);
+		return baseMapper.getAwtByParam(parmMap);
 	}
 }
