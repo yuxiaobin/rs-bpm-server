@@ -168,13 +168,13 @@
             <div class="col-xs-6">
                 <div class="bs-example" data-example-id="vertical-button-group">
                     <div>退回选项</div>
-                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <div class="btn btn-default" ng-disabled="isStartEndNode">
-                            <input type="checkbox" class="btn btn-default" id="bkAlwPrev" ng-model="task.TX_BK_CHOICES.GoBackToPrevious" ng-disabled="isStartEndNode">
+                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group" ng-disabled="isStartEndNode || !task.TX_CHOICES.AllowGoBack">
+                        <div class="btn btn-default" ng-disabled="isStartEndNode || !task.TX_CHOICES.AllowGoBack">
+                            <input type="checkbox" class="btn btn-default" id="bkAlwPrev" ng-model="task.TX_BK_CHOICES.GoBackToPrevious" ng-disabled="isStartEndNode|| !task.TX_CHOICES.AllowGoBack">
                             <label for="bkAlwPrev" style="font-weight: inherit;">允许退回至上一步事务</label>
                         </div>
-                        <div class="btn btn-default" ng-disabled="isStartEndNode">
-                            <input type="checkbox" class="btn btn-default" id="bkAlwFirst" ng-model="task.TX_BK_CHOICES.GoBackToFirst" ng-disabled="isStartEndNode">
+                        <div class="btn btn-default" ng-disabled="isStartEndNode || !task.TX_CHOICES.AllowGoBack">
+                            <input type="checkbox" class="btn btn-default" id="bkAlwFirst" ng-model="task.TX_BK_CHOICES.GoBackToFirst" ng-disabled="isStartEndNode|| !task.TX_CHOICES.AllowGoBack">
                             <label for="bkAlwFirst" style="font-weight: inherit;">允许退回至第一步事务</label>
                         </div>
                     </div>
