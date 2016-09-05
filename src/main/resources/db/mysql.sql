@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `wf_inst_hist` (
   `WF_ID` varchar(50) COLLATE utf8_bin NOT NULL,
   `TASK_ID` varchar(50) COLLATE utf8_bin NOT NULL,
   `OPT_USER` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `OPT_TYPE` varchar(2) COLLATE utf8_bin DEFAULT NULL,
+  `OPT_TYPE` varchar(3) COLLATE utf8_bin DEFAULT NULL,
   `OPT_COMM` varchar(200) COLLATE utf8_bin DEFAULT NULL,
   `OPT_SEQ` int(2) NOT NULL,
   `NEXT_ASSIGNER` varchar(200) COLLATE utf8_bin DEFAULT NULL,

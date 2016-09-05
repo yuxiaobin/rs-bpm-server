@@ -70,6 +70,9 @@
                     <ANY ng-switch-when="C">提交</ANY>
                     <ANY ng-switch-when="RJ">退回</ANY>
                     <ANY ng-switch-when="V">否决</ANY>
+                    <ANY ng-switch-when="LMD">我来处理</ANY>
+                    <ANY ng-switch-when="F">转交</ANY>
+                    <ANY ng-switch-when="RC">撤回</ANY>
                 </td>
                 <td>{{hist.optComm}}</td>
                 <td>{{hist.taskBegin | date:'yyyy-MM-dd HH:mm:ss'}}</td>

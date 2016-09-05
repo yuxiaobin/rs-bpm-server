@@ -38,5 +38,5 @@ public interface IWfAwtService extends ICommonService<WfAwt> {
 	 * @param optVO
 	 * @param currUserId
 	 */
-	public void renewAwt(WfAwt prev, WfTask currTask, WfTask nextTask, WfInstance wfInst, TaskOptVO optVO, String currUserId);
+	public void renewAwt(WfAwt prev, WfTask currTask, WfTask nextTask, TaskOptVO optVO, String currUserId);
 }

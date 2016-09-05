@@ -14,7 +14,7 @@ public class TaskOptVO {
 	
 	/**********以上为处理事务时必填字段*************/
 	
-//	private String instId;
+	private String currTaskId;//撤回操作时，必须加上
 	private String prevInstHistId;
 	private String currUserId;
 	private boolean nextEndTaskFlag;
@@ -28,6 +28,12 @@ public class TaskOptVO {
 		this.wfId = wfId;
 	}
 	
+	public String getCurrTaskId() {
+		return currTaskId;
+	}
+	public void setCurrTaskId(String currTaskId) {
+		this.currTaskId = currTaskId;
+	}
 	public String getCurrUserId() {
 		return currUserId;
 	}
@@ -93,9 +99,9 @@ public class TaskOptVO {
 	@Override
 	public String toString() {
 		return "TaskOptVO [rsWfId=" + rsWfId + ", instNum=" + instNum + ", comments=" + comments + ", nextAssigners="
-				+ nextAssigners + ", nextTaskId=" + nextTaskId + ", optCode=" + optCode +", gnmkId="+gnmkId
-				+ ", prevInstHistId=" + prevInstHistId
-				+ ", nextEndTaskFlag=" + nextEndTaskFlag + "]";
+				+ nextAssigners + ", nextTaskId=" + nextTaskId + ", optCode=" + optCode + ", gnmkId=" + gnmkId
+				+ ", prevInstHistId=" + prevInstHistId + ", currUserId=" + currUserId + ", nextEndTaskFlag="
+				+ nextEndTaskFlag + ", wfId=" + wfId + "]";
 	}
 	
 }

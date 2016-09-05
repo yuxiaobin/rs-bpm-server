@@ -31,36 +31,74 @@ public class WfApiServiceImpl implements IWfApiService {
 	
 	@Override
 	public boolean validateOperate(TaskOptVO optVO, JSONObject result) {
-		WfTask task = taskService.selectById(optVO.getNextTaskId());
+		boolean isNextAssignerEmpty = true;
+		String[] nextAssignerArray = null;
+		String nextAssigners = optVO.getNextAssigners();
+		if(StringUtils.isEmpty(nextAssigners)){
+			isNextAssignerEmpty = true;
+		}else{
+			nextAssignerArray = nextAssigners.split(",");
+			for(String str:nextAssignerArray){
+				if(!StringUtils.isEmpty(str.trim())){
+					isNextAssignerEmpty = false;
+					break;
+				}
+			}
+		}
+		String optCode = optVO.getOptCode();
+		if(WFConstants.OptTypes.LET_ME_DO.equals(optCode)){
+			return true;
+		}
+		if(WFConstants.OptTypes.FORWARD.equals(optCode)){
+			if(isNextAssignerEmpty){
+				result.put(RETURN_CODE, STATUS_CODE_INVALID);
+				result.put(RETURN_MSG, "提交必须指定处理人");
+				return false;
+			}else{
+				return true;
+			}
+		}
+		WfTask task = null;
+		if(WFConstants.OptTypes.RECALL.equals(optCode)){
+			task = taskService.selectById(optVO.getCurrTaskId());
+		}else{
+			task = taskService.selectById(optVO.getNextTaskId());
+		}
+		
 		if(task==null){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "invalid taskId");
 			return false;
 		}
 		String taskTypeCode = task.getTaskType();
+		
+		boolean isNextStartEndTask = false;
+		
+			
 		if(WFConstants.TaskTypes.S.getTypeCode().equals(taskTypeCode)
 				|| WFConstants.TaskTypes.E.getTypeCode().equals(taskTypeCode)){
-			//no need to validate assigner
+			isNextStartEndTask = true;
 		}else{
-			List<String> assignedUserIdList = taskAssignService.getAssignedUsersByTaskId(optVO.getNextTaskId());
-			if(assignedUserIdList!=null){
-				String[] nextAssigners = optVO.getNextAssigners().split(",");
-				boolean hasInvaldUser = false;
-				StringBuilder invalidUsers = new StringBuilder();
-				for(String userId : nextAssigners){
-					if(!assignedUserIdList.contains(userId)){
-						hasInvaldUser = true;
-						invalidUsers.append(userId).append(",");
+			if(!WFConstants.OptTypes.RECALL.equals(optCode)){
+				List<String> assignedUserIdList = taskAssignService.getAssignedUsersByTaskId(optVO.getNextTaskId());
+				if(assignedUserIdList!=null){
+					boolean hasInvaldUser = false;
+					StringBuilder invalidUsers = new StringBuilder();
+					for(String userId : nextAssignerArray){
+						if(!assignedUserIdList.contains(userId)){
+							hasInvaldUser = true;
+							invalidUsers.append(userId).append(",");
+						}
 					}
-				}
-				if(hasInvaldUser){
-					result.put(RETURN_CODE, STATUS_CODE_INVALID);
-					result.put(RETURN_MSG, "invalid users:"+invalidUsers.toString());
-					return false;
+					if(hasInvaldUser){
+						result.put(RETURN_CODE, STATUS_CODE_INVALID);
+						result.put(RETURN_MSG, "invalid users:"+invalidUsers.toString());
+						return false;
+					}
 				}
 			}
 		}
-		String optCode = optVO.getOptCode();
+		
 		String comments = optVO.getComments();
 		JSONObject txChoices = task.getTxChoicesJson();
 		JSONObject txPrChoices = task.getTxPrChoicesJson();
@@ -73,6 +111,11 @@ public class WfApiServiceImpl implements IWfApiService {
 			if(SignWhenGo!=null && SignWhenGo && StringUtils.isEmpty(comments)){
 				result.put(RETURN_CODE, STATUS_CODE_INVALID);
 				result.put(RETURN_MSG, "提交时必须签署意见");
+				return false;
+			}
+			if(!isNextStartEndTask && isNextAssignerEmpty){
+				result.put(RETURN_CODE, STATUS_CODE_INVALID);
+				result.put(RETURN_MSG, "提交必须指定处理人");
 				return false;
 			}
 			break;
@@ -93,7 +136,19 @@ public class WfApiServiceImpl implements IWfApiService {
 				result.put(RETURN_MSG, "退回时必须签署意见");
 				return false;
 			}
+			if(isNextAssignerEmpty){
+				result.put(RETURN_CODE, STATUS_CODE_INVALID);
+				result.put(RETURN_MSG, "退回必须指定处理人");
+				return false;
+			}
 			break;
+		/*case WFConstants.OptTypes.FORWARD://NO need 
+			if(isNextAssignerEmpty){
+				result.put(RETURN_CODE, STATUS_CODE_INVALID);
+				result.put(RETURN_MSG, "转交必须指定处理人");
+				return false;
+			}
+			break;*/
 		case WFConstants.OptTypes.RECALL:
 			Boolean allowReCall = null;
 			Boolean signWhenReCall = null;

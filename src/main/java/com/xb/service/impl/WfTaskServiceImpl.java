@@ -90,42 +90,38 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			return null;
 		}
 		String wfId = wfDefList.get(0).getWfId();
-		WfInstance instParm = new WfInstance();
-		instParm.setRsWfId(rsWfId);
-		List<WfInstance> instList4RsWfId = instService.selectList(instParm, "INST_NUM desc");
-		int instNumCurr = 1;
-		if(instList4RsWfId!=null && !instList4RsWfId.isEmpty()){
-			instNumCurr = instList4RsWfId.get(0).getInstNum()+1;
-		}
-		
-		WfInstance wfInst = new WfInstance();
-		wfInst.setWfId(wfId);
-		wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
-		wfInst.setRsWfId(rsWfId);
-		wfInst.setInstNum(instNumCurr);
-		wfInst.setRefMkid(wf.getGnmkId());
-		instService.insert(wfInst);
-		
-		WfTask taskParm = new WfTask();
-		taskParm.setWfId(wfId);
-		List<WfTask> taskList = this.selectList(taskParm);
-		WfTask startTask = null;
-		for(WfTask task:taskList){
-			if(WFConstants.TaskTypes.S.getTypeCode().equals(task.getTaskType())){
-				startTask = task;
-				break;
+		synchronized (wfId) {
+			WfInstance instParm = new WfInstance();
+			instParm.setRsWfId(rsWfId);
+			List<WfInstance> instList4RsWfId = instService.selectList(instParm, "INST_NUM desc");
+			int instNumCurr = 1;
+			if(instList4RsWfId!=null && !instList4RsWfId.isEmpty()){
+				instNumCurr = instList4RsWfId.get(0).getInstNum()+1;
 			}
+			
+			WfInstance wfInst = new WfInstance();
+			wfInst.setWfId(wfId);
+			wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
+			wfInst.setRsWfId(rsWfId);
+			wfInst.setInstNum(instNumCurr);
+			wfInst.setRefMkid(wf.getGnmkId());
+			instService.insert(wfInst);
+			
+			WfTask taskParm = new WfTask();
+			taskParm.setWfId(wfId);
+			taskParm.setTaskType(WFConstants.TaskTypes.S.getTypeCode());
+			WfTask startTask = this.selectOne(taskParm);
+			//待办事宜
+			WfAwt awt = new WfAwt();
+			awt.setAssignerId(currUserId);
+			awt.setInstId(wfInst.getInstId());
+			awt.setTaskIdCurr(startTask.getTaskId());
+			awt.setHistIdPre(null);//发起时无hist记录
+			awt.setAwtBegin(new Date());
+			
+			awtService.insert(awt);
+			return instNumCurr;
 		}
-		//待办事宜
-		WfAwt awt = new WfAwt();
-		awt.setAssignerId(currUserId);
-		awt.setInstId(wfInst.getInstId());
-		awt.setTaskIdCurr(startTask.getTaskId());
-		awt.setHistIdPre(null);//发起时无hist记录
-		awt.setAwtBegin(new Date());
-		
-		awtService.insert(awt);
-		return instNumCurr;
 	}
 
 	@Transactional
@@ -136,17 +132,14 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			System.err.println("cannot get awt record for optVO="+optVO);
 			return;
 		}
-		WfTask nextTask = this.selectById(optVO.getNextTaskId());
-		optVO.setWfId(nextTask.getWfId());
-		optVO.setPrevInstHistId(histService.createHistRecord(optVO, awt ,currUserId));
-		WfTask task = this.selectById(awt.getTaskIdCurr());
-		WfInstance wfInst = instService.selectById(awt.getInstId());
-		if(WFConstants.TaskTypes.E.getTypeCode().equals(nextTask.getTaskType())){
-			optVO.setNextEndTaskFlag(true);
-		}else{
-			optVO.setNextEndTaskFlag(false);
+		WfTask currtask = this.selectById(awt.getTaskIdCurr());
+		WfTask nextTask = null;
+		if(optVO.getNextTaskId()!=null){
+			nextTask = this.selectById(optVO.getNextTaskId());
 		}
-		awtService.renewAwt(awt, task, nextTask, wfInst, optVO, currUserId);
+		optVO.setWfId(currtask.getWfId());
+		optVO.setPrevInstHistId(histService.createHistRecord(optVO, awt ,currUserId));
+		awtService.renewAwt(awt, currtask, nextTask, optVO, currUserId);
 	}
 	
 	private String getPrevTaskId(String currTaskId){
@@ -246,7 +239,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		List<TaskVO> nextTaskList = null;
 		if(WFConstants.OptTypes.COMMIT.equals(optCode)){
 			nextTaskList = new ArrayList<TaskVO>(1);
-			WfTask task = this.selectById(getNextTaskId(awt.getTaskIdCurr()));
+			String nextTaskId = getNextTaskId(awt.getTaskIdCurr());
+			if(nextTaskId==null){
+				return null;
+			}
+			WfTask task = this.selectById(nextTaskId);
 			TaskVO taskVO = new TaskVO();
 			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
 			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
@@ -255,32 +252,47 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			return nextTaskList;
 		}
 		else if(WFConstants.OptTypes.REJECT.equals(optCode)){
-			nextTaskList = new ArrayList<TaskVO>(1);
-			WfTask task = this.selectById(getPrevTaskId(awt.getTaskIdCurr()));
-			TaskVO taskVO = new TaskVO();
-			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
-			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
-			taskVO.setTaskId(task.getTaskId());
-			nextTaskList.add(taskVO);
-			//check if allow to goBack to first node
-			WfTask awtTask = this.selectById(awt.getTaskIdCurr());
-			JSONObject choices = JSONObject.parseObject(awtTask.getTxBkChoices());
-			Boolean goBackToFirst = choices.getBoolean("GoBackToFirst");
-			if(goBackToFirst!=null && goBackToFirst){
+			WfTask currTask = this.selectById(awt.getTaskIdCurr());
+			JSONObject txChoices = currTask.getTxChoicesJson();
+			Boolean allowGoBack = null;
+			if(txChoices!=null){
+				allowGoBack = txChoices.getBoolean("AllowGoBack");
+			}
+			if(allowGoBack==null || !allowGoBack){
+				return null;
+			}
+			JSONObject txBkChoices = currTask.getTxBkChoicesJson();
+			Boolean allowBackToPrevious = null;
+			Boolean allowBackToFirst = null;
+			if(txBkChoices!=null){
+				allowBackToPrevious= txBkChoices.getBoolean("GoBackToPrevious");
+				allowBackToFirst= txBkChoices.getBoolean("GoBackToFirst");
+			}
+			boolean prevTaskIsFirstTask = false;
+			if(allowBackToPrevious!=null && allowBackToPrevious){
+				nextTaskList = new ArrayList<TaskVO>(1);
+				WfTask task = this.selectById(getPrevTaskId(awt.getTaskIdCurr()));
+				TaskVO taskVO = new TaskVO();
+				taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+				taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
+				taskVO.setTaskId(task.getTaskId());
+				nextTaskList.add(taskVO);
 				if(WFConstants.TaskTypes.S.getTypeCode().equals(task.getTaskType())){
-					//already first node, no need add to list
-				}else{
-					WfTask parmTask = new WfTask();
-					parmTask.setWfId(task.getWfId());
-					parmTask.setTaskType(WFConstants.TaskTypes.S.getTypeCode());
-					WfTask firstNode = this.selectOne(parmTask);
-					if(firstNode!=null){
-						taskVO = new TaskVO();
-						taskVO.setTaskType(WFConstants.TaskTypes.valueOf(firstNode.getTaskType()).getTypeDescp());
-						taskVO.setTaskDescpDisp(firstNode.getTaskDescpDisp());
-						taskVO.setTaskId(firstNode.getTaskId());
-						nextTaskList.add(0, taskVO);
-					}
+					prevTaskIsFirstTask = true;
+				}
+			}
+			if(allowBackToFirst!=null && allowBackToFirst && !prevTaskIsFirstTask){
+				WfTask parmTask = new WfTask();
+				parmTask.setWfId(currTask.getWfId());
+				parmTask.setTaskType(WFConstants.TaskTypes.S.getTypeCode());
+				WfTask firstNode = this.selectOne(parmTask);
+				if(firstNode!=null){
+					TaskVO taskVO = new TaskVO();
+					taskVO = new TaskVO();
+					taskVO.setTaskType(WFConstants.TaskTypes.valueOf(firstNode.getTaskType()).getTypeDescp());
+					taskVO.setTaskDescpDisp(firstNode.getTaskDescpDisp());
+					taskVO.setTaskId(firstNode.getTaskId());
+					nextTaskList.add(0, taskVO);
 				}
 			}
 			return nextTaskList;

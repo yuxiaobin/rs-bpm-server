@@ -305,16 +305,5 @@
 <script src="${base.contextPath}/static/js/bootstrap.js"></script>
 <script src="${base.contextPath}/static/js/plugin/bootstrap-select.js"></script>
 <script src="${base.contextPath}/static/js/app-task.js"></script>
-<script>
-   if(typeof(taskData)=='undefined'){
-       console.log("taskData is undefined");
-   }else{
-       $("#taskDescpId").val(taskData.taskDescp);
-       $("#taskPgId").val(taskData.taskPgId);
-       $("#taskType").val(taskData.taskType);
 
-   }
-
-
-</script>
 </html>

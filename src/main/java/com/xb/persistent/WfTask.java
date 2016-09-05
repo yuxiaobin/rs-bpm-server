@@ -105,6 +105,8 @@ public class WfTask extends CUBaseTO implements Serializable {
 	/**  */
 	@TableField(value = "SIGN_CHOICES")
 	private String signChoices;
+	
+	
 	@TableField(exist = false)
 	private List<WfTaskAssign> assignerList;
 	/**
@@ -331,6 +333,13 @@ public class WfTask extends CUBaseTO implements Serializable {
 	public JSONObject getTxPrChoicesJson(){
 		if(txPrChoices!=null){
 			return JSONObject.parseObject(txPrChoices);
+		}
+		return null;
+	}
+	
+	public JSONObject getTxBkChoicesJson(){
+		if(txBkChoices!=null){
+			return JSONObject.parseObject(txBkChoices);
 		}
 		return null;
 	}

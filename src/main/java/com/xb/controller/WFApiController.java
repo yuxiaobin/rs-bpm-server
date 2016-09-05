@@ -328,7 +328,7 @@ public class WFApiController extends BaseController {
 					histJson = new JSONObject();
 					histJson.put("taskDescp", hist.getTaskDescpDisp());
 					histJson.put("optUser", hist.getOptUser());
-					histJson.put("optType", hist.getOptType());
+					histJson.put("optCode", hist.getOptType());
 					histJson.put("comments", hist.getOptComm());
 					histJson.put("taskBegin", hist.getTaskBegin());
 					histJson.put("taskEnd", hist.getTaskEnd());
@@ -361,8 +361,7 @@ public class WFApiController extends BaseController {
 		String comments = parm.getString("comments");
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(userId) || StringUtils.isEmpty(gnmkId)
-				|| StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode)
-				||StringUtils.isEmpty(nextUserIds) || StringUtils.isEmpty(nextTaskId)){
+				|| StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode)){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
@@ -382,6 +381,7 @@ public class WFApiController extends BaseController {
 		optVO.setNextAssigners(nextUserIds);
 		optVO.setNextTaskId(nextTaskId);
 		optVO.setOptCode(optCode);
+		optVO.setCurrTaskId(parm.getString("currTaskId"));
 		
 		try{
 			if(!wfApiService.validateOperate(optVO, result)){
