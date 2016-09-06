@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
+import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
@@ -47,6 +49,8 @@ import com.xb.vo.WFDetailVO;
 public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> implements IWfTaskService {
 	
 //	private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+	
+	private static Logger log = Logger.getLogger(WfTaskServiceImpl.class);
 
 	@Autowired
 	IWfInstHistService histService;
@@ -99,24 +103,27 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				instNumCurr = instList4RsWfId.get(0).getInstNum()+1;
 			}
 			
+			WfTask taskParm = new WfTask();
+			taskParm.setWfId(wfId);
+			taskParm.setTaskType(WFConstants.TaskTypes.S.getTypeCode());
+			WfTask startTask = this.selectOne(taskParm);
+			String taskId = startTask.getTaskId();
+			
 			WfInstance wfInst = new WfInstance();
 			wfInst.setWfId(wfId);
 			wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
 			wfInst.setRsWfId(rsWfId);
 			wfInst.setInstNum(instNumCurr);
 			wfInst.setRefMkid(wf.getGnmkId());
+			wfInst.setCurrAssigners(currUserId);
+			wfInst.setCurrTaskId(taskId);
 			instService.insert(wfInst);
 			
-			WfTask taskParm = new WfTask();
-			taskParm.setWfId(wfId);
-			taskParm.setTaskType(WFConstants.TaskTypes.S.getTypeCode());
-			WfTask startTask = this.selectOne(taskParm);
 			//待办事宜
 			WfAwt awt = new WfAwt();
 			awt.setAssignerId(currUserId);
 			awt.setInstId(wfInst.getInstId());
-			awt.setTaskIdCurr(startTask.getTaskId());
-			awt.setHistIdPre(null);//发起时无hist记录
+			awt.setTaskIdCurr(taskId);
 			awt.setAwtBegin(new Date());
 			
 			awtService.insert(awt);
@@ -125,21 +132,49 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 
 	@Transactional
-	public void processTask(TaskOptVO optVO, String currUserId){
+	public boolean processTask(TaskOptVO optVO, String currUserId) throws BusinessException{
 		optVO.setCurrUserId(currUserId);
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
 			System.err.println("cannot get awt record for optVO="+optVO);
-			return;
+			log.error("processTask(): cannot get awt record for optVO="+optVO);
+			return false;
 		}
 		WfTask currtask = this.selectById(awt.getTaskIdCurr());
-		WfTask nextTask = null;
+		/*
 		if(optVO.getNextTaskId()!=null){
 			nextTask = this.selectById(optVO.getNextTaskId());
+		}*/
+		WfTask nextTask = null;
+		String optCode = optVO.getOptCode();
+		switch (optCode) {
+		case WFConstants.OptTypes.COMMIT:
+			nextTask = this.selectById(optVO.getNextTaskId());
+			break;
+		case WFConstants.OptTypes.REJECT:
+			nextTask = this.selectById(optVO.getNextTaskId());
+			break;
+		case WFConstants.OptTypes.FORWARD:
+			nextTask = currtask;
+			optVO.setNextTaskId(nextTask.getTaskId());
+			break;
+		case WFConstants.OptTypes.LET_ME_DO:
+			nextTask = currtask;
+			optVO.setNextTaskId(nextTask.getTaskId());
+			optVO.setNextAssigners(currUserId);
+			break;
+		case WFConstants.OptTypes.RECALL:
+			String nextTaskId = awt.getTaskIdPre();
+			optVO.setNextTaskId(nextTaskId);
+			nextTask = this.selectById(nextTaskId);
+			break;
+		default:
+			break;
 		}
 		optVO.setWfId(currtask.getWfId());
 		optVO.setPrevInstHistId(histService.createHistRecord(optVO, awt ,currUserId));
 		awtService.renewAwt(awt, currtask, nextTask, optVO, currUserId);
+		return true;
 	}
 	
 	private String getPrevTaskId(String currTaskId){
@@ -316,6 +351,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			nextTaskId = getNextTaskId(currTaskId);
 		}else{
 			System.out.println("Currently not support other option code:"+optCode);//TODO: other OptCode , get assigners
+			log.debug("getNextAssignersByOptCode(): Currently not support other option code:"+optCode);
 			return null;
 		}
 		JSONObject result = taskAssignerService.getUsersGroupsByTaskId(nextTaskId);
@@ -364,11 +400,20 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 	
 	private WfAwt getAwtByParm(TaskOptVO optVO){
-		WfAwt awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
-		if(awt==null && optVO.getCurrUserId()!=null){
-			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
+		WfAwt awt =  null;
+		if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
+			List<WfAwt> awtList = awtService.getAwt4Recall(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
+			if(awtList==null || awtList.isEmpty()){
+				return null;
+			}
+			return awtList.get(0);
+		}else{
+			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
+			if(awt==null && optVO.getCurrUserId()!=null){
+				awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
+			}
+			return awt;
 		}
-		return awt;
 	}
 	
 	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO){

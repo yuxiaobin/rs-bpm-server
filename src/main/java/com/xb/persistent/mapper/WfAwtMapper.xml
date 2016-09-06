@@ -4,49 +4,49 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 wf_awt_id AS wfAwtId, INST_ID AS instId, TASK_ID_CURR AS taskIdCurr, HIST_ID_PRE AS histIdPre, ASSIGNER_ID AS assignerId, awt_begin AS awtBegin, awt_end AS awtEnd, awt_alarm AS awtAlarm, awt_title AS awtTitle, awt_summary AS awtSummary, complete_flag as completeFlag, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+		 wf_awt_id AS wfAwtId, INST_ID AS instId, TASK_ID_CURR AS taskIdCurr, TASK_ID_PRE AS taskIdPre,OPT_USERS_PRE AS optUsersPre, ASSIGNER_ID AS assignerId, awt_begin AS awtBegin, awt_end AS awtEnd, awt_alarm AS awtAlarm, awt_title AS awtTitle, awt_summary AS awtSummary, complete_flag as completeFlag, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
 	</sql>
 
 	<resultMap id="getAwtByUserIdResultMap" type="com.xb.persistent.WfAwt">
 	  <result property="wfAwtId" column="wf_awt_id"/>
 	  <result property="instId" column="inst_id"/>
 	  <result property="taskIdCurr" column="task_id_curr"/>
-	  <result property="histIdPre" column="hist_id_pre"/>
+	  <result property="optUsersPre" column="pre_opt_users"/>
 	  <result property="assignerId" column="assigner_id"/>
 	  <result property="awtBegin" column="awt_begin"/>
 	  <result property="awtEnd" column="awt_end"/>
 	  <result property="awtAlarm" column="awt_alarm"/>
 	  <result property="awtTitle" column="awt_title"/>
 	  <result property="awtSummary" column="awt_summary"/>
+	  <result property="taskIdPre" column="task_id_pre"/>
+	  <result property="optUsersPre" column="opt_users_pre"/>
 	  <result property="taskOwner" column="task_owner"/>
 	  <result property="taskDescpDisp" column="task_descp_disp"/>
 	  <result property="rsWfId" column="rs_wf_id"/>
 	  <result property="instNum" column="inst_num"/>
 	  <result property="refMkid" column="ref_mkid"/>
-	  <result property="taskProcesser" column="opt_user"/>
+	  <!-- <result property="taskProcesser" column="opt_user"/> -->
 	  <result property="instCreater" column="inst_creater"/>
 	</resultMap>
 	
 	<select id="getAwtByUserId"  resultMap="getAwtByUserIdResultMap">
-select awt.*, hist_prev.opt_user, inst.created_by as inst_creater,
-case when awt.HIST_ID_PRE is null then awt.ASSIGNER_ID 
-else hist_prev.NEXT_ASSIGNER end as task_owner,
+select awt.*,  inst.created_by as inst_creater,
+case when inst.CURR_ASSIGNERS is null then awt.ASSIGNER_ID 
+else inst.CURR_ASSIGNERS end as task_owner,
 task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
 from wf_awt awt
-left join wf_inst_hist hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 join wf_instance inst on inst.INST_ID=awt.INST_ID
 where awt.ASSIGNER_ID=#{userId} and (awt.complete_flag is null or awt.complete_flag!='Y')
 </select>
 
 	<select id="getAwtByParam"  parameterType="java.util.Map" resultMap="getAwtByUserIdResultMap" >
-select awt.*, 
+select awt.*,  inst.created_by as inst_creater,
 case when inst.CURR_ASSIGNERS is null then awt.ASSIGNER_ID 
 else inst.CURR_ASSIGNERS end as task_owner,
 task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
 from wf_awt awt
 join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
-left join wf_inst_hist hist_prev on hist_prev.HIST_ID = awt.HIST_ID_PRE
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 <trim prefix="where" prefixOverrides="and |or">
 	<if test="instId != null">
@@ -63,6 +63,23 @@ join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 	</if>
 </trim>
 order by awt.created_dt
+</select>
+
+<select id="getAwt4Recall"  parameterType="java.util.Map" resultMap="getAwtByUserIdResultMap" >
+select awt.*
+from wf_awt awt
+join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
+<trim prefix="where" prefixOverrides="and |or">
+	<if test="rsWfId != null">
+	    and inst.RS_WF_ID=#{rsWfId}
+	</if>
+	<if test="instNum != null">
+	    and inst.INST_NUM=#{instNum} 
+	</if>
+	<if test="currRecallUser != null ">
+		and awt.PRE_OPT_USERS like '%${currRecallUser}%'
+	</if>
+</trim>
 </select>
 
 </mapper>

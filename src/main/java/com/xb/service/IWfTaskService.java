@@ -5,6 +5,7 @@ import java.util.List;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.ICommonService;
+import com.xb.common.BusinessException;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfTask;
 import com.xb.vo.TaskOptVO;
@@ -30,7 +31,7 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 */
 	public Integer startWFByGnmkId(String gnmkId, String userId);
 	
-	public void processTask(TaskOptVO optVO, String currUserId);
+	public boolean processTask(TaskOptVO optVO, String currUserId) throws BusinessException;
 	/**
 	 * 获取当前工作流状态
 	 * @param histId

@@ -14,9 +14,9 @@ import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
+import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
 import com.xb.persistent.WfAwt;
-import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.mapper.WfAwtMapper;
@@ -74,10 +74,16 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		if(WFConstants.TxCodes.COUNTERSIGN.equals(currtask.getTxType())){
 			prev.setCompleteFlag("Y");
 			this.updateById(prev);
-			String csOptJson = currtask.getSignChoices();
-			JSONObject csOpt = (JSONObject) JSONObject.parse(csOptJson);
 			WfAwt parm = new WfAwt();
 			parm.setInstId(instId);
+			parm.setCompleteFlag("N");
+			int incompletedCount = this.selectCount(parm);
+			if(incompletedCount==0){
+				return true;//没有未完成的待办事宜
+			}
+			
+			String csOptJson = currtask.getSignChoices();
+			JSONObject csOpt = (JSONObject) JSONObject.parse(csOptJson);
 			parm.setCompleteFlag("Y");
 			int completedCount = this.selectCount(parm);
 			if(Boolean.TRUE.toString().equals(csOpt.getString("AllHandledThenGo"))){
@@ -109,67 +115,106 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	}
 	
 	/**
-	 * 
+	 * 撤回操作：优先取awt.optUserPrev=currUserId, 
+	 * 		如果存在：
+	 * 				判断awt.taskIdPrev是否为null：
+	 * 						为null表示已经撤回过，无法再执行撤回操作<END>；
+	 * 						不为null，判断awt.taskIdPrev是否与awt.currTaskId相同，
+	 * 								同：表示要撤回的是forward操作
+	 * 								不同：撤回操作将跨事物节点：新建awt(设置taskIdPrev=null),更新inst.optdUsersPrev:剔除currUserId(防止再转交后的再撤回)
+	 * 		如果不存在：
+	 * 				查看wf_inst.optdUsersPrev是否包含currUserId：
+	 * 						如果没有：直接抛异常，无法撤回<END>;
+	 * 						如果有：判断prevTask是否可撤回： 
+	 * 								不可->抛异常<END>;
+	 * 								可->撤回：新建awt(设置taskIdPrev=null), 更新inst.optdUsersPrev:剔除currUserId<END>; 
+	 * 	
 	 * @param instId
 	 * @param currUserId
 	 * @return
+	 * @throws Exception 
 	 */
-	private boolean renewRecall(String instId, String currUserId){
+	private boolean renewRecall(WfInstance inst, WfTask nextTask, String currUserId) throws BusinessException{
+		String instId = inst.getInstId();
 		synchronized (instId) {
-			WfInstHist histParm = new WfInstHist();
-			histParm.setInstId(instId);
-			List<WfInstHist> histlist = histService.selectList(histParm, "OPT_SEQ desc");
-			if(histlist.size()<2){
-				log.warn("renewRecall(): histlist size<2, no action for recall");
-			}else{
-				WfInstHist prevDone = histlist.get(0);
-				WfInstHist prevTwo = null;
-				for(WfInstHist hist:histlist){
-					if(currUserId.equals(hist.getOptUser())){
-						prevTwo = hist;
-						break;
-					}
+			WfAwt awtParm = new WfAwt();
+			awtParm.setInstId(instId);
+			awtParm.setOptUsersPre(currUserId);
+			WfAwt awt = this.selectOne(awtParm);
+			if(awt!=null){
+				String prevTaskId = awt.getTaskIdPre();
+				if(prevTaskId==null){
+					log.error("renewRecall(): prefTaskId is null for instId="+instId+", optUsersPre="+currUserId+", recall is not allowed");
+					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
 				}
-				if(prevTwo == null){
-					prevTwo = histlist.get(1);
+				if(awt.getTaskIdCurr().equals(awt.getTaskIdPre())){
+					awt.setAssignerId(currUserId);
+					awt.setTaskIdPre(null);
+					awt.setOptUsersPre(currUserId);
+					this.updateById(awt);
+				}else{
+					awtParm.setOptUsersPre(null);
+					this.deleteSelective(awtParm);
+					awt.setWfAwtId(null);;//新建一条awt
+					awt.setTaskIdCurr(inst.getCurrTaskId());
+					awt.setAssignerId(currUserId);
+					awt.setOptUsersPre(currUserId);
+					awt.setTaskIdPre(null);
+					Date beginDate = new Date();
+					awt.setAwtBegin(beginDate);
+					awt.setAwtEnd(calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit()));
+					awt.setAwtAlarm(nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime()));
+					removeUserFromOptUserPrev(inst, currUserId);
 				}
-				String taskId = prevDone.getTaskId();
-				String histIdPre = prevTwo.getHistId();
-				Date taskBegin = prevDone.getTaskBegin();
-				Date taskEnd = prevDone.getTaskEnd();
-				WfTask prevTask = taskService.selectById(prevDone.getTaskId()); 
-				Date alarmDate = calculateDate(prevDone.getTaskBegin(), prevTask.getAlarmTimeTp(), prevTask.getAlarmTime());
-				String[] taskOwnerArray = prevTwo.getTaskOwner().split(",");
-				List<WfAwt> insertlist = new ArrayList<WfAwt>(taskOwnerArray.length);
-				WfAwt awt = null;
-				for(String owner:taskOwnerArray){
-					if(!StringUtils.isEmpty(owner)){
-						awt = new WfAwt();
-						awt.setTaskIdCurr(taskId);
-						awt.setHistIdPre(histIdPre);
-						awt.setInstId(instId);
-						awt.setAwtBegin(taskBegin);
-						awt.setAwtEnd(taskEnd);
-						awt.setAwtAlarm(alarmDate);
-						awt.setAssignerId(owner);
-						insertlist.add(awt);
-					}
+			}
+			else{
+				String optdUserPre = inst.getOptUsersPre();
+				if(optdUserPre==null || !optdUserPre.contains(currUserId)){
+					log.error("renewRecall(): optUsersPre="+optdUserPre+", not contains currUserId="+currUserId+", recall is not allowed");
+					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
 				}
-				this.insertBatch(insertlist);
+				String prevTaskId = inst.getTaskIdPre();
+				if(StringUtils.isEmpty(prevTaskId)){
+					log.error("renewRecall(): prevTaskId is empty, recall is not allowed");
+					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
+				}
+				WfTask recallTask = taskService.selectById(prevTaskId);
+				if(recallTask==null){
+					log.error("renewRecall(): no wfTask record found for prevTaskId"+prevTaskId+", recall is not allowed");
+					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
+				}
+				JSONObject txChoices = recallTask.getTxChoicesJson();
+				Boolean allowReCall = null;
+				if(txChoices!=null){
+					allowReCall = txChoices.getBoolean("AllowReCall");
+				}
+				if(allowReCall==null || !allowReCall){
+					log.error("renewRecall(): preTask setting AllowReCall is null or false, recall is not allowed");
+					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
+				}
+				awt = new WfAwt();//新建一条awt
+				awt.setTaskIdCurr(prevTaskId);
+				awt.setAssignerId(currUserId);
+				awt.setOptUsersPre(currUserId);
+				awt.setTaskIdPre(null);
+				Date beginDate = new Date();
+				awt.setAwtBegin(beginDate);
+				awt.setAwtEnd(calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit()));
+				awt.setAwtAlarm(nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime()));
+				removeUserFromOptUserPrev(inst, currUserId);
 			}
 			return false;
 		}
-		
 	}
 	
-	public void renewAwt(WfAwt prev, WfTask currtask, WfTask nextTask,  TaskOptVO optVO, String currUserId){
+	public void renewAwt(WfAwt prev, WfTask currtask, WfTask nextTask,  TaskOptVO optVO, String currUserId) throws BusinessException{
 		if(nextTask!=null && WFConstants.TaskTypes.E.getTypeCode().equals(nextTask.getTaskType())){
 			optVO.setNextEndTaskFlag(true);
 		}else{
 			optVO.setNextEndTaskFlag(false);
 		}
-		String instId = prev.getInstId();
-		WfInstance wfInst = instService.selectById(instId);
+		WfInstance wfInst = instService.selectById(prev.getInstId());
+		
 		String optCode = optVO.getOptCode();
 		boolean needNextStep = false;
 		switch (optCode) {
@@ -180,27 +225,76 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			needNextStep = renewReject();
 			break;
 		case WFConstants.OptTypes.FORWARD:
-			needNextStep = true;
-			nextTask = currtask;
-			optVO.setNextTaskId(nextTask.getTaskId());
+			needNextStep = renew4Forward(wfInst, optVO, currUserId);
 			break;
 		case WFConstants.OptTypes.LET_ME_DO:
-			nextTask = currtask;
-			optVO.setNextTaskId(nextTask.getTaskId());
-			optVO.setNextAssigners(currUserId);
-			needNextStep = true;
+			needNextStep = renew4LetMeDo(wfInst, currtask, currUserId);
 			break;
 		case WFConstants.OptTypes.RECALL:
-			needNextStep = renewRecall(instId, currUserId);
+			needNextStep = renewRecall(wfInst, nextTask, currUserId);
 			break;
 		default:
 			break;
 		}
 		if(needNextStep){
-			clearAwtUpdateInstGoNextStep(wfInst, optVO, nextTask);
+			clearAwtUpdateInstGoNextStep(wfInst, optVO, nextTask, currUserId);
 		}
 	}
 	
+	private boolean renew4Forward(WfInstance wfInst, TaskOptVO optVO, String currUserId){
+		WfAwt awtParm = new WfAwt();
+		awtParm.setInstId(wfInst.getInstId());
+		awtParm.setAssignerId(currUserId);
+		WfAwt awt = this.selectOne(awtParm);
+		if(awt==null){
+			log.error("renew4Forward(): no awt found for instId="+wfInst.getInstId()+", currUserid="+currUserId);
+			return false;
+		}
+		removeUserFromOptUserPrev(wfInst, currUserId);
+		
+		awt.setAssignerId(optVO.getNextAssigners());
+		awt.setOptUsersPre(currUserId);
+		awt.setTaskIdPre(awt.getTaskIdCurr());
+		this.updateById(awt);
+		return false;
+	}
+	
+	private void removeUserFromOptUserPrev(WfInstance wfInst, String currUserId){
+		String optdUsers = wfInst.getOptUsersPre();
+		if(optdUsers!=null && optdUsers.contains(currUserId)){
+			wfInst.setOptUsersPre(optdUsers.replace(currUserId+",", ""));
+			instService.updateById(wfInst);
+		}
+	}
+	
+	private boolean renew4LetMeDo(WfInstance wfInst,WfTask currtask, String currUserId){
+		WfAwt awtParm = new WfAwt();
+		awtParm.setInstId(wfInst.getInstId());
+		awtParm.setTaskIdCurr(currtask.getTaskId());
+		List<WfAwt> awtList = this.selectList(awtParm);
+		WfAwt currUserAwt = null;
+		if(awtList==null || awtList.isEmpty()){
+			log.error("renew4LetMeDo(): no awtList find for wfInstId="+wfInst.getInstId()+", currTaskId="+currtask.getTaskId()+", let me do ignored!");
+			return false;
+		}
+		List<String> deleteIdList = new ArrayList<String>(awtList.size());
+		for(WfAwt awt: awtList){
+			if(!awt.getAssignerId().equals(currUserId)){
+				deleteIdList.add(awt.getWfAwtId());
+			}else{
+				currUserAwt = awt;
+			}
+		}
+		if(currUserAwt==null){
+			log.debug("renew4LetMeDo(): currUserAwt is null for currUserId="+currUserId+", instId="+wfInst.getInstId());
+			currUserAwt = awtList.get(0);
+			currUserAwt.setAssignerId(currUserId);
+			currUserAwt.setWfAwtId(null);
+			this.insert(currUserAwt);
+		}
+		this.deleteBatchIds(deleteIdList);
+		return false;
+	}
 	
 	/**
 	 * Clear Current Awt,  update Instance. Go next step: insert new Awt if needed.
@@ -208,7 +302,15 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	 * @param optVO
 	 * @param nextTask
 	 */
-	private void clearAwtUpdateInstGoNextStep(WfInstance wfInst, TaskOptVO optVO, WfTask nextTask){
+	private void clearAwtUpdateInstGoNextStep(WfInstance wfInst, TaskOptVO optVO, WfTask nextTask, String currUserId){
+		String optdUsers = wfInst.getOptUsersPre();
+		if(StringUtils.isEmpty(optdUsers)){
+			wfInst.setOptUsersPre(currUserId+",");
+		}else{
+			if(!optdUsers.contains(currUserId)){
+				wfInst.setOptUsersPre(optdUsers+currUserId+",");
+			}
+		}
 		String instId = wfInst.getInstId();
 		WfAwt parm = new WfAwt();
 		parm.setInstId(instId);
@@ -225,18 +327,29 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			for(String assigner : nextAssignersArr){
 				if(!StringUtils.isEmpty(assigner)){
 					awt = new WfAwt();
+					/**
+					 * 当任务流转到下一个节点，下一个节点的awt数据：设置optUsersPre&taskIdPre
+					 */
+					awt.setOptUsersPre(wfInst.getOptUsersPre());
+					awt.setTaskIdPre(wfInst.getCurrTaskId());
 					awt.setAssignerId(assigner);
 					awt.setAwtBegin(beginDate);
 					awt.setAwtEnd(limitDate);
 					awt.setAwtAlarm(alarmDate);
-					awt.setHistIdPre(optVO.getPrevInstHistId());
 					awt.setInstId(instId);
 					awt.setTaskIdCurr(optVO.getNextTaskId());
 					this.insert(awt);
 				}
 			}
 		}
+		/**
+		 * 当事务流转到下一个节点时，重置currTaskid&optdUsers
+		 * 为上一步操作人（可能是多个）和上一个任务节点
+		 */
+		
 		wfInst.setCurrAssigners(nextAssigners);
+		wfInst.setTaskIdPre(wfInst.getCurrTaskId());
+		wfInst.setCurrTaskId(nextTask.getTaskId());
 		if(optVO.isNextEndTaskFlag()){
 			wfInst.setWfStatus(WFConstants.WFStatus.DONE);
 		}
@@ -265,6 +378,18 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	}
 	
 	private void updateCurrAssigners4CS(WfInstance wfInst, String currUserId){
+		String optdUsers = wfInst.getOptUsersPre();
+		if(optdUsers==null){
+			optdUsers = currUserId+",";
+		}else{
+			if(!optdUsers.contains(currUserId)){
+				optdUsers += currUserId+",";
+			}
+		}
+		/**
+		 * 事务未流转，更新该task的处理人
+		 */
+		wfInst.setOptUsersPre(optdUsers);
 		String currAssigners4Inst = wfInst.getCurrAssigners();
 		if(currAssigners4Inst!=null){
 			if(currAssigners4Inst.contains(currUserId+",")){
@@ -273,6 +398,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				wfInst.setCurrAssigners(currAssigners4Inst);
 			}
 		}
+		
 	}
 
 	@Override
@@ -280,5 +406,14 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		Map<String,Object> parmMap = new HashMap<String,Object>();
 		parmMap.put("instId", instId);
 		return baseMapper.getAwtByParam(parmMap);
+	}
+
+	@Override
+	public List<WfAwt> getAwt4Recall(String rsWfId, int instNum, String currRecallUser) {
+		Map<String,Object> parmMap = new HashMap<String,Object>();
+		parmMap.put("rsWfId", rsWfId);
+		parmMap.put("instNum", instNum);
+		parmMap.put("currRecallUser", currRecallUser);
+		return baseMapper.getAwt4Recall(parmMap);
 	}
 }

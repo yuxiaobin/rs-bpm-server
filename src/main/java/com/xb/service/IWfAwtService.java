@@ -3,8 +3,8 @@ package com.xb.service;
 import java.util.List;
 
 import com.baomidou.framework.service.ICommonService;
+import com.xb.common.BusinessException;
 import com.xb.persistent.WfAwt;
-import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.vo.TaskOptVO;
 
@@ -26,7 +26,16 @@ public interface IWfAwtService extends ICommonService<WfAwt> {
 	 * @param currUserId
 	 * @return
 	 */
-	public WfAwt getAwtByParam(String rsWfId, int instNum, String currUserId);
+	public WfAwt getAwtByParam(String rsWfId, int instNum, String currRecallUser);
+	
+	/**
+	 * 根据撤回人，找上一步处理人包含该撤回人的所有待办事宜
+	 * @param rsWfId
+	 * @param instNum
+	 * @param currOptUser
+	 * @return
+	 */
+	public List<WfAwt> getAwt4Recall(String rsWfId, int instNum, String currOptUser);
 	
 	public List<WfAwt> getAwtListByInstId(String instId);
 	
@@ -38,5 +47,5 @@ public interface IWfAwtService extends ICommonService<WfAwt> {
 	 * @param optVO
 	 * @param currUserId
 	 */
-	public void renewAwt(WfAwt prev, WfTask currTask, WfTask nextTask, TaskOptVO optVO, String currUserId);
+	public void renewAwt(WfAwt prev, WfTask currTask, WfTask nextTask, TaskOptVO optVO, String currUserId) throws BusinessException;
 }

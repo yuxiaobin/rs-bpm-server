@@ -46,6 +46,27 @@ public class WfInstance extends CUBaseTO implements Serializable {
 	@TableField(value = "CURR_ASSIGNERS")
 	private String currAssigners;
 	
+	@TableField(value = "CURR_TASK_ID")
+	private String currTaskId;
+	
+	
+	
+	@TableField(value = "TASK_ID_PRE")
+	private String taskIdPre;
+	
+	@TableField(value = "OPT_USERS_PRE")
+	private String optUsersPre;
+	
+	
+	public String getCurrTaskId() {
+		return currTaskId;
+	}
+
+	public void setCurrTaskId(String currTaskId) {
+		this.currTaskId = currTaskId;
+	}
+
+
 	public String getRefMkid() {
 		return refMkid;
 	}
@@ -101,4 +122,28 @@ public class WfInstance extends CUBaseTO implements Serializable {
 	public void setInstNum(Integer instNum) {
 		this.instNum = instNum;
 	}
+
+	public String getTaskIdPre() {
+		return taskIdPre;
+	}
+
+	public void setTaskIdPre(String taskIdPre) {
+		this.taskIdPre = taskIdPre;
+	}
+
+	public String getOptUsersPre() {
+		return optUsersPre;
+	}
+
+	public void setOptUsersPre(String optUsersPre) {
+		this.optUsersPre = optUsersPre;
+	}
+
+	@Override
+	public String toString() {
+		return "WfInstance [instId=" + instId + ", wfId=" + wfId + ", wfStatus=" + wfStatus + ", rsWfId=" + rsWfId
+				+ ", instNum=" + instNum + ", refMkid=" + refMkid + ", currAssigners=" + currAssigners + ", currTaskId="
+				+ currTaskId + ", taskIdPre=" + taskIdPre + ", optUsersPre=" + optUsersPre + "]";
+	}
+
 }

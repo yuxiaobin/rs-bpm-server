@@ -18,4 +18,6 @@ public interface WfAwtMapper extends CommonMapper<WfAwt> {
 	public List<WfAwt> getAwtByUserId(@Param("userId") String userId);
 	
 	public List<WfAwt> getAwtByParam(Map<String, Object> parmMap);
+	
+	public List<WfAwt> getAwt4Recall(Map<String, Object> parmMap);
 }

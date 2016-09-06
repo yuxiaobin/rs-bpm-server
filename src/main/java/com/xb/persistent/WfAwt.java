@@ -32,13 +32,18 @@ public class WfAwt extends CUBaseTO implements Serializable {
 	@TableField(value = "TASK_ID_CURR")
 	private String taskIdCurr;
 
-	/**  */
-	@TableField(value = "HIST_ID_PRE")
-	private String histIdPre;
+	/** 
+	 * 0905 updated 参考原有设计
+	 * 记录上一步操作的taskId和userId
+	 */
+	@TableField(value = "TASK_ID_PRE")
+	private String taskIdPre;
+	@TableField(value = "OPT_USERS_PRE")
+	private String optUsersPre;//上一步处理人：上一步，指的是上一个事务节点，如果事务只是同一节点流转（转交，我来处理），则不变
 
 	/**  */
 	@TableField(value = "ASSIGNER_ID")
-	private String assignerId;
+	private String assignerId;//对应的人有待办事宜
 
 	/**  */
 	@TableField(value = "awt_begin")
@@ -65,10 +70,10 @@ public class WfAwt extends CUBaseTO implements Serializable {
 
 	
 	@TableField(exist = false)
-	private String taskOwner;//待处理人
+	private String taskOwner;//待处理人，该task可以处理的人
 	
 	@TableField(exist = false)
-	private String taskProcesser;//上步处理人
+	private String taskProcesser;//该流程处理过的人，已处理人
 	
 	@TableField(exist = false)
 	private String instCreater;//创建人
@@ -85,6 +90,23 @@ public class WfAwt extends CUBaseTO implements Serializable {
 	@TableField(exist = false)
 	private String refMkid;
 	
+	
+	public String getTaskIdPre() {
+		return taskIdPre;
+	}
+
+	public void setTaskIdPre(String taskIdPre) {
+		this.taskIdPre = taskIdPre;
+	}
+
+	public String getOptUsersPre() {
+		return optUsersPre;
+	}
+
+	public void setOptUsersPre(String optUsersPre) {
+		this.optUsersPre = optUsersPre;
+	}
+
 	public String getInstCreater() {
 		return instCreater;
 	}
@@ -163,14 +185,6 @@ public class WfAwt extends CUBaseTO implements Serializable {
 
 	public void setTaskIdCurr(String taskIdCurr) {
 		this.taskIdCurr = taskIdCurr;
-	}
-
-	public String getHistIdPre() {
-		return this.histIdPre;
-	}
-
-	public void setHistIdPre(String histIdPre) {
-		this.histIdPre = histIdPre;
 	}
 
 	public String getAssignerId() {

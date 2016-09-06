@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
+import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
@@ -40,9 +41,13 @@ public class WFTaskController extends BaseController {
 	@RequestMapping("/process")
 	@ResponseBody
 	public Object processTask(@RequestBody TaskOptVO optVO, HttpSession session){
-		taskService.processTask(optVO, getCurrUserId(session));
 		JSONObject result = new JSONObject();
-		result.put("message", "success");
+		try {
+			taskService.processTask(optVO, getCurrUserId(session));
+			result.put("message", "success");
+		} catch (BusinessException e) {
+			result.put("message", e.getErrorMsg());
+		}
 		return result;
 	}
 	

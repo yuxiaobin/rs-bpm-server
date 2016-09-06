@@ -4,7 +4,7 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 INST_ID AS instId, WF_ID AS wfId, WF_STATUS AS wfStatus, RS_WF_ID AS rsWfId, INST_NUM AS instNum, REF_MKID as refMkid, CURR_ASSIGNERS as currAssigners, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+		 INST_ID AS instId, WF_ID AS wfId, WF_STATUS AS wfStatus, RS_WF_ID AS rsWfId, INST_NUM AS instNum, REF_MKID as refMkid, CURR_ASSIGNERS as currAssigners, CURR_TASK_ID AS currTaskId, TASK_ID_PRE AS taskIdPre, OPT_USERS_PRE AS optUsersPre, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
 	</sql>
 
 </mapper>

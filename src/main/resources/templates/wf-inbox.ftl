@@ -56,8 +56,8 @@
                         <td>{{taskv.awtTitle}}</td>
                         <td>{{taskv.awtBegin | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                         <td>{{taskv.awtEnd | date:'yyyy-MM-dd HH:mm:ss'}}</td>
-                        <td> {{taskv.taskProcesser}} </td>
-                        <td>{{taskv.assignerId}}</td>
+                        <td> {{taskv.optUsersPre}} </td>
+                        <td>{{taskv.taskOwner}}</td>
                         <td> {{taskv.taskProcesser}} </td>
                         <td>{{taskv.instCreater}}</td>
                         <td>{{taskv.refMkid}}</td>
