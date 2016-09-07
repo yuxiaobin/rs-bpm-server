@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -34,7 +35,7 @@ import com.xb.vo.TaskOptVO;
 @Service
 public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> implements IWfAwtService {
 	
-	private static Logger log = Logger.getLogger(WfAwtServiceImpl.class);
+	private static Logger log = LogManager.getLogger(WfAwtServiceImpl.class);
 	
 	@Autowired
 	IWfInstanceService instService;
@@ -127,7 +128,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	 * 						如果没有：直接抛异常，无法撤回<END>;
 	 * 						如果有：判断prevTask是否可撤回： 
 	 * 								不可->抛异常<END>;
-	 * 								可->撤回：新建awt(设置taskIdPrev=null), 更新inst.optdUsersPrev:剔除currUserId<END>; 
+	 * 								可->撤回：新建awt(设置taskIdPrev=null), 更新inst.optdUsersPrev:剔除currUserId,删除currTaskId的awt<END>; 
 	 * 	
 	 * @param instId
 	 * @param currUserId
@@ -156,7 +157,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					awtParm.setOptUsersPre(null);
 					this.deleteSelective(awtParm);
 					awt.setWfAwtId(null);;//新建一条awt
-					awt.setTaskIdCurr(inst.getCurrTaskId());
+					awt.setTaskIdCurr(inst.getTaskIdCurr());
 					awt.setAssignerId(currUserId);
 					awt.setOptUsersPre(currUserId);
 					awt.setTaskIdPre(null);
@@ -174,6 +175,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
 				}
 				String prevTaskId = inst.getTaskIdPre();
+				String currTaskId = inst.getTaskIdCurr();
 				if(StringUtils.isEmpty(prevTaskId)){
 					log.error("renewRecall(): prevTaskId is empty, recall is not allowed");
 					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
@@ -194,6 +196,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				}
 				awt = new WfAwt();//新建一条awt
 				awt.setTaskIdCurr(prevTaskId);
+				awt.setInstId(instId);
 				awt.setAssignerId(currUserId);
 				awt.setOptUsersPre(currUserId);
 				awt.setTaskIdPre(null);
@@ -201,6 +204,13 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				awt.setAwtBegin(beginDate);
 				awt.setAwtEnd(calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit()));
 				awt.setAwtAlarm(nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime()));
+				
+				this.insert(awt);
+				
+				WfAwt delAwt = new WfAwt();
+				delAwt.setInstId(instId);
+				delAwt.setTaskIdCurr(currTaskId);
+				this.deleteSelective(delAwt);
 				removeUserFromOptUserPrev(inst, currUserId);
 			}
 			return false;
@@ -263,8 +273,9 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		String optdUsers = wfInst.getOptUsersPre();
 		if(optdUsers!=null && optdUsers.contains(currUserId)){
 			wfInst.setOptUsersPre(optdUsers.replace(currUserId+",", ""));
-			instService.updateById(wfInst);
 		}
+		wfInst.setCurrAssigners(currUserId);
+		instService.updateById(wfInst);
 	}
 	
 	private boolean renew4LetMeDo(WfInstance wfInst,WfTask currtask, String currUserId){
@@ -331,7 +342,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					 * 当任务流转到下一个节点，下一个节点的awt数据：设置optUsersPre&taskIdPre
 					 */
 					awt.setOptUsersPre(wfInst.getOptUsersPre());
-					awt.setTaskIdPre(wfInst.getCurrTaskId());
+					awt.setTaskIdPre(wfInst.getTaskIdCurr());
 					awt.setAssignerId(assigner);
 					awt.setAwtBegin(beginDate);
 					awt.setAwtEnd(limitDate);
@@ -348,8 +359,8 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		 */
 		
 		wfInst.setCurrAssigners(nextAssigners);
-		wfInst.setTaskIdPre(wfInst.getCurrTaskId());
-		wfInst.setCurrTaskId(nextTask.getTaskId());
+		wfInst.setTaskIdPre(wfInst.getTaskIdCurr());
+		wfInst.setTaskIdCurr(nextTask.getTaskId());
 		if(optVO.isNextEndTaskFlag()){
 			wfInst.setWfStatus(WFConstants.WFStatus.DONE);
 		}

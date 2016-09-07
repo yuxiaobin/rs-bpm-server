@@ -4,7 +4,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +34,7 @@ import com.xb.vo.TaskVO;
 @RequestMapping("/wfapi")
 public class WFApiController extends BaseController {
 	
-	private static Logger log = Logger.getLogger(WFApiController.class);
+	private static Logger log = LogManager.getLogger(WFApiController.class);
 	
 	private static final int STATUS_CODE_SUCC = WFConstants.ApiParams.STATUS_CODE_SUCC;
 	private static final int STATUS_CODE_FAIL = WFConstants.ApiParams.STATUS_CODE_FAIL;
@@ -43,6 +44,7 @@ public class WFApiController extends BaseController {
 	private static final String RETURN_CODE = WFConstants.ApiParams.RETURN_CODE;
 	private static final String RETURN_MSG = WFConstants.ApiParams.RETURN_MSG;
 	private static final String RETURN_WF_INST_NUM = WFConstants.ApiParams.RETURN_WF_INST_NUM;
+	private static final String RETURN_CURR_TASK_ID = WFConstants.ApiParams.RETURN_CURR_TASK_ID;
 	private static final String RETURN_TASK_OPTIONS = WFConstants.ApiParams.RETURN_TASK_OPTIONS;
 	private static final String RETURN_RECORDS = WFConstants.ApiParams.RETURN_RECORDS;
 	
@@ -118,10 +120,11 @@ public class WFApiController extends BaseController {
 			return result;
 		}
 		try{
-			Integer instNum = taskService.startWFByGnmkId(gnmkId, userId);
-			if(instNum!=null){
+			JSONObject startResult = taskService.startWFByGnmkId(gnmkId, userId);
+			if(startResult!=null){
 				result.put(RETURN_CODE, STATUS_CODE_SUCC);
-				result.put(RETURN_WF_INST_NUM, instNum);
+				result.put(RETURN_WF_INST_NUM, startResult.getInteger("wf_inst_num"));
+				result.put(RETURN_CURR_TASK_ID, startResult.getString("curr_task_id"));
 				result.put(RETURN_MSG, "succ");
 			}else{
 				result.put(RETURN_CODE, STATUS_CODE_INVALID);

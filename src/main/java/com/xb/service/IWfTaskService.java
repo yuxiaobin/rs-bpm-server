@@ -21,15 +21,15 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	
 	public List<WfAwt> getTasksInbox(String userId);
 	
-	public Integer startWF4Module(String rsWfId, String userId);
+	public JSONObject startWF4Module(String rsWfId, String userId);
 	
 	/**
 	 * API : 根据gnmkId启动工作流
 	 * @param gnmkId
 	 * @param userId
-	 * @return
+	 * @return JSONObject{ instNum:xxx, currTaskId:xxx }
 	 */
-	public Integer startWFByGnmkId(String gnmkId, String userId);
+	public JSONObject startWFByGnmkId(String gnmkId, String userId);
 	
 	public boolean processTask(TaskOptVO optVO, String currUserId) throws BusinessException;
 	/**

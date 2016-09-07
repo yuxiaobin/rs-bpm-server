@@ -47,7 +47,6 @@ public class TblUser2groupServiceImpl extends CommonServiceImpl<TblUser2groupMap
 		}
 		result.setUserList(userList);
 		result.setGroupList(processUsers2Group(groupUserList));
-		
 		return result;
 	}
 	

@@ -11,7 +11,7 @@
 	  <result property="wfAwtId" column="wf_awt_id"/>
 	  <result property="instId" column="inst_id"/>
 	  <result property="taskIdCurr" column="task_id_curr"/>
-	  <result property="optUsersPre" column="pre_opt_users"/>
+	  <result property="optUsersPre" column="opt_users_pre"/>
 	  <result property="assignerId" column="assigner_id"/>
 	  <result property="awtBegin" column="awt_begin"/>
 	  <result property="awtEnd" column="awt_end"/>
@@ -77,7 +77,7 @@ join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
 	    and inst.INST_NUM=#{instNum} 
 	</if>
 	<if test="currRecallUser != null ">
-		and awt.PRE_OPT_USERS like '%${currRecallUser}%'
+		and inst.OPT_USERS_PRE like '%${currRecallUser}%'
 	</if>
 </trim>
 </select>

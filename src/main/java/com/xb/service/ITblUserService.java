@@ -10,5 +10,6 @@ import com.baomidou.framework.service.ICommonService;
  */
 public interface ITblUserService extends ICommonService<TblUser> {
 
+	public void deleteJunitData(String refMkid);
 
 }

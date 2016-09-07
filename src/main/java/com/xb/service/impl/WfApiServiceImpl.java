@@ -18,7 +18,7 @@ import com.xb.vo.TaskOptVO;
 public class WfApiServiceImpl implements IWfApiService {
 	
 	private static final int STATUS_CODE_SUCC = WFConstants.ApiParams.STATUS_CODE_SUCC;
-	private static final int STATUS_CODE_FAIL = WFConstants.ApiParams.STATUS_CODE_FAIL;
+//	private static final int STATUS_CODE_FAIL = WFConstants.ApiParams.STATUS_CODE_FAIL;
 	private static final int STATUS_CODE_INVALID = WFConstants.ApiParams.STATUS_CODE_INVALID;
 	
 	private static final String RETURN_CODE = WFConstants.ApiParams.RETURN_CODE;

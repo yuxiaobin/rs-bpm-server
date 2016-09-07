@@ -1,7 +1,6 @@
 package com.xb.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,9 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.persistent.RsWorkflow;
-import com.xb.persistent.WfAwt;
-import com.xb.persistent.WfInstHist;
-import com.xb.persistent.WfInstance;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.ITblUser2groupService;
 import com.xb.service.ITblUserService;

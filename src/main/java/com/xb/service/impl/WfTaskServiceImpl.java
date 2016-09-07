@@ -9,7 +9,8 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	
 //	private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 	
-	private static Logger log = Logger.getLogger(WfTaskServiceImpl.class);
+	private static Logger log = LogManager.getLogger(WfTaskServiceImpl.class);
 
 	@Autowired
 	IWfInstHistService histService;
@@ -74,7 +75,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return awtService.getAwtByUserId(userId);
 	}
 	
-	public Integer startWFByGnmkId(String gnmkId, String userId){
+	public JSONObject startWFByGnmkId(String gnmkId, String userId){
 		RsWorkflow wfparm = new RsWorkflow();
 		wfparm.setGnmkId(gnmkId);
 		RsWorkflow wf = rsWfService.selectOne(wfparm);
@@ -85,7 +86,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 	
 	@Transactional
-	public Integer startWF4Module(String rsWfId, String currUserId){
+	public JSONObject startWF4Module(String rsWfId, String currUserId){
 		RsWorkflow wf = rsWfService.selectById(rsWfId);
 		WfDef wfDefParm = new WfDef();
 		wfDefParm.setRsWfId(rsWfId);
@@ -116,7 +117,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			wfInst.setInstNum(instNumCurr);
 			wfInst.setRefMkid(wf.getGnmkId());
 			wfInst.setCurrAssigners(currUserId);
-			wfInst.setCurrTaskId(taskId);
+			wfInst.setTaskIdCurr(taskId);
 			instService.insert(wfInst);
 			
 			//待办事宜
@@ -127,7 +128,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			awt.setAwtBegin(new Date());
 			
 			awtService.insert(awt);
-			return instNumCurr;
+			
+			JSONObject result = new JSONObject();
+			result.put("wf_inst_num", instNumCurr);
+			result.put("curr_task_id", taskId);
+			return result;
 		}
 	}
 
