@@ -10,7 +10,7 @@
 	<groupId>com.xb.wf</groupId>
 	<artifactId>rs-bpm-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging> <!-- jar comment -->
+	<packaging>jar</packaging> <!-- jar comment -->
 	<name>Workflow</name>
 	<url>http://maven.apache.org</url>
 
@@ -25,12 +25,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<exclusions> <!-- jar comment start -->
+			<!-- <exclusions> 
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
-			</exclusions> <!-- jar comment end -->
+			</exclusions>jar comment end -->
 		</dependency>
 		<!-- Compile -->
 		<dependency>
@@ -63,7 +63,18 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
-
+		<!-- For unit testing -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>2.3.3</version>
+			<scope>test</scope>
+		</dependency>
+		
 		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
@@ -135,7 +146,31 @@
 			<version>3.4</version>
 		</dependency>
 	</dependencies>
+	
 	<profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<env>dev</env>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>sit</id>
+			<properties>
+				<env>sit</env>
+			</properties>
+		</profile>
+		<profile>
+			<id>prd</id>
+			<properties>
+				<env>prd</env>
+			</properties>
+		</profile>
+	</profiles>
+	<!-- <profiles>
 		<profile>
 			<id>tomcat</id>
 			<dependencies>
@@ -187,10 +222,10 @@
 		<profile>
 			<id>sit</id>
 			<properties> 
-				<profiles.active>sit</profiles.active>  <!-- mvn clean install -P sit -->
+				<profiles.active>sit</profiles.active>  mvn clean install -P sit
 			</properties>
 			<activation>  
-            	<property>  <!-- mvn clean install -Denv=sit -->
+            	<property>  mvn clean install -Denv=sit
                 	<name>env</name>  
                 	<value>sit</value>  
 				</property>  
@@ -218,9 +253,12 @@
                 </filters>  
             </build> 
 		</profile>
-	</profiles>
+	</profiles> -->
 	<build>
 		<finalName>rs-bpm-server</finalName>
+		<filters>
+            <filter>src/main/resources/config/config_${env}.properties</filter>
+        </filters>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -245,6 +283,7 @@
 			</resource>
 		</resources>
 		
+		<!-- 
 		<filters>
             <filter>src/main/resources/config/config_${profiles.active}.properties</filter>
         </filters>
@@ -255,7 +294,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
 			        <mainClass>${start-class}</mainClass>
-			        <!-- layout>ZIP</layout>  -->
 			      </configuration>
                 <executions>
                     <execution>
@@ -265,7 +303,7 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
+		</plugins> -->
 	</build>
 
 
