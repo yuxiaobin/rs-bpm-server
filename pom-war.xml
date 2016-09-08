@@ -10,7 +10,7 @@
 	<groupId>com.xb.wf</groupId>
 	<artifactId>rs-bpm-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging> <!-- jar comment -->
+	<packaging>war</packaging> <!-- jar comment -->
 	<name>Workflow</name>
 	<url>http://maven.apache.org</url>
 
@@ -25,11 +25,14 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<!-- <exclusions> <exclusion> <groupId>org.springframework.boot</groupId> 
-				<artifactId>spring-boot-starter-tomcat</artifactId> </exclusion> </exclusions>jar 
-				comment end -->
+			<exclusions> <!-- jar comment start -->
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions> <!-- jar comment end -->
 		</dependency>
-		<!-- Compile -->
+			<!-- Compile -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
@@ -70,6 +73,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
+
 		<!-- For unit testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -81,7 +85,7 @@
 			<version>2.3.3</version>
 			<scope>test</scope>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
@@ -126,8 +130,10 @@
 
 
 		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
-		<!-- <dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-validator</artifactId> 
-			</dependency> -->
+		<!-- <dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency> -->
 
 		<dependency>
 			<groupId>com.alibaba</groupId>
@@ -136,11 +142,11 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
 		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>druid</artifactId>
-			<version>1.0.25</version>
+		    <groupId>com.alibaba</groupId>
+		    <artifactId>druid</artifactId>
+		    <version>1.0.25</version>
 		</dependency>
-
+				
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
@@ -151,71 +157,108 @@
 			<version>3.4</version>
 		</dependency>
 	</dependencies>
-
 	<profiles>
 		<profile>
+			<id>tomcat</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>jetty</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-jetty</artifactId>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>undertow</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-undertow</artifactId>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
 			<id>dev</id>
-			<properties>
-				<env>dev</env>
+			<properties> 
+				<profiles.active>dev</profiles.active>
 			</properties>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<property>
+                	<name>env</name>  
+                	<value>dev</value>  
+				</property>
 			</activation>
+			
+			<build>
+                <filters>  
+                    <filter>src/main/resources/config/config_dev.properties</filter>  
+                </filters>  
+            </build> 
 		</profile>
 		<profile>
 			<id>sit</id>
-			<properties>
-				<env>sit</env>
+			<properties> 
+				<profiles.active>sit</profiles.active>  <!-- mvn clean install -P sit -->
 			</properties>
+			<activation>  
+            	<property>  <!-- mvn clean install -Denv=sit -->
+                	<name>env</name>  
+                	<value>sit</value>  
+				</property>  
+            </activation>  
+			<build>  
+                <filters>  
+                    <filter>src/main/resources/config/config_sit.properties</filter>  
+                </filters>  
+            </build>  
 		</profile>
 		<profile>
 			<id>prd</id>
 			<properties>
-				<env>prd</env>
+				<profiles.active>prd</profiles.active>  
 			</properties>
+			<activation>  
+            	<property>  
+                	<name>env</name>  
+                	<value>prd</value>  
+				</property>  
+            </activation>  
+			<build>  
+                <filters>  
+                    <filter>src/main/resources/config/config_prd.properties</filter>  
+                </filters>  
+            </build> 
 		</profile>
 	</profiles>
-	<!-- <profiles> <profile> <id>tomcat</id> <dependencies> <dependency> <groupId>org.springframework.boot</groupId> 
-		<artifactId>spring-boot-starter-tomcat</artifactId> <scope>provided</scope> 
-		</dependency> </dependencies> </profile> <profile> <id>jetty</id> <dependencies> 
-		<dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-jetty</artifactId> 
-		<scope>provided</scope> </dependency> </dependencies> </profile> <profile> 
-		<id>undertow</id> <dependencies> <dependency> <groupId>org.springframework.boot</groupId> 
-		<artifactId>spring-boot-starter-undertow</artifactId> <scope>provided</scope> 
-		</dependency> </dependencies> </profile> <profile> <id>dev</id> <properties> 
-		<profiles.active>dev</profiles.active> </properties> <activation> <property> 
-		<name>env</name> <value>dev</value> </property> </activation> <build> <filters> 
-		<filter>src/main/resources/config/config_dev.properties</filter> </filters> 
-		</build> </profile> <profile> <id>sit</id> <properties> <profiles.active>sit</profiles.active> 
-		mvn clean install -P sit </properties> <activation> <property> mvn clean 
-		install -Denv=sit <name>env</name> <value>sit</value> </property> </activation> 
-		<build> <filters> <filter>src/main/resources/config/config_sit.properties</filter> 
-		</filters> </build> </profile> <profile> <id>prd</id> <properties> <profiles.active>prd</profiles.active> 
-		</properties> <activation> <property> <name>env</name> <value>prd</value> 
-		</property> </activation> <build> <filters> <filter>src/main/resources/config/config_prd.properties</filter> 
-		</filters> </build> </profile> </profiles> -->
 	<build>
 		<finalName>rs-bpm-server</finalName>
-		<filters>
-			<filter>src/main/resources/config/config_${env}.properties</filter>
-		</filters>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
-				<excludes>
-					<exclude>static/fonts/**</exclude>
-				</excludes>
+				<excludes>  
+                    <exclude>static/fonts/**</exclude>  
+                </excludes>  
 			</resource>
-			<!-- fonts file cannot use filter as the data structure of byte file will 
-				be changed via filter -->
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
-				<includes>
-					<include>static/fonts/**</include>
-				</includes>
-			</resource>
+			<!-- fonts file cannot use filter as the data structure of byte file will be changed via filter -->
+			<resource>  
+                <directory>src/main/resources</directory>  
+                <filtering>false</filtering>  
+                <includes>  
+                    <include>static/fonts/**</include>  
+                </includes>  
+            </resource>  
 			<resource>
 				<directory>src/main/java</directory>
 				<includes>
@@ -223,12 +266,28 @@
 				</includes>
 			</resource>
 		</resources>
+		
+		<filters>
+            <filter>src/main/resources/config/config_${profiles.active}.properties</filter>
+        </filters>
 
-		<!-- <filters> <filter>src/main/resources/config/config_${profiles.active}.properties</filter> 
-			</filters> <plugins> <plugin> <groupId>org.springframework.boot</groupId> 
-			<artifactId>spring-boot-maven-plugin</artifactId> <configuration> <mainClass>${start-class}</mainClass> 
-			</configuration> <executions> <execution> <goals> <goal>repackage</goal> 
-			</goals> </execution> </executions> </plugin> </plugins> -->
+		<plugins>			
+			<plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+			        <mainClass>${start-class}</mainClass>
+			        <!-- layout>ZIP</layout>  -->
+			      </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
 	</build>
 
 
