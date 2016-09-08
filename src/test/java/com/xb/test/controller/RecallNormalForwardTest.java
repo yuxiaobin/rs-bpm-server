@@ -2,18 +2,13 @@ package com.xb.test.controller;
 
 import static com.jayway.restassured.RestAssured.given;
 
-import javax.transaction.Transactional;
-
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.internal.matchers.GreaterThan;
 import org.mockito.internal.matchers.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -21,51 +16,21 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.response.Response;
 import com.xb.MyWorkflowApp;
-import com.xb.service.ITblUserService;
 
 @RunWith(SpringJUnit4ClassRunner.class)   // 1
 @SpringApplicationConfiguration(classes = MyWorkflowApp.class)   // 2
-@WebAppConfiguration   // 3
-@WebIntegrationTest("server.port:0")   // 4
-@Transactional
-public class WfApiControllerTest2 {
+@WebIntegrationTest("server.port:0")   // 4: random port
+//@Transactional
+public class RecallNormalForwardTest extends TestBase{
 	
-	@Autowired
-	ITblUserService userService;
-	@Value("${local.server.port}")   // 6
-    int port;
+	private static final String refMkid = "ju-normal-forward-recall-commit";
 	
-	private static final String refMkid = "junitTestCS";
-	
-	String rsWfId;
-	Integer instNum;
-	String currTaskId;
-	String nextTaskId4Commit;
-
-	@Before
-	public void setup(){
-		RestAssured.port = port;
-		final String bodyString = "{\"gnmkId\": \"junitTest\"}";
-        given().
-        contentType("application/json")
-        .request().body(bodyString)
-//     .expect()
-//     .statusCode(200).
-        .when()
-        .post("/wfadmin/module");
-       /* .then().body("rsWfId", new ResponseAwareMatcher<Response>() {
-			@Override
-			public Matcher<?> matcher(Response response) throws Exception {
-				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
-				rsWfId = json.getString("rsWfId");
-				System.out.println("rsWfId is : "+ rsWfId);
-				return NotNull.NOT_NULL;
-			}
-		});*/
+	@Override
+	public String getRefMkid() {
+		return refMkid;
 	}
 	
 	@Test
@@ -89,15 +54,16 @@ public class WfApiControllerTest2 {
 				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
 				instNum = json.getInteger("wf_inst_num");
 				currTaskId = json.getString("curr_task_id");
-				System.out.println("testStartWF():\tinstNum is "+instNum);
 				return new GreaterThan<Integer>(0);
 			}
 		})
         ;
 		testGetNextTask4Commit();
 		testCommit();
-		testRecall();
-//		userService.deleteJunitData(refMkid);
+		testGetNextTask4Commit2();
+		testCommit2Tx2();
+		forwardTask();
+		testRecallFromTx2_2_tx1();
 	}
 	
 	public void testGetNextTask4Commit(){
@@ -122,14 +88,13 @@ public class WfApiControllerTest2 {
         ;
 	}
 	
-	public void testRecall(){
+	public void testRecallFromTx2_2_tx1(){
 		JSONObject parm = new JSONObject();
 		parm.put("userId", "staff1");
 		parm.put("gnmkId", refMkid);
 		parm.put("wfInstNum", instNum);
 		parm.put("optCode", "RC");
-		parm.put("currTaskId", currTaskId);
-		parm.put("comments", "junitTest: staff1 recall");
+		parm.put("comments", "junitTest: staff1 recall ignore forward");
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfapi/operate")
@@ -213,8 +178,27 @@ public class WfApiControllerTest2 {
         ;
 	}
 	
-	@After
-	public void destory(){
-		
+	public void forwardTask(){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", "manager1");
+		parm.put("gnmkId", refMkid);
+		parm.put("comments", "junitTest: manager1 forward to manager2");
+		parm.put("nextTaskId", currTaskId);
+		parm.put("nextUserIds", "manager2");
+		parm.put("optCode", "F");
+		parm.put("wfInstNum", instNum);
+		parm.put("currTaskId", currTaskId);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/operate")
+        .then()
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				return new Equals(0);
+			}
+		})
+        ;
 	}
+	
 }

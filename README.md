@@ -12,7 +12,11 @@ Spring boot + Mybatis-plus + Mysql
 如果要切Oracle数据库，也是分分钟的事情
 
 功能简单，只是实现工作流，其他功能都没有
+有创建工作流
 
 ##Junit Test
 使用了com.jayway.restassured:rest-assured来对Controller做测试
+
+##生成war
+mvn install -f pom-war.xml
 

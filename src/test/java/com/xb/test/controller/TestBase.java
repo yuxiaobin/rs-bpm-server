@@ -3,6 +3,7 @@ package com.xb.test.controller;
 import static com.jayway.restassured.RestAssured.given;
 
 import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.internal.matchers.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,13 @@ public abstract class TestBase {
 	
 	public abstract String getRefMkid();
 	
-	public void initMethod(){
+	public void deleteTest(){
 		userService.deleteJunitData(getRefMkid());
+	}
+	
+	@Before
+	public void initMethod(){
+		deleteTest();
 		RestAssured.port = port;
 		//create workflow
 		JSONObject parm = new JSONObject();

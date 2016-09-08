@@ -17,10 +17,16 @@ public class TblUserServiceImpl extends CommonServiceImpl<TblUserMapper, TblUser
 
 	@Override
 	public void deleteJunitData(String refMkid) {
-		baseMapper.deleteUnitResult1(refMkid);
-		baseMapper.deleteUnitResult2(refMkid);
-		baseMapper.deleteUnitResult3(refMkid);
-		
+		if(refMkid.startsWith("ju")){
+			baseMapper.deleteUnitResult1(refMkid);
+			baseMapper.deleteUnitResult2(refMkid);
+			baseMapper.deleteUnitResult3(refMkid);
+			
+			baseMapper.deleteUnitResult4WfTask(refMkid);
+			baseMapper.deleteUnitResult4WfConn(refMkid);
+			baseMapper.deleteUnitResult4WfDef(refMkid);
+			baseMapper.deleteUnitResult4RsWorkflow(refMkid);
+		}
 	}
 
 	

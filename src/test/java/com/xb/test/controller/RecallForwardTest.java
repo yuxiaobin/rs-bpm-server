@@ -3,56 +3,32 @@ package com.xb.test.controller;
 import static com.jayway.restassured.RestAssured.given;
 
 import org.hamcrest.Matcher;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.internal.matchers.GreaterThan;
 import org.mockito.internal.matchers.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.response.Response;
 import com.xb.MyWorkflowApp;
-import com.xb.service.ITblUserService;
 
 @RunWith(SpringJUnit4ClassRunner.class)   // 1
 @SpringApplicationConfiguration(classes = MyWorkflowApp.class)   // 2
-@WebAppConfiguration   // 3
-@IntegrationTest("server.port:0")   // 4: random port
+@WebIntegrationTest("server.port:0")   // 4: random port
 //@Transactional
-public class TestRecallForward {
-	
-	@Autowired
-	ITblUserService userService;
-	@Value("${local.server.port}")   // 6
-    int port;
+public class RecallForwardTest extends TestBase{
 	
 	private static final String refMkid = "ju-recall-forward";
 	
-	String rsWfId;
-	Integer instNum;
-	String currTaskId;
-	String nextTaskId4Commit;
-
-	@Before
-	public void setup(){
-		userService.deleteJunitData(refMkid);
-		RestAssured.port = port;
-//		final String bodyString = "{\"gnmkId\": \""+refMkid+"\"}";
-        /*given().
-        contentType("application/json")
-        .request().body(bodyString)
-        .when()
-        .post("/wfadmin/module");*/
+	@Override
+	public String getRefMkid() {
+		return refMkid;
 	}
 	
 	@Test

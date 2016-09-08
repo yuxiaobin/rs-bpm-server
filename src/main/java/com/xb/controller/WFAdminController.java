@@ -102,7 +102,9 @@ public class WFAdminController extends BaseController {
 		WFDetailVO wfDetail = new WFDetailVO();
 		wfDetail.setWfData(wfData);
 		wfService.createWF4Module(module, wfDetail);
-		return wfData;
+		JSONObject result = new JSONObject();
+		result.put("return_code", 0);
+		return result;
 	}
 	
 

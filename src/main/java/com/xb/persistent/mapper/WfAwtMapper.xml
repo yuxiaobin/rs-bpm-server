@@ -77,7 +77,7 @@ join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
 	    and inst.INST_NUM=#{instNum} 
 	</if>
 	<if test="currRecallUser != null ">
-		and inst.OPT_USERS_PRE like '%${currRecallUser}%'
+		and (inst.OPT_USERS_PRE like '%${currRecallUser}%' or awt.OPT_USERS_PRE=#{currRecallUser})
 	</if>
 </trim>
 </select>
