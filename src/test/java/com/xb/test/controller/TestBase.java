@@ -3,11 +3,13 @@ package com.xb.test.controller;
 import static com.jayway.restassured.RestAssured.given;
 
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Before;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.internal.matchers.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jayway.restassured.RestAssured;
@@ -59,6 +61,12 @@ public abstract class TestBase {
         .when().post("/wfadmin/module/"+rsWfId+"/wf")
         .then()
         .body("return_code", new Equals(0));
+	}
+	
+	@Transactional
+	@After
+	public void destory(){
+		deleteTest();
 	}
 
 }

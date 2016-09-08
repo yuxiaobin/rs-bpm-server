@@ -1,5 +1,6 @@
 package com.xb.conf;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import com.alibaba.druid.support.http.WebStatFilter;
 
 @Configuration
+@ConditionalOnMissingClass("org.springframework.test.context.junit4.SpringJUnit4ClassRunner")
 public class FilterConfig {
 	
 	@Bean

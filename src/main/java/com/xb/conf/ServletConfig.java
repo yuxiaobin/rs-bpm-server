@@ -1,5 +1,6 @@
 package com.xb.conf;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
@@ -11,6 +12,7 @@ import org.springframework.core.annotation.Order;
 import com.alibaba.druid.support.http.StatViewServlet;
 
 @Configuration
+@ConditionalOnMissingClass("org.springframework.test.context.junit4.SpringJUnit4ClassRunner")
 public class ServletConfig extends SpringBootServletInitializer {
 	
 //	@SuppressWarnings("serial")

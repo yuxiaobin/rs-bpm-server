@@ -8,11 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.internal.matchers.GreaterThan;
 import org.mockito.internal.matchers.NotNull;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -23,7 +21,6 @@ import com.xb.MyWorkflowApp;
 @RunWith(SpringJUnit4ClassRunner.class)   // 1
 @SpringApplicationConfiguration(classes = MyWorkflowApp.class)   // 2
 @WebIntegrationTest("server.port:0")   // 4: random port
-//@Transactional
 public class RecallNormalForwardTest extends TestBase{
 	
 	private static final String refMkid = "ju-normal-forward-recall-commit";

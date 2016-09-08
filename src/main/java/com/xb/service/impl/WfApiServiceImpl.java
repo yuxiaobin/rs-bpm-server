@@ -79,7 +79,7 @@ public class WfApiServiceImpl implements IWfApiService {
 		}
 		optVO.setRsWfId(inst.getRsWfId());
 		
-		WfTask task = null;
+		WfTask nextTask = null;
 		if(WFConstants.OptTypes.RECALL.equals(optCode)){
 //			task = taskService.selectById(optVO.getCurrTaskId());//recall: no need current taskId
 			WfInstHist parm = new WfInstHist();
@@ -91,17 +91,17 @@ public class WfApiServiceImpl implements IWfApiService {
 				result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
 				return false;
 			}
-			task = taskService.selectById(hist4CurrUser.get(0).getTaskId());
+			nextTask = taskService.selectById(hist4CurrUser.get(0).getTaskId());
 		}else{
-			task = taskService.selectById(optVO.getNextTaskId());
+			nextTask = taskService.selectById(optVO.getNextTaskId());
 		}
 		
-		if(task==null){
+		if(nextTask==null){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "invalid taskId:"+optVO.getNextTaskId());
 			return false;
 		}
-		String taskTypeCode = task.getTaskType();
+		String taskTypeCode = nextTask.getTaskType();
 		
 		boolean isNextStartEndTask = false;
 		
@@ -129,10 +129,10 @@ public class WfApiServiceImpl implements IWfApiService {
 				}
 			}
 		}
-		
+		WfTask currTask = taskService.getCurrentTaskByRefNum(optVO);
+		JSONObject txChoices = currTask.getTxChoicesJson();
+		JSONObject txPrChoices = currTask.getTxPrChoicesJson();
 		String comments = optVO.getComments();
-		JSONObject txChoices = task.getTxChoicesJson();
-		JSONObject txPrChoices = task.getTxPrChoicesJson();
 		switch (optCode) {
 		case WFConstants.OptTypes.COMMIT:
 			Boolean SignWhenGo = null;
@@ -175,6 +175,7 @@ public class WfApiServiceImpl implements IWfApiService {
 			break;
 		/*case WFConstants.OptTypes.FORWARD://did this validation above*/
 		case WFConstants.OptTypes.RECALL:
+			txChoices = nextTask.getTxChoicesJson();
 			Boolean allowReCall = null;
 			Boolean signWhenReCall = null;
 			if(txChoices!=null){

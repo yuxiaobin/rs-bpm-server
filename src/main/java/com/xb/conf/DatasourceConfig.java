@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.AbstractEnvironment;
@@ -24,6 +25,7 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 
 @Configuration
 @EnableTransactionManagement
+@ConditionalOnMissingClass("org.springframework.test.context.junit4.SpringJUnit4ClassRunner")
 public class DatasourceConfig {
 	
 	private static final String MYSQL_PREFIX = "mysql.";

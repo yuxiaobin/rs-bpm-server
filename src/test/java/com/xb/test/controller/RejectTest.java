@@ -11,7 +11,6 @@ import org.mockito.internal.matchers.NotNull;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -22,9 +21,9 @@ import com.xb.MyWorkflowApp;
 @RunWith(SpringJUnit4ClassRunner.class)   // 1
 @SpringApplicationConfiguration(classes = MyWorkflowApp.class)   // 2
 @WebIntegrationTest("server.port:0")   // 4: random port
-public class RecallForwardTest extends TestBase{
+public class RejectTest extends TestBase{
 	
-	private static final String refMkid = "ju-recall-forward";
+	private static final String refMkid = "ju-reject";
 	
 	@Override
 	public String getRefMkid() {
@@ -58,10 +57,25 @@ public class RecallForwardTest extends TestBase{
         ;
 		testGetNextTask4Commit();
 		testCommit();
-		testGetNextTask4Commit2();
-		testCommit2Tx2();
-		forwardTask();
-		testRecallFromTx2_2_tx2();
+		testGetNextTask4Reject();
+		testReject();
+	}
+	
+	public void testReject(){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", "staff1");
+		parm.put("gnmkId", refMkid);
+		parm.put("comments", "junitTest: staff1 reject");
+		parm.put("nextTaskId", nextTaskId4Commit);
+		parm.put("nextUserIds", "staff2");
+		parm.put("optCode", "RJ");
+		parm.put("wfInstNum", instNum);
+		parm.put("currTaskId", currTaskId);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/operate")
+        .then()
+        .body("return_code",  new Equals(0));
 	}
 	
 	public void testGetNextTask4Commit(){
@@ -81,26 +95,6 @@ public class RecallForwardTest extends TestBase{
 				nextTaskId4Commit = records.getJSONObject(0).getString("taskId");
 				System.out.println("testGetNextTask4Commit():\t nextTaskId4Commit is "+nextTaskId4Commit);
 				return NotNull.NOT_NULL;
-			}
-		})
-        ;
-	}
-	
-	public void testRecallFromTx2_2_tx2(){
-		JSONObject parm = new JSONObject();
-		parm.put("userId", "manager1");
-		parm.put("gnmkId", refMkid);
-		parm.put("wfInstNum", instNum);
-		parm.put("optCode", "RC");
-		parm.put("comments", "junitTest: manager1 recall forward");
-		given().contentType("application/json")
-        .request().body(parm.toJSONString())
-        .when().post("/wfapi/operate")
-        .then()
-        .body("return_code", new ResponseAwareMatcher<Response>() {
-			@Override
-			public Matcher<?> matcher(Response response) throws Exception {
-				return new Equals(0);
 			}
 		})
         ;
@@ -126,15 +120,14 @@ public class RecallForwardTest extends TestBase{
 				currTaskId = nextTaskId4Commit;
 				return new Equals(0);
 			}
-		})
-        ;
+		});
 	}
 	
-	public void testGetNextTask4Commit2(){
+	public void testGetNextTask4Reject(){
 		JSONObject parm = new JSONObject();
 		parm.put("wfInstNum", instNum);
 		parm.put("gnmkId", refMkid);
-		parm.put("optCode", "C");
+		parm.put("optCode", "RJ");
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfapi/tasks")
@@ -148,52 +141,6 @@ public class RecallForwardTest extends TestBase{
 				nextTaskId4Commit = records.getJSONObject(0).getString("taskId");
 				System.out.println("testGetNextTask4Commit():\t nextTaskId4Commit is "+nextTaskId4Commit);
 				return NotNull.NOT_NULL;
-			}
-		})
-        ;
-	}
-	public void testCommit2Tx2(){
-		JSONObject parm = new JSONObject();
-		parm.put("userId", "staff1");
-		parm.put("gnmkId", refMkid);
-		parm.put("comments", "junitTest: staff1 commit");
-		parm.put("nextTaskId", nextTaskId4Commit);
-		parm.put("nextUserIds", "manager1");
-		parm.put("optCode", "C");
-		parm.put("wfInstNum", instNum);
-		parm.put("currTaskId", currTaskId);
-		given().contentType("application/json")
-        .request().body(parm.toJSONString())
-        .when().post("/wfapi/operate")
-        .then()
-        .body("return_code", new ResponseAwareMatcher<Response>() {
-			@Override
-			public Matcher<?> matcher(Response response) throws Exception {
-				currTaskId = nextTaskId4Commit;
-				return new Equals(0);
-			}
-		})
-        ;
-	}
-	
-	public void forwardTask(){
-		JSONObject parm = new JSONObject();
-		parm.put("userId", "manager1");
-		parm.put("gnmkId", refMkid);
-		parm.put("comments", "junitTest: manager1 forward to manager2");
-		parm.put("nextTaskId", currTaskId);
-		parm.put("nextUserIds", "manager2");
-		parm.put("optCode", "F");
-		parm.put("wfInstNum", instNum);
-		parm.put("currTaskId", currTaskId);
-		given().contentType("application/json")
-        .request().body(parm.toJSONString())
-        .when().post("/wfapi/operate")
-        .then()
-        .body("return_code", new ResponseAwareMatcher<Response>() {
-			@Override
-			public Matcher<?> matcher(Response response) throws Exception {
-				return new Equals(0);
 			}
 		})
         ;
