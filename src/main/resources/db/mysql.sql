@@ -68,6 +68,18 @@ CREATE TABLE IF NOT EXISTS `tbl_user2group` (
 -- 数据导出被取消选择。
 
 
+-- 导出  表 mybatis-plus.user 结构
+CREATE TABLE IF NOT EXISTS `user` (
+  `test_id` int(10) NOT NULL DEFAULT '0',
+  `test_type` int(3) DEFAULT NULL,
+  `name` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `age` int(2) DEFAULT NULL,
+  PRIMARY KEY (`test_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 数据导出被取消选择。
+
+
 -- 导出  表 mybatis-plus.wf_awt 结构
 CREATE TABLE IF NOT EXISTS `wf_awt` (
   `wf_awt_id` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -80,6 +92,8 @@ CREATE TABLE IF NOT EXISTS `wf_awt` (
   `awt_alarm` datetime DEFAULT NULL,
   `awt_title` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `awt_summary` varchar(100) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_PRE` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `OPT_USERS_PRE` varchar(500) COLLATE utf8_bin DEFAULT NULL,
   `complete_flag` varchar(1) COLLATE utf8_bin DEFAULT NULL,
   `CREATED_BY` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `CREATED_DT` datetime DEFAULT NULL,
@@ -116,6 +130,9 @@ CREATE TABLE IF NOT EXISTS `wf_instance` (
   `INST_NUM` int(10) NOT NULL,
   `REF_MKID` varchar(50) COLLATE utf8_bin NOT NULL,
   `CURR_ASSIGNERS` varchar(500) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_CURR` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_PRE` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `OPT_USERS_PRE` varchar(500) COLLATE utf8_bin DEFAULT NULL,
   `CREATED_BY` varchar(50) COLLATE utf8_bin NOT NULL,
   `CREATED_DT` datetime NOT NULL,
   `UPDATED_BY` varchar(50) COLLATE utf8_bin DEFAULT NULL,
