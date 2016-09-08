@@ -4,12 +4,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -20,7 +22,7 @@ import com.baomidou.mybatisplus.toolkit.CUBaseTO;
 @Component
 public class MyAop {
 
-	private Logger logger = Logger.getLogger(getClass());
+	private Logger logger = LogManager.getLogger(getClass());
 
 //	@Pointcut("execution(* *Service*.insert(..))")
 	/*@Pointcut("execution(public * com.xb.service..*.*(..))")
@@ -55,6 +57,17 @@ public class MyAop {
 
 	@Before("embeddedPt()")
 	public void doBeforeModify(JoinPoint joinPoint) throws Throwable {
+		RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+		if(attrs==null){
+			CUBaseTO baseTO = ServiceImpl.threadLocal.get();
+			if(baseTO==null){
+				baseTO = new CUBaseTO();
+			}
+			baseTO.setCreatedBy("mockup");
+			baseTO.setUpdatedBy("mockup");
+			ServiceImpl.threadLocal.set(baseTO);
+			return;
+		}
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		@SuppressWarnings("unchecked")
 		Map<String,Object> userinfo = (Map<String, Object>) request.getSession().getAttribute("USERINFO");

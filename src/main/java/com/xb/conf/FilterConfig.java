@@ -20,14 +20,14 @@ public class FilterConfig {
 		return filterRegistrationBean;
 	}
 	
-	@Bean
+	/*@Bean
 	public FilterRegistrationBean crossFilterBean() {
 		
 		FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
 		filterRegistrationBean.setFilter(new CorsFilter());
 		filterRegistrationBean.addUrlPatterns("/wfapi/**");
 		return filterRegistrationBean;
-	}
+	}*/
 	
 	
 	

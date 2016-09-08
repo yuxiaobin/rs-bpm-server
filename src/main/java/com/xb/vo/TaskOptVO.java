@@ -14,7 +14,7 @@ public class TaskOptVO {
 	
 	/**********以上为处理事务时必填字段*************/
 	
-	private String currTaskId;//撤回操作时，必须加上
+//	private String currTaskId;//撤回操作时，不用指定，通过instNum+gnmkId+currUserId -> history ->找最后一条@0908
 	private String prevInstHistId;
 	private String currUserId;
 	private boolean nextEndTaskFlag;
@@ -28,12 +28,6 @@ public class TaskOptVO {
 		this.wfId = wfId;
 	}
 	
-	public String getCurrTaskId() {
-		return currTaskId;
-	}
-	public void setCurrTaskId(String currTaskId) {
-		this.currTaskId = currTaskId;
-	}
 	public String getCurrUserId() {
 		return currUserId;
 	}

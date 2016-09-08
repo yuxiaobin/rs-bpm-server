@@ -17,6 +17,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
+import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
@@ -39,7 +40,10 @@ public class WFApiController extends BaseController {
 	private static final int STATUS_CODE_SUCC = WFConstants.ApiParams.STATUS_CODE_SUCC;
 	private static final int STATUS_CODE_FAIL = WFConstants.ApiParams.STATUS_CODE_FAIL;
 	private static final int STATUS_CODE_INVALID = WFConstants.ApiParams.STATUS_CODE_INVALID;
+	private static final int STATUS_CODE_OPT_NOT_ALLOW = WFConstants.ApiParams.STATUS_CODE_OPT_NOT_ALLOW;
 	private static final int STATUS_CODE_NO_RECORD = WFConstants.ApiParams.STATUS_CODE_NO_RECORD;
+	
+	private static final String STATUS_MSG_OPT_NOT_ALLOW = WFConstants.ApiParams.STATUS_MSG_OPT_NOT_ALLOW;
 	
 	private static final String RETURN_CODE = WFConstants.ApiParams.RETURN_CODE;
 	private static final String RETURN_MSG = WFConstants.ApiParams.RETURN_MSG;
@@ -351,7 +355,11 @@ public class WFApiController extends BaseController {
 	}
 	
 	
-	//post operate
+	/**
+	 * API for Operate Task
+	 * @param parm
+	 * @return
+	 */
 	@RequestMapping(value="/operate",method=RequestMethod.POST )
 	@ResponseBody
 	public Object doOperate(@RequestBody JSONObject parm){
@@ -359,9 +367,6 @@ public class WFApiController extends BaseController {
 		String gnmkId = parm.getString("gnmkId");
 		String wfInstNumStr = parm.getString("wfInstNum");
 		String optCode = parm.getString("optCode");
-		String nextUserIds = parm.getString("nextUserIds");
-		String nextTaskId = parm.getString("nextTaskId");
-		String comments = parm.getString("comments");
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(userId) || StringUtils.isEmpty(gnmkId)
 				|| StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode)){
@@ -375,35 +380,28 @@ public class WFApiController extends BaseController {
 		if(!validateInstNumAndOptCode(result, wfInstNumStr,optCode)){
 			return result;
 		}
-		Integer instNum = Integer.parseInt(wfInstNumStr);
 		TaskOptVO optVO = new TaskOptVO();
-		optVO.setComments(comments);
 		optVO.setCurrUserId(userId);
 		optVO.setGnmkId(gnmkId);
-		optVO.setInstNum(instNum);
-		optVO.setNextAssigners(nextUserIds);
-		optVO.setNextTaskId(nextTaskId);
+		optVO.setInstNum(Integer.parseInt(wfInstNumStr));
 		optVO.setOptCode(optCode);
-		optVO.setCurrTaskId(parm.getString("currTaskId"));
+		optVO.setNextAssigners(parm.getString("nextUserIds"));
+		optVO.setNextTaskId(parm.getString("nextTaskId"));
+		optVO.setComments(parm.getString("comments"));
 		
 		try{
 			if(!wfApiService.validateOperate(optVO, result)){
 				return result;
 			}
-			RsWorkflow wfparm = new RsWorkflow();
-			wfparm.setGnmkId(gnmkId);
-			RsWorkflow wf = rsWfService.selectOne(wfparm);
-			if(wf==null){
-				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "no record found for gnmkId="+gnmkId);
-				return result;
-			}
-			optVO.setRsWfId(wf.getRsWfId());
-			optVO.setCurrUserId(userId);
 			taskService.processTask(optVO, userId);
 			result.put(RETURN_CODE, STATUS_CODE_SUCC);
 			result.put(RETURN_MSG, "Succ");
 			return result;
+		}
+		catch(BusinessException e){
+			log.error("doOperate : parm="+parm, e);
+			result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+			result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
 		}
 		catch(Exception e){
 			log.error("doOperate : parm="+parm, e);

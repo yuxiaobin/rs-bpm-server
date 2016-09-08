@@ -141,15 +141,10 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		optVO.setCurrUserId(currUserId);
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
-			System.err.println("cannot get awt record for optVO="+optVO);
 			log.error("processTask(): cannot get awt record for optVO="+optVO);
-			return false;
+			throw new BusinessException("OPERATE-ERROR","cannot find awt for optVO="+optVO);
 		}
 		WfTask currtask = this.selectById(awt.getTaskIdCurr());
-		/*
-		if(optVO.getNextTaskId()!=null){
-			nextTask = this.selectById(optVO.getNextTaskId());
-		}*/
 		WfTask nextTask = null;
 		String optCode = optVO.getOptCode();
 		switch (optCode) {

@@ -8,8 +8,12 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.common.WFConstants;
+import com.xb.persistent.WfInstHist;
+import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.service.IWfApiService;
+import com.xb.service.IWfInstHistService;
+import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskAssignService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskOptVO;
@@ -20,12 +24,18 @@ public class WfApiServiceImpl implements IWfApiService {
 	private static final int STATUS_CODE_SUCC = WFConstants.ApiParams.STATUS_CODE_SUCC;
 //	private static final int STATUS_CODE_FAIL = WFConstants.ApiParams.STATUS_CODE_FAIL;
 	private static final int STATUS_CODE_INVALID = WFConstants.ApiParams.STATUS_CODE_INVALID;
+	private static final int STATUS_CODE_OPT_NOT_ALLOW = WFConstants.ApiParams.STATUS_CODE_OPT_NOT_ALLOW;
+	private static final String STATUS_MSG_OPT_NOT_ALLOW = WFConstants.ApiParams.STATUS_MSG_OPT_NOT_ALLOW;
 	
 	private static final String RETURN_CODE = WFConstants.ApiParams.RETURN_CODE;
 	private static final String RETURN_MSG = WFConstants.ApiParams.RETURN_MSG;
 	
 	@Autowired
 	IWfTaskService taskService;
+	@Autowired
+	IWfInstHistService histService;
+	@Autowired
+	IWfInstanceService instService;
 	@Autowired
 	IWfTaskAssignService taskAssignService;
 	
@@ -58,16 +68,37 @@ public class WfApiServiceImpl implements IWfApiService {
 				return true;
 			}
 		}
-		WfTask task = null;//TODO:
+		WfInstance instParm = new WfInstance();
+		instParm.setInstNum(optVO.getInstNum());
+		instParm.setRefMkid(optVO.getGnmkId());
+		WfInstance inst = instService.selectOne(instParm);
+		if(inst==null){
+			result.put(RETURN_CODE, STATUS_CODE_INVALID);
+			result.put(RETURN_MSG, "invalid parameter");
+			return false;
+		}
+		optVO.setRsWfId(inst.getRsWfId());
+		
+		WfTask task = null;
 		if(WFConstants.OptTypes.RECALL.equals(optCode)){
-			task = taskService.selectById(optVO.getCurrTaskId());
+//			task = taskService.selectById(optVO.getCurrTaskId());//recall: no need current taskId
+			WfInstHist parm = new WfInstHist();
+			parm.setOptUser(optVO.getCurrUserId());
+			parm.setInstId(inst.getInstId());
+			List<WfInstHist> hist4CurrUser = histService.selectList(parm, "OPT_SEQ DESC");
+			if(hist4CurrUser==null || hist4CurrUser.isEmpty()){
+				result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+				result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
+				return false;
+			}
+			task = taskService.selectById(hist4CurrUser.get(0).getTaskId());
 		}else{
 			task = taskService.selectById(optVO.getNextTaskId());
 		}
 		
 		if(task==null){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
-			result.put(RETURN_MSG, "invalid taskId");
+			result.put(RETURN_MSG, "invalid taskId:"+optVO.getNextTaskId());
 			return false;
 		}
 		String taskTypeCode = task.getTaskType();
@@ -127,8 +158,8 @@ public class WfApiServiceImpl implements IWfApiService {
 				signWhenGoBack = txChoices.getBoolean("SignWhenGoBack");
 			}
 			if(allowGoBack==null || !allowGoBack){
-				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "不允许退回");
+				result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+				result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
 				return false;
 			}
 			if(signWhenGoBack!=null && signWhenGoBack && StringUtils.isEmpty(comments)){
@@ -142,13 +173,7 @@ public class WfApiServiceImpl implements IWfApiService {
 				return false;
 			}
 			break;
-		/*case WFConstants.OptTypes.FORWARD://NO need 
-			if(isNextAssignerEmpty){
-				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "转交必须指定处理人");
-				return false;
-			}
-			break;*/
+		/*case WFConstants.OptTypes.FORWARD://did this validation above*/
 		case WFConstants.OptTypes.RECALL:
 			Boolean allowReCall = null;
 			Boolean signWhenReCall = null;
@@ -156,8 +181,8 @@ public class WfApiServiceImpl implements IWfApiService {
 				allowReCall = txChoices.getBoolean("AllowReCall");
 				signWhenReCall = txChoices.getBoolean("SignWhenReCall");
 				if(allowReCall==null || !allowReCall){
-					result.put(RETURN_CODE, STATUS_CODE_INVALID);
-					result.put(RETURN_MSG, "Not Allow to Recall(optCode="+optCode+")");
+					result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+					result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
 					return false;
 				}
 				if(signWhenReCall!=null && signWhenReCall && StringUtils.isEmpty(comments)){
@@ -175,8 +200,8 @@ public class WfApiServiceImpl implements IWfApiService {
 				signWhenVeto = txChoices.getBoolean("SignWhenVeto");
 			}
 			if(allowVeto==null || !allowVeto){
-				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "Not Allow to Veto(optCode="+optCode+")");
+				result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+				result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
 				return false;
 			}
 			if(signWhenVeto!=null && signWhenVeto && StringUtils.isEmpty(comments)){

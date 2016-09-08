@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.generator.ConfigIdType;
 
 public class MybatisPlusGenerator {
 	
-	public static void main23( String[] args ) {
+	public static void main( String[] args ) {
 		ConfigGenerator cg = getConfigGenerator();
 		/* 此处设置 String 类型数据库ID，默认Long类型 */
 		cg.setConfigIdType(ConfigIdType.STRING);
@@ -87,7 +87,7 @@ public class MybatisPlusGenerator {
          */
         cg.setFileOverride(true);
         
-        String[] tableNames = {"wf_awt"};
+        String[] tableNames = {"wf_instance"};
 //        String[] tableNames = {"rs_module","rs_workflow","wf_def","wf_task",
 //        		"wf_task_conn","wf_group","wf_instance","wf_inst_hist"};
         cg.setTableNames(tableNames);

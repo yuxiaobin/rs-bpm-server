@@ -47,12 +47,12 @@ public class TestRecallForward {
 	public void setup(){
 		userService.deleteJunitData(refMkid);
 		RestAssured.port = port;
-		final String bodyString = "{\"gnmkId\": \"junitTest\"}";
-        given().
+//		final String bodyString = "{\"gnmkId\": \""+refMkid+"\"}";
+        /*given().
         contentType("application/json")
         .request().body(bodyString)
         .when()
-        .post("/wfadmin/module");
+        .post("/wfadmin/module");*/
 	}
 	
 	@Test
@@ -116,7 +116,6 @@ public class TestRecallForward {
 		parm.put("gnmkId", refMkid);
 		parm.put("wfInstNum", instNum);
 		parm.put("optCode", "RC");
-		parm.put("currTaskId", currTaskId);
 		parm.put("comments", "junitTest: manager1 recall forward");
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
