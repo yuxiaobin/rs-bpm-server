@@ -107,6 +107,8 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					}
 				}
 			}
+		}else{
+			wfInst.setOptUsersPre(currUserId+",");
 		}
 		return true;
 	}
@@ -117,7 +119,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	
 	/**
 	 * 撤回操作：优先取awt.optUserPrev=currUserId, 
-	 * 		如果存在：
+	 * 		如果存在：																						//简单事物，上一步就是该用户做的操作
 	 * 				判断awt.taskIdPrev是否为null：
 	 * 						为null表示已经撤回过，无法再执行撤回操作<END>；
 	 * 						不为null，判断awt.taskIdPrev是否与awt.currTaskId相同，
@@ -128,7 +130,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	 * 						如果没有：直接抛异常，无法撤回<END>;
 	 * 						如果有：判断prevTask是否可撤回： 
 	 * 								不可->抛异常<END>;
-	 * 								可->撤回：新建awt(设置taskIdPrev=null), 更新inst.optdUsersPrev:剔除currUserId,删除currTaskId的awt<END>; 
+	 * 								可->撤回：新建awt(设置taskIdPrev=null), 更新inst.optdUsersPrev:剔除currUserId & 更新prevTaskId,删除currTaskId的awt<END>; 
 	 * 	
 	 * @param instId
 	 * @param currUserId
@@ -156,8 +158,9 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				}else{
 					awtParm.setOptUsersPre(null);
 					this.deleteSelective(awtParm);
-					awt.setWfAwtId(null);;//新建一条awt
-					awt.setTaskIdCurr(inst.getTaskIdCurr());
+					
+					awt.setWfAwtId(null);//新建一条awt
+					awt.setTaskIdCurr(inst.getTaskIdPre());
 					awt.setAssignerId(currUserId);
 					awt.setOptUsersPre(currUserId);
 					awt.setTaskIdPre(null);
@@ -165,7 +168,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					awt.setAwtBegin(beginDate);
 					awt.setAwtEnd(calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit()));
 					awt.setAwtAlarm(nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime()));
-					removeUserFromOptUserPrev(inst, currUserId);
+					removeUserFromOptUserPrev(inst, currUserId, inst.getTaskIdPre(), true);
 				}
 			}
 			else{
@@ -194,6 +197,14 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					log.error("renewRecall(): preTask setting AllowReCall is null or false, recall is not allowed");
 					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
 				}
+				boolean refreshCurrAssigner = false;
+				if(!prevTaskId.equals(currTaskId)){//相等的情况，只有会签撤回
+					awtParm.setOptUsersPre(null);
+					awtParm.setTaskIdCurr(currTaskId);
+					this.deleteSelective(awtParm);
+					refreshCurrAssigner = true;
+				}
+				
 				awt = new WfAwt();//新建一条awt
 				awt.setTaskIdCurr(prevTaskId);
 				awt.setInstId(instId);
@@ -204,14 +215,9 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				awt.setAwtBegin(beginDate);
 				awt.setAwtEnd(calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit()));
 				awt.setAwtAlarm(nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime()));
-				
 				this.insert(awt);
 				
-				WfAwt delAwt = new WfAwt();
-				delAwt.setInstId(instId);
-				delAwt.setTaskIdCurr(currTaskId);
-				this.deleteSelective(delAwt);
-				removeUserFromOptUserPrev(inst, currUserId);
+				removeUserFromOptUserPrev(inst, currUserId, prevTaskId, refreshCurrAssigner);
 			}
 			return false;
 		}
@@ -260,7 +266,14 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			log.error("renew4Forward(): no awt found for instId="+wfInst.getInstId()+", currUserid="+currUserId);
 			return false;
 		}
-		removeUserFromOptUserPrev(wfInst, currUserId);
+//		removeUserFromOptUserPrev(wfInst, currUserId, null);
+		String currAssigners = wfInst.getCurrAssigners();
+		wfInst.setCurrAssigners(currAssigners.replace(currUserId+",", optVO.getNextAssigners()+","));
+		String optdUsers = wfInst.getOptUsersPre();
+		if(optdUsers!=null && optdUsers.contains(currUserId)){
+			wfInst.setOptUsersPre(optdUsers.replace(currUserId+",", ""));
+		}
+		instService.updateById(wfInst);
 		
 		awt.setAssignerId(optVO.getNextAssigners());
 		awt.setOptUsersPre(currUserId);
@@ -269,12 +282,19 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		return false;
 	}
 	
-	private void removeUserFromOptUserPrev(WfInstance wfInst, String currUserId){
+	private void removeUserFromOptUserPrev(WfInstance wfInst, String currUserId, String currTaskId, boolean refreshCurrAssigners){
 		String optdUsers = wfInst.getOptUsersPre();
 		if(optdUsers!=null && optdUsers.contains(currUserId)){
 			wfInst.setOptUsersPre(optdUsers.replace(currUserId+",", ""));
 		}
-		wfInst.setCurrAssigners(currUserId);
+		String currAssigners = wfInst.getCurrAssigners();
+		if(currAssigners==null || refreshCurrAssigners){
+			currAssigners = currUserId+",";
+		}else{
+			currAssigners+=currUserId;
+		}
+		wfInst.setCurrAssigners(currAssigners);
+		wfInst.setTaskIdCurr(currTaskId);
 		instService.updateById(wfInst);
 	}
 	

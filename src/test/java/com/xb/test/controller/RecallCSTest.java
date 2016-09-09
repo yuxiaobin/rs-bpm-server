@@ -11,9 +11,9 @@ import com.xb.MyWorkflowApp;
 @RunWith(SpringJUnit4ClassRunner.class)   // 1
 @SpringApplicationConfiguration(classes = MyWorkflowApp.class)   // 2
 @WebIntegrationTest("server.port:0")   // 4: random port
-public class RecallNormalNextCommittedTest extends TestBase4Normal{
+public class RecallCSTest extends TestBase4CS{
 	
-	private static final String refMkid = "ju-recall-next-committed";
+	private static final String refMkid = "ju-recall-cs-simple-2-2";
 	
 	@Override
 	public String getRefMkid() {
@@ -21,11 +21,15 @@ public class RecallNormalNextCommittedTest extends TestBase4Normal{
 	}
 	
 	@Test
-	public void testNormalTxCommit_Commit_Recall(){
+	public void testCSRecall(){
 		startWf();
+		//CS commit
 		commitTask("staff1", "manager1");
-		commitTask("manager1", "");
-		recallFail("staff1");
+		commitTask("staff2", "manager1");
+		recallSuccess("staff1");
+		recallSuccess("staff2");
+		commitTask("staff1", "manager1");
+		commitTask("staff2", "manager1");
 	}
 	
 }

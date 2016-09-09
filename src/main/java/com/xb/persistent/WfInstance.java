@@ -46,10 +46,15 @@ public class WfInstance extends CUBaseTO implements Serializable {
 	@TableField(value = "CURR_ASSIGNERS")
 	private String currAssigners;
 	
+	/**
+	 * 该字段始终保持当前pending的taskID
+	 */
 	@TableField(value = "TASK_ID_CURR")
 	private String taskIdCurr;
 	
-	
+	/**
+	 * 该字段recall时不更新，为了会签事物其他人还能找到撤回的task
+	 */
 	@TableField(value = "TASK_ID_PRE")
 	private String taskIdPre;
 	

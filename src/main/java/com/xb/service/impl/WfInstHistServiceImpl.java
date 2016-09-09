@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.framework.service.impl.CommonServiceImpl;
+import com.xb.common.WFConstants;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
@@ -96,7 +97,7 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 			hist.setOptType(optVO.getOptCode());
 			hist.setTaskId(awt.getTaskIdCurr());
 			hist.setWfId(optVO.getWfId());
-			if(awt.getTaskOwner()!=null){
+			if(awt.getTaskOwner()!=null && WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
 				hist.setTaskOwner(awt.getTaskOwner());
 			}else{
 				if(prefHist!=null){

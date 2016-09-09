@@ -2,22 +2,23 @@ package com.xb.test.controller;
 
 import static com.jayway.restassured.RestAssured.given;
 
+import org.apache.logging.log4j.LogManager;
 import org.hamcrest.Matcher;
 import org.junit.After;
-import org.junit.Before;
 import org.mockito.internal.matchers.Equals;
+import org.mockito.internal.matchers.GreaterThan;
 import org.mockito.internal.matchers.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.response.Response;
 import com.xb.service.ITblUserService;
 
 public abstract class TestBase {
+	org.apache.logging.log4j.Logger log = LogManager.getLogger(TestBase.class);
 	
 	@Autowired
 	ITblUserService userService;
@@ -35,36 +36,183 @@ public abstract class TestBase {
 		userService.deleteJunitData(getRefMkid());
 	}
 	
-	@Before
-	public void initMethod(){
-		deleteTest();
-		RestAssured.port = port;
-		//create workflow
+	/**
+	 * Common method
+	 */
+	public void startWf(){
 		JSONObject parm = new JSONObject();
+		parm.put("userId", "staff1");
 		parm.put("gnmkId", getRefMkid());
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
-        .when().post("/wfadmin/module")
+        .when().post("/wfapi/start")
         .then()
-        .body("rsWfId", new ResponseAwareMatcher<Response>() {
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				return new Equals(0);
+			}
+		})
+        .body("wf_inst_num", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
 				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
-				rsWfId = json.getString("rsWfId");
-				return NotNull.NOT_NULL;
+				instNum = json.getInteger("wf_inst_num");
+				currTaskId = json.getString("curr_task_id");
+				return new GreaterThan<Integer>(0);
 			}
 		});
-		
-		JSONObject createFLow = JSONObject.parseObject("{\"tasks\":[{\"id\":\"start-task\",\"rsType\":\"start-task\",\"descpDisp\":\"开始"+getRefMkid()+"\",\"assigners\":[],\"position\":{\"top\":63,\"left\":366},\"txCode\":\"0000\",\"txType\":\"B\",\"buzStatus\":\"I\",\"timeLimit\":null,\"timeLimitTp\":\"H\",\"alarmTime\":null,\"alarmTimeTp\":\"H\",\"taskDescp\":\"\",\"taskDescpDisp\":\"开始ju-recall-next-committed\",\"TX_CHOICES\":{\"AllowEdit\":true,\"AllowDelete\":true,\"SignWhenGoBack\":false,\"SignWhenReCall\":false,\"SignWhenVeto\":false},\"TX_PR_CHOICES\":{},\"TX_BK_CHOICES\":{\"GoBackToPrevious\":true},\"SIGN_CHOICES\":{\"AllHandledThenGo\":true}},{\"id\":\"jsPlumb_2_1\",\"rsType\":\"end-task\",\"descpDisp\":\"结束\",\"assigners\":[],\"position\":{\"top\":371,\"left\":360},\"txCode\":\"9999\",\"txType\":\"E\",\"buzStatus\":\"C\",\"timeLimit\":null,\"timeLimitTp\":\"H\",\"alarmTime\":null,\"alarmTimeTp\":\"H\",\"taskDescpDisp\":\"结束\",\"TX_CHOICES\":{\"AllowEdit\":false,\"AllowDelete\":false},\"TX_PR_CHOICES\":{},\"TX_BK_CHOICES\":{\"GoBackToPrevious\":true},\"SIGN_CHOICES\":{\"AllHandledThenGo\":true}},{\"id\":\"1473303575745\",\"rsType\":\"user-task\",\"descpDisp\":\"事务1\",\"assigners\":[],\"position\":{\"top\":167,\"left\":219},\"txCode\":\"001\",\"txType\":\"S\",\"buzStatus\":\"I\",\"timeLimit\":24,\"timeLimitTp\":\"H\",\"alarmTime\":null,\"alarmTimeTp\":\"H\",\"taskDescp\":\"\",\"taskDescpDisp\":\"事务1\",\"TX_CHOICES\":{\"AllowGoBack\":true,\"SignWhenGoBack\":true,\"AllowVeto\":true,\"SignWhenVeto\":true,\"SignWhenReCall\":true,\"AllowReCall\":true},\"TX_PR_CHOICES\":{\"NoticeElseAfterGo\":false},\"TX_BK_CHOICES\":{\"GoBackToPrevious\":true},\"SIGN_CHOICES\":{\"AllHandledThenGo\":false,\"AtLeastHandled\":1,\"PartHandledThenGo\":false}},{\"id\":\"1473303577816\",\"rsType\":\"user-task\",\"descpDisp\":\"事务2\",\"assigners\":[],\"position\":{\"top\":239,\"left\":473},\"txCode\":\"002\",\"txType\":\"S\",\"buzStatus\":\"I\",\"timeLimit\":24,\"timeLimitTp\":\"H\",\"alarmTime\":null,\"alarmTimeTp\":\"H\",\"taskDescp\":\"\",\"taskDescpDisp\":\"事务2\",\"TX_CHOICES\":{\"AllowGoBack\":true,\"SignWhenGoBack\":true,\"AllowVeto\":true,\"SignWhenVeto\":true,\"SignWhenReCall\":true,\"AllowReCall\":true},\"TX_PR_CHOICES\":{\"NoticeElseAfterGo\":false},\"TX_BK_CHOICES\":{\"GoBackToPrevious\":true},\"SIGN_CHOICES\":{\"AllHandledThenGo\":false,\"AtLeastHandled\":1,\"PartHandledThenGo\":false}}],\"conns\":[{\"con_id\":\"con_7\",\"con_descp\":\"Next\",\"con_value\":\"\",\"source_id\":\"start-task\",\"target_id\":\"1473303575745\"},{\"con_id\":\"con_19\",\"con_descp\":\"Next\",\"con_value\":\"\",\"source_id\":\"1473303575745\",\"target_id\":\"1473303577816\"},{\"con_id\":\"con_31\",\"con_descp\":\"Next\",\"con_value\":\"\",\"source_id\":\"1473303577816\",\"target_id\":\"jsPlumb_2_1\"}]}");
-		given().contentType("application/json")
-        .request().body(createFLow.toJSONString())
-        .when().post("/wfadmin/module/"+rsWfId+"/wf")
-        .then()
-        .body("return_code", new Equals(0));
+		getNextTask4Commit();
+		commitTask("staff1", "staff1,staff2,staff3");//From start task committed to first task.
+	}
+	/**
+	 * Common method
+	 */
+	private void getNextTask4Commit(){
+		getNextTask("C");
+	}
+	private void getNextTask4Reject(){
+		getNextTask("RJ");
 	}
 	
-	@Transactional
-	@After
+	private void getNextTask(String optCode){
+		JSONObject parm = new JSONObject();
+		parm.put("wfInstNum", instNum);
+		parm.put("gnmkId", getRefMkid());
+		parm.put("optCode", optCode);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/tasks")
+        .then()
+        .body("records", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
+				JSONArray records = json.getJSONArray("records");
+				nextTaskId4Commit = records.getJSONObject(0).getString("taskId");
+				System.out.println("testGetNextTask4Commit():\t nextTaskId4Commit is "+nextTaskId4Commit);
+				return NotNull.NOT_NULL;
+			}
+		}) ;
+	}
+	
+	/**
+	 * Common method
+	 * @param committer
+	 * @param nextAssignerIds
+	 */
+	public void commitTask(String committer, String nextAssignerIds){
+		commitTask(committer, nextAssignerIds, true);
+	}
+	
+	public void commitTask(String committer, String nextAssignerIds, boolean needGetNextTaskFlag){
+		if(needGetNextTaskFlag){
+			getNextTask4Commit();
+		}
+		JSONObject parm = new JSONObject();
+		parm.put("userId", committer);
+		parm.put("gnmkId", getRefMkid());
+		parm.put("comments", "junitTest: "+committer+" commit");
+		parm.put("nextTaskId", nextTaskId4Commit);
+		parm.put("nextUserIds", nextAssignerIds);
+		parm.put("optCode", "C");
+		parm.put("wfInstNum", instNum);
+		parm.put("currTaskId", currTaskId);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/operate")
+        .then()
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				currTaskId = nextTaskId4Commit;
+				return new Equals(0);
+			}
+		});
+	}
+	
+	public void rejectTask(String rejector, String nextAssignerIds){
+		getNextTask4Reject();
+		
+		JSONObject parm = new JSONObject();
+		parm.put("userId", rejector);
+		parm.put("gnmkId", getRefMkid());
+		parm.put("comments", "junitTest: "+rejector+" reject task");
+		parm.put("nextTaskId", nextTaskId4Commit);
+		parm.put("nextUserIds", nextAssignerIds);
+		parm.put("optCode", "RJ");
+		parm.put("wfInstNum", instNum);
+		parm.put("currTaskId", currTaskId);
+		given().contentType("application/json")
+		.request().body(parm.toJSONString())
+		.when().post("/wfapi/operate")
+		.then()
+		.body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				currTaskId = nextTaskId4Commit;
+				return new Equals(0);
+			}
+		});
+	}
+	
+	public void forwardTask(String fromUser, String toUser){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", fromUser);
+		parm.put("gnmkId", getRefMkid());
+		parm.put("comments", "junitTest: from:"+fromUser+" forward to "+toUser);
+		parm.put("nextTaskId", currTaskId);
+		parm.put("nextUserIds", toUser);
+		parm.put("optCode", "F");
+		parm.put("wfInstNum", instNum);
+		parm.put("currTaskId", currTaskId);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/operate")
+        .then()
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				return new Equals(0);
+			}
+		}) ;
+	}
+	
+	public void recallSuccess(String recaller){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", recaller);
+		parm.put("gnmkId", getRefMkid());
+		parm.put("wfInstNum", instNum);
+		parm.put("optCode", "RC");
+		parm.put("comments", "junitTest: "+recaller+" recall");
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/operate")
+        .then()
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				log.info(response.getBody().prettyPrint());
+				return new Equals(0);
+			}
+		});
+	}
+	
+	public void recallFail(String recaller){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", recaller);
+		parm.put("gnmkId", getRefMkid());
+		parm.put("wfInstNum", instNum);
+		parm.put("optCode", "RC");
+		parm.put("comments", "junitTest: "+recaller+" recall");
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/operate")
+        .then()
+        .body("return_code", new Equals(3));
+	}
+	
+//	@After
 	public void destory(){
 		deleteTest();
 	}

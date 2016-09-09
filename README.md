@@ -20,3 +20,16 @@ Spring boot + Mybatis-plus + Mysql
 ##生成war
 mvn install -f pom-war.xml
 
+##一些零散知识点
+1.跨域配置
+MyWebMvcConfigAdapter.java  
+```
+ public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/wfapi/**");//这里可以配置多个规则的URL开启跨域访问
+	}
+```  
+2.Durid使用
+* DatasourceConfig.java
+* 还有在application.properties里加上配置
+* 启用Druid自带监控：FilterConfig.java，ServletConfig.java
+

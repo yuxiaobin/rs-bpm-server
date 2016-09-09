@@ -1,6 +1,7 @@
 package com.xb.persistent.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -17,5 +18,7 @@ public interface WfTaskMapper extends CommonMapper<WfTask> {
 //	public List<TaskVO> getTasksInbox(@Param("userId") String userId, @Param("likeUserId") String likeUserId);
 
 	public List<WfTask> getTaskListWithStatus(@Param("instId") String instId);
+	
+	public List<WfTask> getEndTask4Recall(Map<String, Object> parmMap);
 
 }

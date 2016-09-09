@@ -2,9 +2,11 @@ package com.xb.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.transaction.Transactional;
@@ -140,9 +142,28 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	public boolean processTask(TaskOptVO optVO, String currUserId) throws BusinessException{
 		optVO.setCurrUserId(currUserId);
 		WfAwt awt = getAwtByParm(optVO);
-		if(awt==null){
-			log.error("processTask(): cannot get awt record for optVO="+optVO);
-			throw new BusinessException("OPERATE-ERROR","cannot find awt for optVO="+optVO);
+		if(awt==null || !awt.getAssignerId().equals(currUserId)){
+			//for recall closed workflow, there is no awt.
+			if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
+				WfInstance instParm = new WfInstance();
+				instParm.setRsWfId(optVO.getRsWfId());
+				instParm.setInstNum(optVO.getInstNum());
+				WfInstance inst = instService.selectOne(instParm);
+				if(inst==null){
+					log.error("processTask(): cannot find instance for optVO="+optVO);
+					throw new BusinessException("OPERATE-ERROR","cannot find instance for optVO="+optVO);
+				}
+				awt = new WfAwt();
+				awt.setInstId(inst.getInstId());
+				awt.setTaskIdCurr(inst.getTaskIdCurr());
+				awt.setTaskIdPre(inst.getTaskIdPre());
+				awt.setTaskOwner(currUserId);
+			}else{
+				if(awt==null){
+					log.error("processTask(): cannot get awt record for optVO="+optVO);
+					throw new BusinessException("OPERATE-ERROR","cannot find awt for optVO="+optVO);
+				}
+			}
 		}
 		WfTask currtask = this.selectById(awt.getTaskIdCurr());
 		WfTask nextTask = null;
@@ -419,7 +440,38 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO){
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
-			return null;
+			/**
+			 * Recall: 流程已经提交完毕，没有awt
+			 * 但是END-TASK如果是允许撤回，那就可以撤回，且撤回到上一个
+			 * 所以这里要返回END-TASK
+			 */
+			if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
+				awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
+				if(awt==null){
+					/*Map<String,Object> parmMap = new HashMap<String,Object>();
+					parmMap.put("rsWfId", optVO.getRsWfId());
+					parmMap.put("instNum", optVO.getInstNum());
+					parmMap.put("taskTypeCode", WFConstants.TaskTypes.E.getTypeCode());
+					parmMap.put("recaller", "%"+optVO.getCurrUserId()+"%");
+					List<WfTask> list = baseMapper.getEndTask4Recall(parmMap);
+					if(list==null || list.isEmpty()){
+						return null;
+					}
+					return list.get(0);*/
+					WfInstance instParm = new WfInstance();
+					instParm.setRsWfId(optVO.getRsWfId());
+					instParm.setInstNum(optVO.getInstNum());
+					WfInstance inst = instService.selectOne(instParm);
+					if(inst!=null){
+						return this.selectById(inst.getTaskIdCurr());
+					}else{
+						return null;
+					}
+				}else{
+					//存在不符合撤回条件的awt
+					return null;
+				}
+			}
 		}
 		return this.selectById(awt.getTaskIdCurr());
 	}

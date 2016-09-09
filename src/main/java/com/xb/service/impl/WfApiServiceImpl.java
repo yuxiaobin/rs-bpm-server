@@ -130,6 +130,11 @@ public class WfApiServiceImpl implements IWfApiService {
 			}
 		}
 		WfTask currTask = taskService.getCurrentTaskByRefNum(optVO);
+		if(currTask==null){
+			result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+			result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
+			return false;
+		}
 		JSONObject txChoices = currTask.getTxChoicesJson();
 		JSONObject txPrChoices = currTask.getTxPrChoicesJson();
 		String comments = optVO.getComments();

@@ -1,6 +1,7 @@
 package com.xb.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.persistent.TblUser;
@@ -16,6 +17,7 @@ import com.xb.service.ITblUserService;
 public class TblUserServiceImpl extends CommonServiceImpl<TblUserMapper, TblUser> implements ITblUserService {
 
 	@Override
+	@Transactional
 	public void deleteJunitData(String refMkid) {
 		if(refMkid.startsWith("ju")){
 			baseMapper.deleteUnitResult1(refMkid);
