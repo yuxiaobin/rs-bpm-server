@@ -68,6 +68,11 @@ public class WFApiController extends BaseController {
 	public Object getAwt(@RequestBody JSONObject parm){
 		String userId = parm.getString("userId");
 		JSONObject result = new JSONObject();
+		if(StringUtils.isEmpty(userId)){
+			result.put(RETURN_CODE, STATUS_CODE_INVALID);
+			result.put(RETURN_MSG, "passed in data is empty");
+			return result;
+		}
 		List<WfAwt> list = null;
 		try{
 			list = taskService.getTasksInbox(userId);
@@ -94,7 +99,7 @@ public class WFApiController extends BaseController {
 			//TODO: 目前只拿了上一步处理人,对于会签事务，需要拿所有上一步的处理人@0901
 			record.put("txProcesser", awt.getTaskProcesser());//已处理人 TODO:
 			record.put("txCreater", awt.getInstCreater());//创建人
-			record.put("wfId", awt.getRefMkid());//工作流ID
+			record.put("gnmkId", awt.getRefMkid());//工作流ID
 			record.put("instNum", awt.getInstNum());//实例号
 			records.add(record);
 		}

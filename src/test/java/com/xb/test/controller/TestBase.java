@@ -4,10 +4,13 @@ import static com.jayway.restassured.RestAssured.given;
 
 import org.apache.logging.log4j.LogManager;
 import org.hamcrest.Matcher;
+import org.hamcrest.core.IsCollectionContaining;
+import org.hamcrest.core.IsNot;
 import org.junit.After;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.internal.matchers.GreaterThan;
 import org.mockito.internal.matchers.NotNull;
+import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -210,6 +213,42 @@ public abstract class TestBase {
         .when().post("/wfapi/operate")
         .then()
         .body("return_code", new Equals(3));
+	}
+	
+	public void checkAwt(String currUserId, final int awtCount){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", currUserId);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/awt")
+        .then()
+        .body("records", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
+				JSONArray records = json.getJSONArray("records");
+				if(records==null ){
+					if(awtCount!=0){
+						return NotNull.NOT_NULL;
+					}else{
+						return Null.NULL;
+					}
+				}
+				if(records.size()==0 && awtCount!=0){
+					return Null.NULL;
+				}
+				int count = 0;
+				for(int i=0;i<records.size();++i){
+					if(records.getJSONObject(i).getString("gnmkId").equals(getRefMkid())){
+						count++;
+					}
+				}
+				if(count!=awtCount){
+					return Null.NULL;
+				}
+				return NotNull.NOT_NULL;
+			}
+		});
 	}
 	
 //	@After
