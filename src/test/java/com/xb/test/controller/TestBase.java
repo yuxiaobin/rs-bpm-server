@@ -33,6 +33,13 @@ public abstract class TestBase {
 	
 	public abstract String getRefMkid();
 	
+	final String TEST_STAFF1 = "jtest_staff1";
+	final String TEST_STAFF2 = "jtest_staff2";
+	final String TEST_STAFF3 = "jtest_staff3";
+	final String TEST_MANAGER1 = "jtest_manager1";
+	final String TEST_MANAGER2 = "jtest_manager2";
+	final String TEST_MANAGER3 = "jtest_manager3";
+	
 	public void deleteTest(){
 		userService.deleteJunitData(getRefMkid());
 	}
@@ -42,7 +49,7 @@ public abstract class TestBase {
 	 */
 	public void startWf(){
 		JSONObject parm = new JSONObject();
-		parm.put("userId", "staff1");
+		parm.put("userId", TEST_STAFF1);
 		parm.put("gnmkId", getRefMkid());
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
@@ -64,7 +71,7 @@ public abstract class TestBase {
 			}
 		});
 		getNextTask4Commit();
-		commitTask("staff1", "staff1,staff2,staff3");//From start task committed to first task.
+		commitTask(TEST_STAFF1, TEST_STAFF1+","+TEST_STAFF2+","+TEST_STAFF3);//From start task committed to first task.
 	}
 	/**
 	 * Common method

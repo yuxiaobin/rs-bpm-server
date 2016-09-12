@@ -23,7 +23,7 @@ public class RejectTest extends TestBase4Normal{
 	@Test
 	public void testStartWF(){
 		startWf();
-		rejectTask("staff1", "staff2");
+		rejectTask(TEST_STAFF1, TEST_STAFF2);
 	}
 	
 }

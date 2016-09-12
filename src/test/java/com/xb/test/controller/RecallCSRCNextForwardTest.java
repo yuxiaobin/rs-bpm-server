@@ -24,11 +24,11 @@ public class RecallCSRCNextForwardTest extends TestBase4CS{
 	public void testCSRecall(){
 		startWf();
 		//CS commit
-		commitTask("staff1", "manager1");
-		commitTask("staff2", "manager1");
-		forwardTask("manager1", "manager2");
-		recallSuccess("manager1");
-		checkAwt("manager1", 1);
+		commitTask(TEST_STAFF1, TEST_MANAGER1);
+		commitTask(TEST_STAFF2, TEST_MANAGER1);
+		forwardTask(TEST_MANAGER1, TEST_MANAGER2);
+		recallSuccess(TEST_MANAGER1);
+		checkAwt(TEST_MANAGER1, 1);
 	}
 	
 }

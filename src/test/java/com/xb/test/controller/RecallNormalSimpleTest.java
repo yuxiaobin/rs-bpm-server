@@ -22,10 +22,10 @@ public class RecallNormalSimpleTest extends TestBase4NormalSimple{
 	@Test
 	public void normalTxCommit_Recall(){
 		startWf();
-		forwardTask("staff2","staff3");
+		forwardTask(TEST_STAFF2,TEST_STAFF3);
 		
-		commitTask("staff3", "");
-		recallSuccess("staff3");
+		commitTask(TEST_STAFF3, "");
+		recallSuccess(TEST_STAFF3);
 	}
 	
 }

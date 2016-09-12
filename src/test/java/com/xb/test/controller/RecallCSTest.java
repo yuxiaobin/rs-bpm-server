@@ -24,12 +24,12 @@ public class RecallCSTest extends TestBase4CS{
 	public void testCSRecall(){
 		startWf();
 		//CS commit
-		commitTask("staff1", "manager1");
-		commitTask("staff2", "manager1");
-		recallSuccess("staff1");
-		recallSuccess("staff2");
-		commitTask("staff1", "manager1");
-		commitTask("staff2", "manager1");
+		commitTask(TEST_STAFF1, TEST_MANAGER1);
+		commitTask(TEST_STAFF2, TEST_MANAGER1);
+		recallSuccess(TEST_STAFF1);
+		recallSuccess(TEST_STAFF2);
+		commitTask(TEST_STAFF1, TEST_MANAGER1);
+		commitTask(TEST_STAFF2, TEST_MANAGER1);
 	}
 	
 }

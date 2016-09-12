@@ -23,9 +23,9 @@ public class RecallNormalNextCommittedTest extends TestBase4Normal{
 	@Test
 	public void testNormalTxCommit_Commit_Recall(){
 		startWf();
-		commitTask("staff1", "manager1");
-		commitTask("manager1", "");
-		recallFail("staff1");
+		commitTask(TEST_STAFF1, TEST_MANAGER1);
+		commitTask(TEST_MANAGER1, "");
+		recallFail(TEST_STAFF1);
 	}
 	
 }

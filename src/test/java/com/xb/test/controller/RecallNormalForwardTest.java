@@ -23,9 +23,9 @@ public class RecallNormalForwardTest extends TestBase4Normal{
 	@Test
 	public void testNormalCommit_Forward_RecallCommit(){
 		startWf();
-		commitTask("staff1", "manager1");
-		forwardTask("manager1","manager2");
-		recallSuccess("staff1");
+		commitTask(TEST_STAFF1, TEST_MANAGER1);
+		forwardTask(TEST_MANAGER1,TEST_MANAGER2);
+		recallSuccess(TEST_STAFF1);
 	}
 	
 }

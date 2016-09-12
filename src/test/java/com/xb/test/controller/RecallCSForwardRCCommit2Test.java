@@ -24,26 +24,26 @@ public class RecallCSForwardRCCommit2Test extends TestBase4CS{
 	public void testCSRecall(){
 		startWf();
 		//CS commit
-		commitTask("staff1", "manager1");
-		commitTask("staff2", "manager1");
-		forwardTask("manager1", "manager2");
-		checkAwt("manager1", 0);
-		checkAwt("manager2", 1);
-		checkAwt("staff1", 0);
-		checkAwt("staff2", 0);
-		recallSuccess("staff1");
-		checkAwt("manager1", 0);
-		checkAwt("manager2", 0);
-		checkAwt("staff1", 1);
-		checkAwt("staff2", 0);
-		recallSuccess("staff2");
-		checkAwt("staff2", 1);
-		commitTask("staff1", "manager1");
-		checkAwt("manager1", 0);
-		commitTask("staff2", "manager1");
-		checkAwt("manager1", 1);
-		checkAwt("staff1", 0);
-		checkAwt("staff2", 0);
+		commitTask(TEST_STAFF1, TEST_MANAGER1);
+		commitTask(TEST_STAFF2, TEST_MANAGER1);
+		forwardTask(TEST_MANAGER1, TEST_MANAGER2);
+		checkAwt(TEST_MANAGER1, 0);
+		checkAwt(TEST_MANAGER2, 1);
+		checkAwt(TEST_STAFF1, 0);
+		checkAwt(TEST_STAFF2, 0);
+		recallSuccess(TEST_STAFF1);
+		checkAwt(TEST_MANAGER1, 0);
+		checkAwt(TEST_MANAGER2, 0);
+		checkAwt(TEST_STAFF1, 1);
+		checkAwt(TEST_STAFF2, 0);
+		recallSuccess(TEST_STAFF2);
+		checkAwt(TEST_STAFF2, 1);
+		commitTask(TEST_STAFF1, TEST_MANAGER1);
+		checkAwt(TEST_MANAGER1, 0);
+		commitTask(TEST_STAFF2, TEST_MANAGER1);
+		checkAwt(TEST_MANAGER1, 1);
+		checkAwt(TEST_STAFF1, 0);
+		checkAwt(TEST_STAFF2, 0);
 	}
 	
 }
