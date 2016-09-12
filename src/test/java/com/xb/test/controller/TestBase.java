@@ -4,8 +4,6 @@ import static com.jayway.restassured.RestAssured.given;
 
 import org.apache.logging.log4j.LogManager;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.IsCollectionContaining;
-import org.hamcrest.core.IsNot;
 import org.junit.After;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.internal.matchers.GreaterThan;
@@ -251,7 +249,7 @@ public abstract class TestBase {
 		});
 	}
 	
-//	@After
+	@After
 	public void destory(){
 		deleteTest();
 	}
