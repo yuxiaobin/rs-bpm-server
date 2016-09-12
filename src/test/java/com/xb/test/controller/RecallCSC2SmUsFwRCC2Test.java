@@ -55,6 +55,10 @@ public class RecallCSC2SmUsFwRCC2Test extends TestBase4CS{
 		checkAwt("staff1", 0);
 		checkAwt("manager1", 0);
 		
+		commitTask("staff2","manager1");
+		checkAwt("manager1",1);
+		checkAwt("staff2",0);
+		
 	}
 	
 }
