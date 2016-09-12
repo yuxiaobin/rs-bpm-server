@@ -257,7 +257,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		}
 	}
 	
-	private boolean renew4Forward(WfInstance wfInst, TaskOptVO optVO, String currUserId){
+	private boolean renew4Forward(WfInstance wfInst, TaskOptVO optVO, String currUserId) throws BusinessException{
 		WfAwt awtParm = new WfAwt();
 		awtParm.setInstId(wfInst.getInstId());
 		awtParm.setAssignerId(currUserId);
@@ -266,19 +266,36 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			log.error("renew4Forward(): no awt found for instId="+wfInst.getInstId()+", currUserid="+currUserId);
 			return false;
 		}
-//		removeUserFromOptUserPrev(wfInst, currUserId, null);
+		
+		String nextAssigners = optVO.getNextAssigners();
 		String currAssigners = wfInst.getCurrAssigners();
-		wfInst.setCurrAssigners(currAssigners.replace(currUserId+",", optVO.getNextAssigners()+","));
+		wfInst.setCurrAssigners(currAssigners.replace(currUserId+",", nextAssigners+","));
 		String optdUsers = wfInst.getOptUsersPre();
 		if(optdUsers!=null && optdUsers.contains(currUserId)){
 			wfInst.setOptUsersPre(optdUsers.replace(currUserId+",", ""));
 		}
 		instService.updateById(wfInst);
 		
-		awt.setAssignerId(optVO.getNextAssigners());
-		awt.setOptUsersPre(currUserId);
-		awt.setTaskIdPre(awt.getTaskIdCurr());
-		this.updateById(awt);
+		String[] nextAssignerArray = nextAssigners.split(",");
+		WfAwt awtNew = null;
+		List<WfAwt> awtNewList = new ArrayList<WfAwt>(nextAssignerArray.length);
+		try{
+			for(String assinger: nextAssignerArray){
+				if(!StringUtils.isEmpty(assinger)){
+					awtNew = awt.clone();
+					awtNew.setAssignerId(assinger);
+					awtNew.setOptUsersPre(currUserId);
+					awtNew.setTaskIdPre(awt.getTaskIdCurr());
+					awtNew.setWfAwtId(null);
+					awtNewList.add(awtNew);
+				}
+			}
+		}catch(CloneNotSupportedException e){
+			log.error("renew4Forward(): CloneNotSupportedException ", e);
+			throw new BusinessException("Error when create Awt for forward task");
+		}
+		this.deleteById(awt.getWfAwtId());
+		this.insertBatch(awtNewList);
 		return false;
 	}
 	
@@ -323,8 +340,10 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			currUserAwt.setWfAwtId(null);
 			this.insert(currUserAwt);
 		}
-		this.deleteBatchIds(deleteIdList);
-		return false;
+		if(!deleteIdList.isEmpty()){
+			this.deleteBatchIds(deleteIdList);
+		}
+		return true;
 	}
 	
 	/**

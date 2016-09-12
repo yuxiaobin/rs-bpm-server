@@ -51,6 +51,7 @@ public class WFApiController extends BaseController {
 	private static final String RETURN_CURR_TASK_ID = WFConstants.ApiParams.RETURN_CURR_TASK_ID;
 	private static final String RETURN_TASK_OPTIONS = WFConstants.ApiParams.RETURN_TASK_OPTIONS;
 	private static final String RETURN_RECORDS = WFConstants.ApiParams.RETURN_RECORDS;
+	private static final String RETURN_RECORDS_COUNT = WFConstants.ApiParams.RETURN_RECORDS_COUNT;
 	
 	@Autowired
 	IWfTaskService taskService;
@@ -86,7 +87,8 @@ public class WFApiController extends BaseController {
 			result.put(RETURN_CODE, STATUS_CODE_NO_RECORD);
 			return result;
 		}
-		JSONArray records = new JSONArray(list.size());
+		int awtSize = list.size();
+		JSONArray records = new JSONArray(awtSize);
 		JSONObject record = null;
 		for(WfAwt awt : list){
 			record = new JSONObject();
@@ -96,8 +98,7 @@ public class WFApiController extends BaseController {
 			record.put("awtEnd", awt.getAwtEnd());
 			record.put("preOperator", awt.getTaskProcesser());//上一步处理人
 			record.put("txOwner", awt.getTaskOwner());//待处理人
-			//TODO: 目前只拿了上一步处理人,对于会签事务，需要拿所有上一步的处理人@0901
-			record.put("txProcesser", awt.getTaskProcesser());//已处理人 TODO:
+			record.put("txProcesser", awt.getOptUsersPre());//已处理人
 			record.put("txCreater", awt.getInstCreater());//创建人
 			record.put("gnmkId", awt.getRefMkid());//工作流ID
 			record.put("instNum", awt.getInstNum());//实例号
@@ -105,6 +106,7 @@ public class WFApiController extends BaseController {
 		}
 		result.put(RETURN_CODE, STATUS_CODE_SUCC);
 		result.put(RETURN_RECORDS, records);
+		result.put(RETURN_RECORDS_COUNT, awtSize);
 		return result;
 	}
 	

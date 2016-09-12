@@ -11,21 +11,23 @@ import com.xb.MyWorkflowApp;
 @RunWith(SpringJUnit4ClassRunner.class)   // 1
 @SpringApplicationConfiguration(classes = MyWorkflowApp.class)   // 2
 @WebIntegrationTest("server.port:0")   // 4: random port
-public class RecallNormalTest extends TestBase4Normal{
+public class ForwardTest extends TestBase4Normal{
 	
-	private static final String refMkid = "ju-recall-normal";
+	private static final String refMkid = "ju-normal-fowrard-task";
+	
 	@Override
 	public String getRefMkid() {
 		return refMkid;
 	}
 	
 	@Test
-	public void normalTxCommit_Recall(){
+	public void testForwardTask(){
 		startWf();
-		commitTask(TEST_STAFF1, TEST_MANAGER1);
-		recallSuccess(TEST_STAFF1);
+		forwardTask(TEST_STAFF2, TEST_MANAGER1+","+TEST_MANAGER2);
+		checkAwt(TEST_MANAGER1,1);
+		checkAwt(TEST_MANAGER2,1);
+		checkAwt(TEST_STAFF2,0);
 		checkAwt(TEST_STAFF1,1);
-		checkAwt(TEST_MANAGER1,0);
 	}
 	
 }

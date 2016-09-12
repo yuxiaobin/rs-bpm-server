@@ -274,6 +274,8 @@ angular.module('taskApp', [ ])
             $scope.optTitle = "工作流否决";
         }else if(optCode=="RC"){
             $scope.optTitle = "工作流撤回";
+        }else if(optCode=="F"){
+            $scope.optTitle = "工作流转交";
         }
 
     }]);

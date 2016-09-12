@@ -15,8 +15,9 @@ import com.baomidou.mybatisplus.toolkit.CUBaseTO;
  *
  */
 @TableName("wf_awt")
-public class WfAwt extends CUBaseTO implements Serializable {
+public class WfAwt extends CUBaseTO implements Serializable,Cloneable {
 
+	
 	@TableField(exist = false)
 	private static final long serialVersionUID = 1L;
 
@@ -241,6 +242,10 @@ public class WfAwt extends CUBaseTO implements Serializable {
 
 	public void setCompleteFlag(String completeFlag) {
 		this.completeFlag = completeFlag;
+	}
+	@Override
+	public WfAwt clone() throws CloneNotSupportedException {
+		return (WfAwt) super.clone();
 	}
 
 }

@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.ValidatableResponse;
 import com.xb.service.ITblUserService;
 
 public abstract class TestBase {
@@ -51,7 +52,7 @@ public abstract class TestBase {
 		JSONObject parm = new JSONObject();
 		parm.put("userId", TEST_STAFF1);
 		parm.put("gnmkId", getRefMkid());
-		given().contentType("application/json")
+		ValidatableResponse response = given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfapi/start")
         .then()
@@ -64,15 +65,29 @@ public abstract class TestBase {
         .body("wf_inst_num", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
-				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
-				instNum = json.getInteger("wf_inst_num");
-				currTaskId = json.getString("curr_task_id");
 				return new GreaterThan<Integer>(0);
 			}
 		});
+		JSONObject json = JSONObject.parseObject(response.extract().asString());
+		instNum = json.getInteger("wf_inst_num");
+		currTaskId = json.getString("curr_task_id");
 		getNextTask4Commit();
 		commitTask(TEST_STAFF1, TEST_STAFF1+","+TEST_STAFF2+","+TEST_STAFF3);//From start task committed to first task.
 	}
+	
+	public void letMeDo(String userId){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", userId);
+		parm.put("gnmkId", getRefMkid());
+		parm.put("optCode", "LMD");
+		parm.put("wfInstNum", instNum);
+		given().contentType("application/json")
+		.request().body(parm.toJSONString())
+		.when().post("/wfapi/operate")
+		.then()
+		.body("return_code",new Equals(0));
+	}
+	
 	/**
 	 * Common method
 	 */
@@ -227,20 +242,27 @@ public abstract class TestBase {
         .request().body(parm.toJSONString())
         .when().post("/wfapi/awt")
         .then()
-        .body("records", new ResponseAwareMatcher<Response>() {
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				if(awtCount==0){
+	        		return new Equals(2);
+	        	}else{
+	        		return new Equals(0);//return code: { 0:success, 1:invalidParm, 2:no record, 9:syserror}
+	        	}
+			}
+        })
+        .body("count", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
 				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
 				JSONArray records = json.getJSONArray("records");
-				if(records==null ){
-					if(awtCount!=0){
+				Integer countReturn = json.getInteger("count");
+				if(countReturn==null ){
+					if(awtCount!=0)
 						return NotNull.NOT_NULL;
-					}else{
+					else
 						return Null.NULL;
-					}
-				}
-				if(records.size()==0 && awtCount!=0){
-					return Null.NULL;
 				}
 				int count = 0;
 				for(int i=0;i<records.size();++i){

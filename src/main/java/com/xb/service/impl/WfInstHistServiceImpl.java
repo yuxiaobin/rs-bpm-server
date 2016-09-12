@@ -40,8 +40,8 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		histParm.setInstId(instId);
 		List<WfInstHist>list= baseMapper.getInstHistByInstId(instId);
 		
-		WfInstance inst = instService.selectById(instId);
-		String currentTaskOwner = inst.getCurrAssigners();
+//		WfInstance inst = instService.selectById(instId);
+//		String currentTaskOwner = inst.getCurrAssigners();
 		
 		List<WfAwt> awtList = awtService.getAwtListByInstId(instId);
 		if(awtList!=null && !awtList.isEmpty()){
@@ -52,11 +52,12 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 			awtHist.setInstId(awt.getInstId());
 			awtHist.setTaskBegin(awt.getAwtBegin());
 			awtHist.setTaskEnd(awt.getAwtEnd());
-			awtHist.setTaskOwner(currentTaskOwner==null?awt.getTaskOwner():currentTaskOwner);
+//			awtHist.setTaskOwner(currentTaskOwner==null?awt.getTaskOwner():currentTaskOwner);
 			for(WfAwt awtTmp:awtList){
 				nextAssigners += awtTmp.getAssignerId()+", ";
 			}
-			awtHist.setNextAssigner(nextAssigners);
+			awtHist.setTaskOwner(nextAssigners);
+//			awtHist.setNextAssigner(nextAssigners);
 			if(list == null){
 				list = new ArrayList<WfInstHist>(1);
 			}

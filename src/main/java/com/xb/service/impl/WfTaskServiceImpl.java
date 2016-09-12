@@ -351,6 +351,16 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			}
 			return nextTaskList;
 		}
+		if(WFConstants.OptTypes.FORWARD.equals(optCode)){
+			WfTask task = this.selectById(awt.getTaskIdCurr());
+			TaskVO taskVO = new TaskVO();
+			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
+			taskVO.setTaskId(task.getTaskId());
+			nextTaskList = new ArrayList<TaskVO>(1);
+			nextTaskList.add(taskVO);
+			return nextTaskList;
+		}
 		//TODO: other cases, if need to get next task list.
 		return null;
 	}
@@ -364,11 +374,17 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		String optCode = optVO.getOptCode();
 		String currTaskId = awt.getTaskIdCurr();
 		String nextTaskId = null;
-		if(WFConstants.OptTypes.REJECT.equals(optCode)){
+		switch (optCode) {
+		case WFConstants.OptTypes.REJECT:
 			nextTaskId = getPrevTaskId(currTaskId);
-		}else if(WFConstants.OptTypes.COMMIT.equals(optCode)){
+			break;
+		case WFConstants.OptTypes.COMMIT:
 			nextTaskId = getNextTaskId(currTaskId);
-		}else{
+			break;
+		case WFConstants.OptTypes.FORWARD:
+			nextTaskId = currTaskId;
+			break;
+		default:
 			System.out.println("Currently not support other option code:"+optCode);//TODO: other OptCode , get assigners
 			log.debug("getNextAssignersByOptCode(): Currently not support other option code:"+optCode);
 			return null;

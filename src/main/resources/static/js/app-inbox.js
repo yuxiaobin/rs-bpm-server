@@ -33,7 +33,27 @@ angular.module('app', [ ])
                     delay.reject(data);
                 });
             return delay.promise;
-        }
+        };
+        this.letmedo = function(rsWfId,instNum){
+            var delay = $q.defer();
+            var parm = {
+                rsWfId:rsWfId,instNum:instNum,optCode:"LMD"
+            };
+            var req = {
+                method: 'POST',
+                data:parm,
+                url: basePath+'/task/process'
+            };
+            $http(req)
+                .success(function(data, status, headers, config){
+                    delay.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                    delay.reject(data);
+                });
+            return delay.promise;
+        };
+
     }])
     .controller('ctrl', ['$scope','$window','$timeout', 'inboxService', function ($scope,$window,$timeout, inboxService) {
         $scope.getTaskInbox = function(){
@@ -79,7 +99,17 @@ angular.module('app', [ ])
             else if (val_ == 'TK') {
                 $('iframe').attr("src",url_+"&optCode=TK");
                 $('#myModal').modal({backdrop:true});
-            }//TODO: other options @0902
+            }else if(val_ == "LMD"){
+                inboxService.letmedo(rsWfId,instNum).then(function(){
+                    $('#messageModal').modal({backdrop:true});
+                    $timeout(function(){
+                        $("#messageModal").modal("hide");
+                    },2000);
+                });
+            }else if(val_ == "F"){
+                $('iframe').attr("src",url_+"&optCode=F");
+                $('#myModal').modal({backdrop:false});
+            }
             $scope.taskOption = "";
             $('#wfOptionsId').selectpicker('val', '');
             $scope.selectedRcdInstNum = "";

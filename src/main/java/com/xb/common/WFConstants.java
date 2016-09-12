@@ -40,6 +40,7 @@ public class WFConstants {
 		public static final String RETURN_CURR_TASK_ID = "curr_task_id";
 		public static final String RETURN_TASK_OPTIONS = "task_options";
 		public static final String RETURN_RECORDS = "records";
+		public static final String RETURN_RECORDS_COUNT = "count";
 	}
 	
 	public static class AssignType{
