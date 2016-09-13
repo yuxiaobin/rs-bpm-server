@@ -28,8 +28,8 @@
         <ul class="nav nav-pills nav-justified">
             <li role="presentation" class="active"><a href="#">待办事宜</a></li>
             <li><a href="${base.contextPath}/wf/modules/page">发起请求页面</a></li>
+            <li><a href="${base.contextPath}/inbox/buz">历史记录</a></li>
         </ul>
-
         <div class="row">
             <div class="col-md-12">
                 <table class="table">

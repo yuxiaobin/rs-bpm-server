@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
@@ -288,6 +287,21 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		String optCode = optVO.getOptCode();
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
+			if(WFConstants.OptTypes.RECALL.equals(optCode)){
+				WfInstance instParm = new WfInstance();
+				instParm.setInstNum(optVO.getInstNum());
+				instParm.setRefMkid(optVO.getGnmkId());
+				instParm.setRsWfId(optVO.getRsWfId());
+				WfInstance inst = instService.selectOne(instParm);
+				WfTask task = this.selectById(inst.getTaskIdPre());
+				List<TaskVO> nextTaskList = new ArrayList<TaskVO>(1);
+				TaskVO taskVO = new TaskVO();
+				taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+				taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
+				taskVO.setTaskId(task.getTaskId());
+				nextTaskList.add(taskVO);
+				return nextTaskList;
+			}
 			return null;
 		}
 		List<TaskVO> nextTaskList = null;
@@ -361,17 +375,35 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			nextTaskList.add(taskVO);
 			return nextTaskList;
 		}
-		//TODO: other cases, if need to get next task list.
+		/*if(WFConstants.OptTypes.RECALL.equals(optCode)){
+			String taskIdPre = awt.getTaskIdPre();
+			if(StringUtils.isEmpty(taskIdPre)){
+				log.error("getNextTasksByOptCode(): RECALL IS NOT ALLOWED: taskIdPre is null for optVO="+optVO);
+				return null;
+			}
+			WfTask task = this.selectById(awt.getTaskIdPre());
+			nextTaskList = new ArrayList<TaskVO>(1);
+			TaskVO taskVO = new TaskVO();
+			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
+			taskVO.setTaskId(task.getTaskId());
+			nextTaskList.add(taskVO);
+			return nextTaskList;
+		}*/
+		//other cases, if need to get next task list.
 		return null;
 	}
 	
 	
 	public JSONObject getNextAssignersByOptCode(TaskOptVO optVO){
+		String optCode = optVO.getOptCode();
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
+			if(WFConstants.OptTypes.RECALL.equals(optCode)){
+				return getNextAssigner4Recall(optVO.getCurrUserId());
+			}
 			return null;
 		}
-		String optCode = optVO.getOptCode();
 		String currTaskId = awt.getTaskIdCurr();
 		String nextTaskId = null;
 		switch (optCode) {
@@ -434,6 +466,19 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return result;
 	}
 	
+	private JSONObject getNextAssigner4Recall(String userId){
+		JSONObject result = new JSONObject();
+		JSONObject userJson = new JSONObject();
+		userJson.put("id", userId);
+		userJson.put("name", userId);//TODO: get username
+		userJson.put("defSelMod", 1);
+		userJson.put("checkFlag",false);
+		JSONArray userArray = new JSONArray();
+		userArray.add(userJson);
+		result.put("users", userArray);
+		return result;
+	}
+	
 	private WfAwt getAwtByParm(TaskOptVO optVO){
 		WfAwt awt =  null;
 		if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
@@ -486,13 +531,14 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 					return null;
 				}
 			}
+			
 		}
 		return this.selectById(awt.getTaskIdCurr());
 	}
 	
 	
 	public JSONArray getTaskOptions(TaskOptVO optVO, boolean needGroup){
-		if(StringUtils.isEmpty(optVO.getRsWfId())){
+	/*	if(StringUtils.isEmpty(optVO.getRsWfId())){
 			RsWorkflow wfparm = new RsWorkflow();
 			wfparm.setGnmkId(optVO.getGnmkId());
 			RsWorkflow wf = rsWfService.selectOne(wfparm);
@@ -500,11 +546,16 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				return null;
 			}
 			optVO.setRsWfId(wf.getRsWfId());
-		}
+		}*/
 		if("admin".equals(optVO.getCurrUserId())){
 			//TODO: need to check if any special cases
 		}
-		WfTask currTask = getCurrentTaskByRefNum(optVO);
+		WfInstance parm = new WfInstance();
+		parm.setRsWfId(optVO.getRsWfId());
+		parm.setInstNum(optVO.getInstNum());
+		parm.setRefMkid(optVO.getGnmkId());
+		WfInstance instance = instService.selectOne(parm);
+		WfTask currTask = this.selectById(instance.getTaskIdCurr());
 		if(currTask==null){
 			return  null;
 		}

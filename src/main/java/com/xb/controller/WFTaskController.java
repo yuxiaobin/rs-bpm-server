@@ -6,6 +6,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -79,7 +80,10 @@ public class WFTaskController extends BaseController {
 	@RequestMapping("/next/tasks")
 	@ResponseBody
 	public Object getNextTasks(@RequestBody TaskOptVO optVO, HttpSession session){
-		optVO.setCurrUserId(getCurrUserId(session));
+		String currUserId = getCurrUserId(session);
+		if(!StringUtils.isEmpty(currUserId)){
+			optVO.setCurrUserId(currUserId);
+		}
 		JSONObject result = new JSONObject();
 		result.put("records", taskService.getNextTasksByOptCode(optVO));
 		return result;
@@ -88,7 +92,10 @@ public class WFTaskController extends BaseController {
 	@RequestMapping("/next/usergroups")
 	@ResponseBody
 	public Object getNextAssigners(@RequestBody TaskOptVO optVO, HttpSession session){
-		optVO.setCurrUserId(getCurrUserId(session));
+		String currUserId = getCurrUserId(session);
+		if(!StringUtils.isEmpty(currUserId)){
+			optVO.setCurrUserId(currUserId);
+		}
 		JSONObject result = new JSONObject();
 		result.put("result", taskService.getNextAssignersByOptCode(optVO));
 		return result;

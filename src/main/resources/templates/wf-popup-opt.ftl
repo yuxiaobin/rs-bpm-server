@@ -33,7 +33,7 @@
             <div style="width: 100%;">
                 <div class="panel panel-default">
                     <div class="panel-heading">1、请填写处理意见{{SignWhenGoDisp}}：</div>
-                    <textarea rows="8" style="width:100%" id="comments"></textarea>
+                    <textarea rows="8" style="width:100%" id="comments" ng-model="comments"></textarea>
                 </div>
             </div>
             <div style="width: 100%;">
@@ -118,7 +118,7 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-primary" ng-click="submitTask()">确定</button>
+    <button type="button" class="btn btn-primary" ng-click="submitTask()" ng-disabled="SignWhenGoDisp!=''&&comments==''">确定</button>
     <button type="button" class="btn btn-default" onclick="hideModal()">取消</button>
 </div>
 </body>

@@ -11,5 +11,7 @@ import com.baomidou.framework.service.ICommonService;
 public interface ITblUserService extends ICommonService<TblUser> {
 
 	public void deleteJunitData(String refMkid);
+	
+	public String getCurrentAssigner4Instance(String refMkid, int instNum);
 
 }

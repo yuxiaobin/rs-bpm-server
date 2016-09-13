@@ -20,4 +20,6 @@ public interface IWfInstHistService extends ICommonService<WfInstHist> {
 	
 	public String createHistRecord(TaskOptVO optVO, WfAwt awt , String currUserId);
 	
+	public List<WfAwt> getDoneListByMe(String userId, String gnmkId, Integer instNum);
+	
 }

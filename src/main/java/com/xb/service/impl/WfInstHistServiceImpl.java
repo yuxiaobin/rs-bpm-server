@@ -2,7 +2,9 @@ package com.xb.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -116,4 +118,12 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		}
 	}
 
+	
+	public List<WfAwt> getDoneListByMe(String userId, String gnmkId, Integer instNum){
+		Map<String,Object> parm = new HashMap<String,Object>();
+		parm.put("userId", userId);
+		parm.put("gnmkId", gnmkId);
+		parm.put("instNum", instNum);
+		return baseMapper.getDoneListByMe(parm);
+	}
 }

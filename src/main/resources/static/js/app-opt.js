@@ -87,6 +87,10 @@ angular.module('taskApp', [ ])
                    $("#selectAssignerPanel").hide();
                }
            }
+           if(optCode=="RC"){
+                $("#selectAssignerPanel").prev().removeClass("col-xs-7").addClass("col-xs-12");
+                $("#selectAssignerPanel").hide();
+           }
         });
 
         /**

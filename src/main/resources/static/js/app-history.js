@@ -3,12 +3,12 @@
  */
 var option_codes = {};//TODO:
 angular.module('app', [ ])
-    .service('inboxService', ['$http', '$q', function ($http, $q) {
-        this.getTaskInbox = function(){
+    .service('histService', ['$http', '$q', function ($http, $q) {
+        this.getTaskForMe = function(parm){
             var delay = $q.defer();
             var req = {
                 method: 'GET',
-                url: basePath+'/inbox/tasks'
+                url: basePath+'/inbox/tasks?myTx='+parm.myTx
             };
             $http(req)
                 .success(function(data, status, headers, config){
@@ -34,46 +34,33 @@ angular.module('app', [ ])
                 });
             return delay.promise;
         };
-        this.letmedo = function(rsWfId,instNum){
-            var delay = $q.defer();
-            var parm = {
-                rsWfId:rsWfId,instNum:instNum,optCode:"LMD"
-            };
-            var req = {
-                method: 'POST',
-                data:parm,
-                url: basePath+'/task/process'
-            };
-            $http(req)
-                .success(function(data, status, headers, config){
-                    delay.resolve(data);
-                })
-                .error(function(data, status, headers, config){
-                    delay.reject(data);
-                });
-            return delay.promise;
-        };
-
     }])
-    .controller('ctrl', ['$scope','$window','$timeout', 'inboxService', function ($scope,$window,$timeout, inboxService) {
-        $scope.getTaskInbox = function(){
-            inboxService.getTaskInbox().then(function(success){
+    .controller('ctrl', ['$scope','$window','$timeout', 'histService', function ($scope,$window,$timeout, histService) {
+        $scope.selectMyTx = "PEND";
+        $scope.getTaskForMe = function(){
+            var parm = {};
+            if(angular.isUndefined($scope.selectMyTx)){
+                parm.myTx = "PEND";
+            }else{
+                parm.myTx = $scope.selectMyTx;
+            }
+            histService.getTaskForMe(parm).then(function(success){
                 $scope.taskvList = success.records;
             },function(fail){
-                console.error("getTaskInbox failed"+fail);
+                console.error("getTaskForMe failed"+fail);
             });
         };
-        $scope.getTaskInbox();
+        $scope.getTaskForMe();
         if(typeof(userId)!='undefined'){
             $scope.userId = userId;
         }
 
-        $scope.viewAwtInMK = function(rsWfId, instNum, refMkid){
-            $window.location.href = basePath+"/mk/task?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid;
+        window.reloadTask = function(){
+            $scope.getTaskForMe();
         };
 
-        window.reloadTask = function(){
-            $scope.getTaskInbox();
+        $scope.selectMyTxChange = function(val_){
+            $scope.getTaskForMe();
         };
         $scope.optGroupList =[{"opts":[{"disflag":true,"value":"C","descp":"流程提交"},{"disflag":true,"value":"RJ","descp":"流程退回"},{"disflag":true,"value":"V","descp":"流程否决"}]},{"opts":[{"disflag":true,"value":"F","descp":"流程转交"},{"disflag":true,"value":"RC","descp":"流程撤回"},{"disflag":true,"value":"LMD","descp":"我来处理"}]},{"opts":[{"disflag":true,"value":"DP","descp":"流程调度"},{"disflag":true,"value":"TK","descp":"流程跟踪"}]}]
 
@@ -117,16 +104,14 @@ angular.module('app', [ ])
             $('#wfOptionsId').selectpicker('val', '');
             $scope.selectedRcdInstNum = "";
         };
-        $scope.selectTableRowInbox = function(evt){
-            $(evt.target).parent().addClass("active").siblings().removeClass("active");
-        };
+
         $scope.selectTableRow = function(evt){
             $(evt.target).parent().addClass("active").siblings().removeClass("active");
             var tr_ = $(evt.target).parent();
             $scope.selectedRcdInstNum = tr_.attr("rs-inst-num");
             $scope.refMkid = tr_.attr("rs-ref-mkid");
             $scope.rsWfId = tr_.attr("rs-wf-id");
-            inboxService.getTaskOptions($scope.rsWfId, $scope.selectedRcdInstNum).then(
+            histService.getTaskOptions($scope.rsWfId, $scope.selectedRcdInstNum).then(
                 function(optArray){
                     $scope.optGroupList = $.grep($scope.optGroupList,function(value){
                         value.opts = $.grep(value.opts,function(val){

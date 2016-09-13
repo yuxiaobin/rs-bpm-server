@@ -18,12 +18,16 @@ import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 import com.xb.service.ITblUserService;
+import com.xb.service.IWfInstanceService;
 
 public abstract class TestBase {
 	org.apache.logging.log4j.Logger log = LogManager.getLogger(TestBase.class);
 	
 	@Autowired
 	ITblUserService userService;
+	@Autowired
+	IWfInstanceService instService;
+	
 	@Value("${local.server.port}")   // 6
     int port;
 	
@@ -49,8 +53,12 @@ public abstract class TestBase {
 	 * Common method
 	 */
 	public void startWf(){
+		startWf(TEST_STAFF1, TEST_STAFF1+","+TEST_STAFF2+","+TEST_STAFF3);//From start task committed to first task.
+	}
+	
+	public void startWf(String starterId, String nextTaskAssigners){
 		JSONObject parm = new JSONObject();
-		parm.put("userId", TEST_STAFF1);
+		parm.put("userId", starterId);
 		parm.put("gnmkId", getRefMkid());
 		ValidatableResponse response = given().contentType("application/json")
         .request().body(parm.toJSONString())
@@ -72,7 +80,7 @@ public abstract class TestBase {
 		instNum = json.getInteger("wf_inst_num");
 		currTaskId = json.getString("curr_task_id");
 		getNextTask4Commit();
-		commitTask(TEST_STAFF1, TEST_STAFF1+","+TEST_STAFF2+","+TEST_STAFF3);//From start task committed to first task.
+		commitTask(starterId, nextTaskAssigners);//From start task committed to first task.
 	}
 	
 	public void letMeDo(String userId){
