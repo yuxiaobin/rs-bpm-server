@@ -168,6 +168,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					awt.setAwtBegin(beginDate);
 					awt.setAwtEnd(calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit()));
 					awt.setAwtAlarm(nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime()));
+					this.insert(awt);
 					removeUserFromOptUserPrev(inst, currUserId, inst.getTaskIdPre(), true);
 				}
 			}
@@ -374,13 +375,17 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			Date beginDate = new Date();
 			Date limitDate = calculateDate(beginDate, nextTask.getTimeLimitTp(), nextTask.getTimeLimit());
 			Date alarmDate = nextTask.getAlarmTime()==null?null:calculateDate(beginDate, nextTask.getAlarmTimeTp(), nextTask.getAlarmTime());
+			String optUsersPre = wfInst.getOptUsersPre();
+			if(optUsersPre!=null && optUsersPre.indexOf(",")==optUsersPre.length()-1){
+				optUsersPre = optUsersPre.substring(0,optUsersPre.length()-1);
+			}
 			for(String assigner : nextAssignersArr){
 				if(!StringUtils.isEmpty(assigner)){
 					awt = new WfAwt();
 					/**
 					 * 当任务流转到下一个节点，下一个节点的awt数据：设置optUsersPre&taskIdPre
 					 */
-					awt.setOptUsersPre(wfInst.getOptUsersPre());
+					awt.setOptUsersPre(optUsersPre);
 					awt.setTaskIdPre(wfInst.getTaskIdCurr());
 					awt.setAssignerId(assigner);
 					awt.setAwtBegin(beginDate);

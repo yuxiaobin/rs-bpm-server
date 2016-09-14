@@ -13,7 +13,7 @@ import com.xb.MyWorkflowApp;
 @WebIntegrationTest("server.port:0")   // 4: random port
 public class RecallNormalTest extends TestBase4Normal{
 	
-	private static final String refMkid = "ju-recall-normal";
+	private static final String refMkid = "ju-recall-normal-tx-commit";
 	@Override
 	public String getRefMkid() {
 		return refMkid;
@@ -26,6 +26,14 @@ public class RecallNormalTest extends TestBase4Normal{
 		recallSuccess(TEST_STAFF1);
 		checkAwt(TEST_STAFF1,1);
 		checkAwt(TEST_MANAGER1,0);
+	}
+	
+	@Test
+	public void normalTxCommit2Self_Recall(){
+		startWf();
+		commitTask(TEST_STAFF1, TEST_STAFF1);
+		recallSuccess(TEST_STAFF1);
+		checkAwt(TEST_STAFF1,1);
 	}
 	
 }
