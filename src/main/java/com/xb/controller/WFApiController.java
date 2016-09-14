@@ -49,9 +49,20 @@ public class WFApiController extends BaseController {
 	private static final String RETURN_MSG = WFConstants.ApiParams.RETURN_MSG;
 	private static final String RETURN_WF_INST_NUM = WFConstants.ApiParams.RETURN_WF_INST_NUM;
 	private static final String RETURN_CURR_TASK_ID = WFConstants.ApiParams.RETURN_CURR_TASK_ID;
-	private static final String RETURN_TASK_OPTIONS = WFConstants.ApiParams.RETURN_TASK_OPTIONS;
 	private static final String RETURN_RECORDS = WFConstants.ApiParams.RETURN_RECORDS;
 	private static final String RETURN_RECORDS_COUNT = WFConstants.ApiParams.RETURN_RECORDS_COUNT;
+
+	private static final String RETURN_TASK_DESCP = "taskDescp";
+	private static final String RETURN_TASK_ID = "taskId";
+	private static final String RETURN_TASK_TYPE = "taskType";
+	private static final String RETURN_TASK_OWNER = "taskOwner";
+	
+	private static final String PARM_WF_INST_NUM = WFConstants.ApiParams.RETURN_WF_INST_NUM;
+	private static final String PARM_USER_ID = WFConstants.ApiParams.PARM_USER_ID;
+	private static final String PARM_GNMK_ID = WFConstants.ApiParams.PARM_GNMK_ID;
+	private static final String PARM_OPT_CODE = WFConstants.ApiParams.PARM_OPT_CODE;
+	
+	
 	
 	@Autowired
 	IWfTaskService taskService;
@@ -67,7 +78,7 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/awt",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getAwt(@RequestBody JSONObject parm){
-		String userId = parm.getString("userId");
+		String userId = parm.getString(PARM_USER_ID);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(userId)){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
@@ -92,16 +103,14 @@ public class WFApiController extends BaseController {
 		JSONObject record = null;
 		for(WfAwt awt : list){
 			record = new JSONObject();
-			record.put("txName", awt.getTaskDescpDisp());
-			record.put("title", awt.getAwtTitle());
+			record.put(RETURN_TASK_DESCP, awt.getTaskDescpDisp());				//			record.put("title", awt.getAwtTitle());
 			record.put("awtBegin", awt.getAwtBegin());
 			record.put("awtEnd", awt.getAwtEnd());
-			record.put("preOperator", awt.getTaskProcesser());//上一步处理人
-			record.put("txOwner", awt.getTaskOwner());//待处理人
-			record.put("txProcesser", awt.getOptUsersPre());//已处理人
-			record.put("txCreater", awt.getInstCreater());//创建人
-			record.put("gnmkId", awt.getRefMkid());//工作流ID
-			record.put("instNum", awt.getInstNum());//实例号
+			record.put("preOperator", awt.getOptUsersPre());//上一步处理人
+			record.put(RETURN_TASK_OWNER, awt.getTaskOwner());//待处理人 	//			record.put("txProcesser", awt.getOptUsersPre());//已处理人
+			record.put("taskCreater", awt.getInstCreater());//创建人
+			record.put(PARM_GNMK_ID, awt.getRefMkid());//工作流ID
+			record.put(RETURN_WF_INST_NUM, awt.getInstNum());//实例号
 			records.add(record);
 		}
 		result.put(RETURN_CODE, STATUS_CODE_SUCC);
@@ -122,8 +131,8 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/start",method=RequestMethod.POST )
 	@ResponseBody
 	public Object startWf(@RequestBody JSONObject parm){
-		String userId = parm.getString("userId");
-		String gnmkId = parm.getString("gnmkId");
+		String userId = parm.getString(PARM_USER_ID);
+		String gnmkId = parm.getString(PARM_GNMK_ID);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(userId)){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
@@ -134,8 +143,8 @@ public class WFApiController extends BaseController {
 			JSONObject startResult = taskService.startWFByGnmkId(gnmkId, userId);
 			if(startResult!=null){
 				result.put(RETURN_CODE, STATUS_CODE_SUCC);
-				result.put(RETURN_WF_INST_NUM, startResult.getInteger("wf_inst_num"));
-				result.put(RETURN_CURR_TASK_ID, startResult.getString("curr_task_id"));
+				result.put(RETURN_WF_INST_NUM, startResult.getInteger(RETURN_WF_INST_NUM));
+				result.put(RETURN_CURR_TASK_ID, startResult.getString(RETURN_CURR_TASK_ID));
 				result.put(RETURN_MSG, "succ");
 			}else{
 				result.put(RETURN_CODE, STATUS_CODE_INVALID);
@@ -152,9 +161,9 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/options",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getTaskOptions(@RequestBody JSONObject parm){
-		String userId = parm.getString("userId");
-		String gnmkId = parm.getString("gnmkId");
-		String wfInstNumStr = parm.getString("wfInstNum");
+		String userId = parm.getString(PARM_USER_ID);
+		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(wfInstNumStr)){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
@@ -175,8 +184,8 @@ public class WFApiController extends BaseController {
 			optVO.setCurrUserId(userId);
 			optVO.setInstNum(instNum);
 			optVO.setGnmkId(gnmkId);
+			result.put(RETURN_RECORDS, taskService.getTaskOptions(optVO, false));
 			result.put(RETURN_CODE, STATUS_CODE_SUCC);
-			result.put(RETURN_TASK_OPTIONS, taskService.getTaskOptions(optVO, false));
 		}catch(Exception e){
 			log.error("getTaskOptions, parm="+parm.toJSONString(), e);
 			result.put(RETURN_CODE, STATUS_CODE_FAIL);
@@ -187,9 +196,9 @@ public class WFApiController extends BaseController {
 	
 	@RequestMapping(value="/operate",method=RequestMethod.GET )
 	public Object loadProcessTask(HttpServletRequest req){
-		String instNumStr = req.getParameter("wfInstNum");
-		String gnmkId = req.getParameter("gnmkId");
-		String optCode = req.getParameter("optCode");
+		String instNumStr = req.getParameter(PARM_WF_INST_NUM);
+		String gnmkId = req.getParameter(PARM_GNMK_ID);
+		String optCode = req.getParameter(PARM_OPT_CODE);
 		if(StringUtils.isEmpty(instNumStr) || StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(optCode)){
 			req.setAttribute(RETURN_CODE, STATUS_CODE_INVALID);
 			req.setAttribute(RETURN_MSG, "passed in data is empty");
@@ -225,7 +234,7 @@ public class WFApiController extends BaseController {
 			if(WFConstants.OptTypes.TRACK.equals(optCode)){
 				return "wf-popup-track";
 			}else{
-				req.setAttribute("optCode", optCode);
+				req.setAttribute(PARM_OPT_CODE, optCode);
 				//提交，退回，否决等操作事务页面
 				TaskOptVO optVO = new TaskOptVO();
 				optVO.setRsWfId(rsWfId);
@@ -253,9 +262,9 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/tasks",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getTasks(@RequestBody JSONObject parm){
-		String gnmkId = parm.getString("gnmkId");
-		String wfInstNumStr = parm.getString("wfInstNum");
-		String optCode = parm.getString("optCode");
+		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
+		String optCode = parm.getString(PARM_OPT_CODE);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode) ){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
@@ -285,9 +294,9 @@ public class WFApiController extends BaseController {
 				JSONObject task = null;
 				for(TaskVO tv:taskList){
 					task = new JSONObject();
-					task.put("taskId", tv.getTaskId());
-					task.put("taskType", tv.getTaskType());
-					task.put("taskDescp", tv.getTaskDescpDisp());
+					task.put(RETURN_TASK_ID, tv.getTaskId());
+					task.put(RETURN_TASK_TYPE, tv.getTaskType());
+					task.put(RETURN_TASK_DESCP, tv.getTaskDescpDisp());
 					taskArray.add(task);
 				}
 			}
@@ -304,8 +313,8 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/history",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getWFHistory(@RequestBody JSONObject parm){
-		String gnmkId = parm.getString("gnmkId");
-		String wfInstNumStr = parm.getString("wfInstNum");
+		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(wfInstNumStr) ){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
@@ -340,14 +349,14 @@ public class WFApiController extends BaseController {
 				JSONObject histJson = null;
 				for(WfInstHist hist:histList){
 					histJson = new JSONObject();
-					histJson.put("taskDescp", hist.getTaskDescpDisp());
+					histJson.put(RETURN_TASK_DESCP, hist.getTaskDescpDisp());
 					histJson.put("optUser", hist.getOptUser());
-					histJson.put("optCode", hist.getOptType());
+					histJson.put(PARM_OPT_CODE, hist.getOptType());
 					histJson.put("comments", hist.getOptComm());
 					histJson.put("taskBegin", hist.getTaskBegin());
 					histJson.put("taskEnd", hist.getTaskEnd());
 					histJson.put("taskRend", hist.getTaskRend());
-					histJson.put("taskOwner", hist.getTaskOwner());
+					histJson.put(RETURN_TASK_OWNER, hist.getTaskOwner());
 					histArray.add(histJson);
 				}
 				result.put(RETURN_CODE, STATUS_CODE_SUCC);
@@ -370,10 +379,10 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/operate",method=RequestMethod.POST )
 	@ResponseBody
 	public Object doOperate(@RequestBody JSONObject parm){
-		String userId = parm.getString("userId");
-		String gnmkId = parm.getString("gnmkId");
-		String wfInstNumStr = parm.getString("wfInstNum");
-		String optCode = parm.getString("optCode");
+		String userId = parm.getString(PARM_USER_ID);
+		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
+		String optCode = parm.getString(PARM_OPT_CODE);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(userId) || StringUtils.isEmpty(gnmkId)
 				|| StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode)){

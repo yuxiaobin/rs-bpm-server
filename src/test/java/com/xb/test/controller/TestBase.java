@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
+import com.xb.common.WFConstants;
 import com.xb.service.ITblUserService;
 import com.xb.service.IWfInstanceService;
 
@@ -67,18 +68,19 @@ public abstract class TestBase {
         .body("return_code", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
+				System.out.println(response.prettyPrint());
 				return new Equals(0);
 			}
 		})
-        .body("wf_inst_num", new ResponseAwareMatcher<Response>() {
+        .body(WFConstants.ApiParams.RETURN_WF_INST_NUM, new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
 				return new GreaterThan<Integer>(0);
 			}
 		});
 		JSONObject json = JSONObject.parseObject(response.extract().asString());
-		instNum = json.getInteger("wf_inst_num");
-		currTaskId = json.getString("curr_task_id");
+		instNum = json.getInteger(WFConstants.ApiParams.RETURN_WF_INST_NUM);
+		currTaskId = json.getString(WFConstants.ApiParams.RETURN_CURR_TASK_ID);
 		getNextTask4Commit();
 		commitTask(starterId, nextTaskAssigners);//From start task committed to first task.
 	}
@@ -148,7 +150,6 @@ public abstract class TestBase {
 		parm.put("nextUserIds", nextAssignerIds);
 		parm.put("optCode", "C");
 		parm.put("wfInstNum", instNum);
-		parm.put("currTaskId", currTaskId);
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfapi/operate")
@@ -173,7 +174,7 @@ public abstract class TestBase {
 		parm.put("nextUserIds", nextAssignerIds);
 		parm.put("optCode", "RJ");
 		parm.put("wfInstNum", instNum);
-		parm.put("currTaskId", currTaskId);
+//		parm.put("currTaskId", currTaskId);
 		given().contentType("application/json")
 		.request().body(parm.toJSONString())
 		.when().post("/wfapi/operate")
@@ -181,6 +182,7 @@ public abstract class TestBase {
 		.body("return_code", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
+				System.out.println(response.prettyPrint());
 				currTaskId = nextTaskId4Commit;
 				return new Equals(0);
 			}
@@ -192,11 +194,9 @@ public abstract class TestBase {
 		parm.put("userId", fromUser);
 		parm.put("gnmkId", getRefMkid());
 		parm.put("comments", "junitTest: from:"+fromUser+" forward to "+toUser);
-		parm.put("nextTaskId", currTaskId);
 		parm.put("nextUserIds", toUser);
 		parm.put("optCode", "F");
 		parm.put("wfInstNum", instNum);
-		parm.put("currTaskId", currTaskId);
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfapi/operate")
@@ -236,11 +236,14 @@ public abstract class TestBase {
 		parm.put("wfInstNum", instNum);
 		parm.put("optCode", "RC");
 		parm.put("comments", "junitTest: "+recaller+" recall");
-		given().contentType("application/json")
+		ValidatableResponse response = given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfapi/operate")
         .then()
         .body("return_code", new Equals(3));
+		
+		System.out.println("***************************recallFail**********************");
+		System.out.println(response.extract().asString());
 	}
 	
 	public void checkAwt(String currUserId, final int awtCount){
@@ -253,6 +256,7 @@ public abstract class TestBase {
         .body("return_code", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
+				System.out.println(response.getBody().prettyPrint());
 				if(awtCount==0){
 	        		return new Equals(2);
 	        	}else{
@@ -281,6 +285,41 @@ public abstract class TestBase {
 				if(count!=awtCount){
 					return Null.NULL;
 				}
+				return NotNull.NOT_NULL;
+			}
+		});
+	}
+	
+	public void getNextTaskOptions(String currUserId){
+		JSONObject parm = new JSONObject();
+		parm.put(WFConstants.ApiParams.PARM_USER_ID, currUserId);
+		parm.put(WFConstants.ApiParams.PARM_GNMK_ID, getRefMkid());
+		parm.put(WFConstants.ApiParams.PARM_INST_NUM, instNum);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/options")
+        .then()
+        .body(WFConstants.ApiParams.RETURN_RECORDS, new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				System.out.println(response.getBody().prettyPrint());
+				return NotNull.NOT_NULL;
+			}
+		});
+	}
+	
+	public void getHistory(){
+		JSONObject parm = new JSONObject();
+		parm.put(WFConstants.ApiParams.PARM_GNMK_ID, getRefMkid());
+		parm.put(WFConstants.ApiParams.PARM_INST_NUM, instNum);
+		given().contentType("application/json")
+		.request().body(parm.toJSONString())
+		.when().post("/wfapi/history")
+		.then()
+		.body(WFConstants.ApiParams.RETURN_RECORDS, new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				System.out.println(response.getBody().prettyPrint());
 				return NotNull.NOT_NULL;
 			}
 		});

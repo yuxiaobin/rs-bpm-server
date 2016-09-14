@@ -36,11 +36,16 @@ public class WFConstants {
 		
 		public static final String RETURN_CODE = "return_code";
 		public static final String RETURN_MSG = "return_msg";
-		public static final String RETURN_WF_INST_NUM = "wf_inst_num";
-		public static final String RETURN_CURR_TASK_ID = "curr_task_id";
-		public static final String RETURN_TASK_OPTIONS = "task_options";
+		public static final String RETURN_WF_INST_NUM = "wfInstNum";
+		public static final String RETURN_CURR_TASK_ID = "currTaskId";
+		public static final String RETURN_TASK_OPTIONS = "taskOptions";
 		public static final String RETURN_RECORDS = "records";
 		public static final String RETURN_RECORDS_COUNT = "count";
+		
+		public static final String PARM_USER_ID = "userId";
+		public static final String PARM_GNMK_ID = "gnmkId";
+		public static final String PARM_OPT_CODE = "optCode";
+		public static final String PARM_INST_NUM = "wfInstNum";
 	}
 	
 	public static class AssignType{
