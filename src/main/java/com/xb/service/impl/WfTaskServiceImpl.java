@@ -538,15 +538,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	
 	
 	public JSONArray getTaskOptions(TaskOptVO optVO, boolean needGroup){
-	/*	if(StringUtils.isEmpty(optVO.getRsWfId())){
-			RsWorkflow wfparm = new RsWorkflow();
-			wfparm.setGnmkId(optVO.getGnmkId());
-			RsWorkflow wf = rsWfService.selectOne(wfparm);
-			if(wf==null){
-				return null;
-			}
-			optVO.setRsWfId(wf.getRsWfId());
-		}*/
 		if("admin".equals(optVO.getCurrUserId())){
 			//TODO: need to check if any special cases
 		}
@@ -555,133 +546,96 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		parm.setInstNum(optVO.getInstNum());
 		parm.setRefMkid(optVO.getGnmkId());
 		WfInstance instance = instService.selectOne(parm);
-		WfTask currTask = this.selectById(instance.getTaskIdCurr());
-		if(currTask==null){
-			return  null;
-		}
-		return generateOptions(currTask, needGroup);
+		return generateOptions(this.selectById(instance.getTaskIdCurr()), instance.getInstId(), needGroup);
 	}
 	
-	private JSONArray generateOptions(WfTask task, boolean needGroup){
+	private JSONArray generateOptions(WfTask task, String instId, boolean needGroup){
+		JSONArray result = genOptionArray();//[C, RJ, RC, V, F, LMD, D, TK]
 		if(task==null){
-			return null;
+			return result;
 		}
+		JSONObject choices = JSONObject.parseObject(task.getTxChoices());
+		if(WFConstants.TaskTypes.E.getTypeCode().equals(task.getTaskType())){//current is End task, means wf is closed.
+			Boolean allowReCall = choices.getBoolean("AllowReCall");
+			if(allowReCall!=null &allowReCall){
+				result.getJSONObject(2).put("disflag", false);
+			}
+			return result;//other option disabled
+		}
+		result.getJSONObject(0).put("disflag", false);
+		//Forward:
+		WfTaskAssign assignParm = new WfTaskAssign();
+		assignParm.setTaskId(task.getTaskId());
+		int assignerCount = taskAssignerService.selectCount(assignParm);
+		if(assignerCount>1){
+			result.getJSONObject(4).put("disflag", false);
+		}
+		//Let Me Do
+		if(WFConstants.TxTypes.NORMAL.equals(task.getTxType())){
+			WfAwt awtParm = new WfAwt();
+			awtParm.setInstId(instId);
+			awtParm.setTaskIdCurr(task.getTaskId());
+			int awtCount = awtService.selectCount(awtParm);
+			if(awtCount>1){//普通事务&当前待处理人超过1个人
+				result.getJSONObject(5).put("disflag", false);
+			}
+		}
+		if(choices!=null){
+			Boolean allowGoBack = choices.getBoolean("AllowGoBack");
+			if(allowGoBack!=null && allowGoBack){
+				result.getJSONObject(1).put("disflag", false);
+			}
+			Boolean allowReCall = choices.getBoolean("AllowReCall");
+			if(allowReCall!=null && allowReCall){
+				result.getJSONObject(2).put("disflag", false);
+			}
+		}
+		return result;
+	}
+	
+	private JSONArray genOptionArray(){
 		JSONArray result = new JSONArray();
-		JSONObject option = new JSONObject();
+		JSONObject option = null;
+		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.COMMIT);
 		option.put("disflag", false);//A:active, I:inactive
 		result.add(option);
-		JSONObject choices = JSONObject.parseObject(task.getTxChoices());
-		if(choices!=null){
-			Boolean allowGoBack = choices.getBoolean("AllowGoBack");
-			option = new JSONObject();
-			option.put("value", WFConstants.OptTypes.REJECT);
-			if(allowGoBack==null || !allowGoBack){
-					option.put("disflag", true);//not returned
-			}else{
-				option.put("disflag", false);
-			}
-			result.add(option);
-			Boolean allowVeto = choices.getBoolean("AllowVeto");
-			option = new JSONObject();
-			option.put("value", WFConstants.OptTypes.VETO);
-			if(allowVeto==null || !allowVeto){
-					option.put("disflag", true);
-			}else{
-				option.put("disflag", false);
-			}
-			result.add(option);
-			option = new JSONObject();
-			option.put("value", WFConstants.OptTypes.FORWARD);
-			option.put("disflag", false);
-			result.add(option);
-			
-			Boolean allowReCall = choices.getBoolean("AllowReCall");
-			option = new JSONObject();
-			option.put("value", WFConstants.OptTypes.RECALL);
-			if(allowReCall==null || !allowReCall){
-					option.put("disflag", true);
-			}else{
-				option.put("disflag", false);
-			}
-			result.add(option);
-			option = new JSONObject();
-			option.put("value", WFConstants.OptTypes.LET_ME_DO);
-			option.put("disflag", false);
-			result.add(option);
-			option = new JSONObject();
-			option.put("value", WFConstants.OptTypes.DISPATCH);
-			option.put("disflag", true);
-			result.add(option);
-			option = new JSONObject();
-			option.put("value", WFConstants.OptTypes.TRACK);
-			option.put("disflag", false);
-			result.add(option);
-		}
-		/*if(task!=null){
-			//第1组菜单
-			JSONArray group1 = new JSONArray();
-			JSONObject option = new JSONObject();
-			option.put("value", "commit");
-			option.put("disflag", false);//A:active, I:inactive
-			group1.add(option);
-			JSONObject choices = JSONObject.parseObject(task.getTxChoices());
-			if(choices!=null){
-				Boolean allowGoBack = choices.getBoolean("AllowGoBack");
-				option = new JSONObject();
-				option.put("value", "back");
-				if(allowGoBack==null || !allowGoBack){
-//					option.put("disflag", true);//not returned
-				}else{
-					option.put("disflag", false);
-					group1.add(option);
-				}
-				
-				Boolean allowVeto = choices.getBoolean("AllowVeto");
-				option = new JSONObject();
-				option.put("value", "veto");
-				if(allowVeto==null || !allowVeto){
-//					option.put("disflag", true);
-				}else{
-					option.put("disflag", false);
-					group1.add(option);
-				}
-				result.add(group1);
-				//第二组菜单
-				group1 = new JSONArray();
-				option = new JSONObject();
-				option.put("value", "forward");
-				option.put("disflag", false);
-				group1.add(option);
-				
-				Boolean allowReCall = choices.getBoolean("AllowReCall");
-				option = new JSONObject();
-				option.put("value", "recall");
-				if(allowReCall==null || !allowReCall){
-//					option.put("disflag", true);
-				}else{
-					option.put("disflag", false);
-					group1.add(option);
-				}
-				
-				option = new JSONObject();
-				option.put("value", "letmedo");
-				option.put("disflag", false);
-				group1.add(option);
-				result.add(group1);
-				//第三组菜单
-				group1 = new JSONArray();
-				option = new JSONObject();
-				option.put("value", "dispatch");
-				option.put("disflag", true);
-				group1.add(option);
-				option = new JSONObject();
-				option.put("value", "track");
-				option.put("disflag", false);
-				group1.add(option);
-				result.add(group1);
-			}
-		}*/
+		
+		option = new JSONObject();
+		option.put("value", WFConstants.OptTypes.REJECT);
+		option.put("disflag", true);
+		result.add(option);
+		
+		option = new JSONObject();
+		option.put("value", WFConstants.OptTypes.RECALL);
+		option.put("disflag", true);
+		result.add(option);
+		
+		option = new JSONObject();
+		option.put("value", WFConstants.OptTypes.VETO);
+		option.put("disflag", true);
+		result.add(option);
+		
+		option = new JSONObject();
+		option.put("value", WFConstants.OptTypes.FORWARD);
+		option.put("disflag", true);
+		result.add(option);
+		
+		option = new JSONObject();
+		option.put("value", WFConstants.OptTypes.LET_ME_DO);
+		option.put("disflag", true);
+		result.add(option);
+		
+		option = new JSONObject();
+		option.put("value", WFConstants.OptTypes.DISPATCH);
+		option.put("disflag", true);
+		result.add(option);
+		
+		option = new JSONObject();
+		option.put("value", WFConstants.OptTypes.TRACK);
+		option.put("disflag", false);
+		result.add(option);
 		return result;
 	}
+	
 }

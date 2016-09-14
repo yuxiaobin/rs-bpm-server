@@ -72,7 +72,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	
 	private boolean renew4Commit(WfAwt prev, WfTask currtask, WfInstance wfInst, String currUserId){
 		String instId = prev.getInstId();
-		if(WFConstants.TxCodes.COUNTERSIGN.equals(currtask.getTxType())){
+		if(WFConstants.TxTypes.COUNTERSIGN.equals(currtask.getTxType())){
 			prev.setCompleteFlag("Y");
 			this.updateById(prev);
 			WfAwt parm = new WfAwt();
@@ -283,6 +283,11 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		try{
 			for(String assinger: nextAssignerArray){
 				if(!StringUtils.isEmpty(assinger)){
+					awtParm.setAssignerId(assinger);
+					awtNew = this.selectOne(awtParm);
+					if(awtNew!=null){
+						continue;
+					}
 					awtNew = awt.clone();
 					awtNew.setAssignerId(assinger);
 					awtNew.setOptUsersPre(currUserId);
@@ -296,7 +301,9 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			throw new BusinessException("Error when create Awt for forward task");
 		}
 		this.deleteById(awt.getWfAwtId());
-		this.insertBatch(awtNewList);
+		if(!awtNewList.isEmpty()){
+			this.insertBatch(awtNewList);
+		}
 		return false;
 	}
 	

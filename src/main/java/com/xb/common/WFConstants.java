@@ -15,7 +15,7 @@ public class WFConstants {
 		public static final String TRACK = "TK";//流程跟踪
 	}
 	
-	public static class TxCodes{
+	public static class TxTypes{
 		public static final String COUNTERSIGN = "M";
 		public static final String NORMAL = "S";
 	}
