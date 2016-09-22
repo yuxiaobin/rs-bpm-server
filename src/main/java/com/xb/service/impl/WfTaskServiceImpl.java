@@ -94,7 +94,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			return null;
 		}
 		String wfId = wfDefList.get(0).getWfId();
-		synchronized (wfId) {
+		synchronized (wfId+"_st") {
 			WfInstance instParm = new WfInstance();
 			instParm.setRsWfId(rsWfId);
 			List<WfInstance> instList4RsWfId = instService.selectList(instParm, "INST_NUM desc");
@@ -286,22 +286,22 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	public List<TaskVO> getNextTasksByOptCode(TaskOptVO optVO){
 		String optCode = optVO.getOptCode();
 		WfAwt awt = getAwtByParm(optVO);
+		if(WFConstants.OptTypes.RECALL.equals(optCode)){
+			WfInstance instParm = new WfInstance();
+			instParm.setInstNum(optVO.getInstNum());
+			instParm.setRefMkid(optVO.getGnmkId());
+			instParm.setRsWfId(optVO.getRsWfId());
+			WfInstance inst = instService.selectOne(instParm);
+			WfTask task = this.selectById(inst.getTaskIdPre());
+			List<TaskVO> nextTaskList = new ArrayList<TaskVO>(1);
+			TaskVO taskVO = new TaskVO();
+			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
+			taskVO.setTaskId(task.getTaskId());
+			nextTaskList.add(taskVO);
+			return nextTaskList;
+		}
 		if(awt==null){
-			if(WFConstants.OptTypes.RECALL.equals(optCode)){
-				WfInstance instParm = new WfInstance();
-				instParm.setInstNum(optVO.getInstNum());
-				instParm.setRefMkid(optVO.getGnmkId());
-				instParm.setRsWfId(optVO.getRsWfId());
-				WfInstance inst = instService.selectOne(instParm);
-				WfTask task = this.selectById(inst.getTaskIdPre());
-				List<TaskVO> nextTaskList = new ArrayList<TaskVO>(1);
-				TaskVO taskVO = new TaskVO();
-				taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
-				taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
-				taskVO.setTaskId(task.getTaskId());
-				nextTaskList.add(taskVO);
-				return nextTaskList;
-			}
 			return null;
 		}
 		List<TaskVO> nextTaskList = null;
@@ -416,6 +416,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		case WFConstants.OptTypes.FORWARD:
 			nextTaskId = currTaskId;
 			break;
+		case WFConstants.OptTypes.RECALL:
+			return getNextAssigner4Recall(optVO.getCurrUserId());
 		default:
 			System.out.println("Currently not support other option code:"+optCode);//TODO: other OptCode , get assigners
 			log.debug("getNextAssignersByOptCode(): Currently not support other option code:"+optCode);
@@ -557,7 +559,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		JSONObject choices = JSONObject.parseObject(task.getTxChoices());
 		if(WFConstants.TaskTypes.E.getTypeCode().equals(task.getTaskType())){//current is End task, means wf is closed.
 			Boolean allowReCall = choices.getBoolean("AllowReCall");
-			if(allowReCall!=null &allowReCall){
+			if(allowReCall!=null &&allowReCall){
 				result.getJSONObject(2).put("disflag", false);
 			}
 			return result;//other option disabled
@@ -590,6 +592,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				result.getJSONObject(2).put("disflag", false);
 			}
 		}
+		result.getJSONObject(2).put("disflag", false);//TODO: for testing 0922
 		return result;
 	}
 	

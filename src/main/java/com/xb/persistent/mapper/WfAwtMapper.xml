@@ -49,8 +49,9 @@ from wf_awt awt
 join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 <trim prefix="where" prefixOverrides="and |or">
+	COMPLETE_FLAG='N'
 	<if test="instId != null">
-	    awt.INST_ID = #{instId}
+	    and awt.INST_ID = #{instId}
 	</if>
 	<if test="rsWfId != null">
 	    and inst.RS_WF_ID=#{rsWfId}

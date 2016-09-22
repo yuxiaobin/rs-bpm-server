@@ -139,7 +139,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	 */
 	private boolean renewRecall(WfInstance inst, WfTask nextTask, String currUserId) throws BusinessException{
 		String instId = inst.getInstId();
-		synchronized (instId) {
+		synchronized (instId+"_rc") {
 			WfAwt awtParm = new WfAwt();
 			awtParm.setInstId(instId);
 			awtParm.setOptUsersPre(currUserId);

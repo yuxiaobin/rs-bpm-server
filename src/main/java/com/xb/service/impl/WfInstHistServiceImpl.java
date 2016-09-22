@@ -42,9 +42,6 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		histParm.setInstId(instId);
 		List<WfInstHist>list= baseMapper.getInstHistByInstId(instId);
 		
-//		WfInstance inst = instService.selectById(instId);
-//		String currentTaskOwner = inst.getCurrAssigners();
-		
 		List<WfAwt> awtList = awtService.getAwtListByInstId(instId);
 		if(awtList!=null && !awtList.isEmpty()){
 			WfAwt awt = awtList.get(0);
@@ -54,12 +51,12 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 			awtHist.setInstId(awt.getInstId());
 			awtHist.setTaskBegin(awt.getAwtBegin());
 			awtHist.setTaskEnd(awt.getAwtEnd());
-//			awtHist.setTaskOwner(currentTaskOwner==null?awt.getTaskOwner():currentTaskOwner);
 			for(WfAwt awtTmp:awtList){
-				nextAssigners += awtTmp.getAssignerId()+", ";
+				if(awtTmp.getCompleteFlag().equals("N")){
+					nextAssigners += awtTmp.getAssignerId()+", ";
+				}
 			}
 			awtHist.setTaskOwner(nextAssigners);
-//			awtHist.setNextAssigner(nextAssigners);
 			if(list == null){
 				list = new ArrayList<WfInstHist>(1);
 			}
@@ -81,7 +78,7 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 	
 	public String createHistRecord(TaskOptVO optVO, WfAwt awt, String currUserId){
 		String instId = awt.getInstId();
-		synchronized (instId) {
+		synchronized (instId+"_hist") {
 			WfInstHist parm = new WfInstHist();
 			parm.setInstId(instId);
 			List<WfInstHist> histList = this.selectList(parm, "OPT_SEQ desc");
