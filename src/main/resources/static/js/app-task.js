@@ -379,6 +379,10 @@ angular.module('taskApp', [ ])
             if(newVal=="M"){
                 $scope.csFlag = true;
                 $scope.task.SIGN_CHOICES.AllHandledThenGo = true;
+                if($scope.task.SIGN_CHOICES.PartHandledThenGo == true){
+                    $scope.task.SIGN_CHOICES.AllHandledThenGo = false;
+                }
+
             }else if(newVal=="S"){
                 $scope.csFlag = false;
                 $scope.task.SIGN_CHOICES.AllHandledThenGo = false;

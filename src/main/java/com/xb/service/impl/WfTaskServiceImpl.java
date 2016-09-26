@@ -599,7 +599,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				result.getJSONObject(2).put("disflag", false);
 			}
 		}
-		result.getJSONObject(2).put("disflag", false);//TODO: for testing 0922
+//		result.getJSONObject(2).put("disflag", false);//TODO: for testing 0922
 		return result;
 	}
 	
