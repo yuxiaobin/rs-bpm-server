@@ -30,6 +30,7 @@ public class WFConstants {
 		public static final int STATUS_CODE_INVALID = 1;
 		public static final int STATUS_CODE_NO_RECORD = 2;
 		public static final int STATUS_CODE_OPT_NOT_ALLOW = 3;
+		public static final int STATUS_CODE_WF_NOT_DEFINED = 4;
 		public static final int STATUS_CODE_FAIL = 9;
 		
 		public static final String STATUS_MSG_OPT_NOT_ALLOW = "该操作不被允许";

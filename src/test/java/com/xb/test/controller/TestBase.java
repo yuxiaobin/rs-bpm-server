@@ -34,7 +34,6 @@ public abstract class TestBase {
 	
 	String rsWfId;
 	Integer instNum;
-	String currTaskId;
 	String nextTaskId4Commit;
 	
 	public abstract String getRefMkid();
@@ -80,7 +79,6 @@ public abstract class TestBase {
 		});
 		JSONObject json = JSONObject.parseObject(response.extract().asString());
 		instNum = json.getInteger(WFConstants.ApiParams.RETURN_WF_INST_NUM);
-		currTaskId = json.getString(WFConstants.ApiParams.RETURN_CURR_TASK_ID);
 		getNextTask4Commit();
 		commitTask(starterId, nextTaskAssigners);//From start task committed to first task.
 	}
@@ -157,7 +155,7 @@ public abstract class TestBase {
         .body("return_code", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
-				currTaskId = nextTaskId4Commit;
+//				currTaskId = nextTaskId4Commit;
 				return new Equals(0);
 			}
 		});
@@ -174,7 +172,6 @@ public abstract class TestBase {
 		parm.put("nextUserIds", nextAssignerIds);
 		parm.put("optCode", "RJ");
 		parm.put("wfInstNum", instNum);
-//		parm.put("currTaskId", currTaskId);
 		given().contentType("application/json")
 		.request().body(parm.toJSONString())
 		.when().post("/wfapi/operate")
@@ -183,7 +180,6 @@ public abstract class TestBase {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
 				System.out.println(response.prettyPrint());
-				currTaskId = nextTaskId4Commit;
 				return new Equals(0);
 			}
 		});

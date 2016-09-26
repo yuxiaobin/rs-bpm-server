@@ -40,6 +40,7 @@ public class WFApiController extends BaseController {
 	private static final int STATUS_CODE_SUCC = WFConstants.ApiParams.STATUS_CODE_SUCC;
 	private static final int STATUS_CODE_FAIL = WFConstants.ApiParams.STATUS_CODE_FAIL;
 	private static final int STATUS_CODE_INVALID = WFConstants.ApiParams.STATUS_CODE_INVALID;
+	private static final int STATUS_CODE_WF_NOT_DEFINED = WFConstants.ApiParams.STATUS_CODE_WF_NOT_DEFINED;
 	private static final int STATUS_CODE_OPT_NOT_ALLOW = WFConstants.ApiParams.STATUS_CODE_OPT_NOT_ALLOW;
 	private static final int STATUS_CODE_NO_RECORD = WFConstants.ApiParams.STATUS_CODE_NO_RECORD;
 	
@@ -147,8 +148,8 @@ public class WFApiController extends BaseController {
 				result.put(RETURN_CURR_TASK_ID, startResult.getString(RETURN_CURR_TASK_ID));
 				result.put(RETURN_MSG, "succ");
 			}else{
-				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "no wf record found");
+				result.put(RETURN_CODE, STATUS_CODE_WF_NOT_DEFINED);
+				result.put(RETURN_MSG, "WF not defined");
 			}
 		}catch(Exception e){
 			log.error("startWf,parm="+parm.toJSONString(), e);
@@ -386,6 +387,7 @@ public class WFApiController extends BaseController {
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(userId) || StringUtils.isEmpty(gnmkId)
 				|| StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode)){
+			log.warn("================================= invalid parameter= for gnmkId= "+ gnmkId+"===================");
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;

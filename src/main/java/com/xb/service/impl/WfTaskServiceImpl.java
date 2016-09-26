@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -293,8 +294,26 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			instParm.setRsWfId(optVO.getRsWfId());
 			WfInstance inst = instService.selectOne(instParm);
 			WfTask task = this.selectById(inst.getTaskIdPre());
+			if(!StringUtils.isEmpty(optVO.getCurrUserId())){
+				WfInstHist parm = new WfInstHist();
+				parm.setOptUser(optVO.getCurrUserId());
+				parm.setInstId(inst.getInstId());
+				List<WfInstHist> hist4CurrUser = histService.selectList(parm, "OPT_SEQ DESC");
+				if(hist4CurrUser==null || hist4CurrUser.isEmpty()){
+					log.warn("======recall warning=====");
+					log.warn(optVO+", hist4currUser is null");
+					return null;
+				}
+				WfInstHist hist = hist4CurrUser.get(0);
+				if(!hist.getTaskId().equals(task.getTaskId())){//recall forward, taskid will be different
+					if(!WFConstants.OptTypes.FORWARD.equals(hist.getOptType())){
+						return null;
+					}
+				}
+			}
 			List<TaskVO> nextTaskList = new ArrayList<TaskVO>(1);
 			TaskVO taskVO = new TaskVO();
+			taskVO.setTaskTypeCode(task.getTaskType());
 			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
 			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
 			taskVO.setTaskId(task.getTaskId());

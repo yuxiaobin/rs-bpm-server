@@ -23,7 +23,14 @@ public class TaskVO {
 	private String taskId;
 	private String taskDescpDisp;
 	private String taskType;//start-task, end-task, user-task, rs-cond-task
-	//TODO: other fields for reject
+	private String taskTypeCode;
+	
+	public String getTaskTypeCode() {
+		return taskTypeCode;
+	}
+	public void setTaskTypeCode(String taskTypeCode) {
+		this.taskTypeCode = taskTypeCode;
+	}
 	public String getTaskDescpDisp() {
 		return taskDescpDisp;
 	}

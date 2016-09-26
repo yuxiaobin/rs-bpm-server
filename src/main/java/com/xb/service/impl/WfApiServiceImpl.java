@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.common.WFConstants;
-import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.service.IWfApiService;
@@ -17,6 +16,7 @@ import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskAssignService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskOptVO;
+import com.xb.vo.TaskVO;
 
 @Service
 public class WfApiServiceImpl implements IWfApiService {
@@ -80,8 +80,11 @@ public class WfApiServiceImpl implements IWfApiService {
 		optVO.setRsWfId(inst.getRsWfId());
 		
 		WfTask nextTask = null;
-		if(WFConstants.OptTypes.RECALL.equals(optCode)){
-//			task = taskService.selectById(optVO.getCurrTaskId());//recall: no need current taskId
+		List<TaskVO> nextTasks = taskService.getNextTasksByOptCode(optVO);
+		if(nextTasks!=null && !nextTasks.isEmpty()){
+			nextTask = taskService.selectById(nextTasks.get(0).getTaskId());
+		}
+		/*if(WFConstants.OptTypes.RECALL.equals(optCode)){
 			WfInstHist parm = new WfInstHist();
 			parm.setOptUser(optVO.getCurrUserId());
 			parm.setInstId(inst.getInstId());
@@ -94,11 +97,11 @@ public class WfApiServiceImpl implements IWfApiService {
 			nextTask = taskService.selectById(hist4CurrUser.get(0).getTaskId());
 		}else{
 			nextTask = taskService.selectById(optVO.getNextTaskId());
-		}
+		}*/
 		
 		if(nextTask==null){
-			result.put(RETURN_CODE, STATUS_CODE_INVALID);
-			result.put(RETURN_MSG, "invalid taskId:"+optVO.getNextTaskId());
+			result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+			result.put(RETURN_MSG, "cannot find next task due to invalid operation for current user");
 			return false;
 		}
 		String taskTypeCode = nextTask.getTaskType();
