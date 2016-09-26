@@ -168,9 +168,15 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		String optCode = optVO.getOptCode();
 		switch (optCode) {
 		case WFConstants.OptTypes.COMMIT:
+			if(optVO.getNextTaskId()==null){
+				optVO.setNextTaskId(getNextTaskIdByOptCodeAsDefault(optVO));
+			}
 			nextTask = this.selectById(optVO.getNextTaskId());
 			break;
 		case WFConstants.OptTypes.REJECT:
+			if(optVO.getNextTaskId()==null){
+				optVO.setNextTaskId(getNextTaskIdByOptCodeAsDefault(optVO));
+			}
 			nextTask = this.selectById(optVO.getNextTaskId());
 			break;
 		case WFConstants.OptTypes.FORWARD:
@@ -394,23 +400,16 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			nextTaskList.add(taskVO);
 			return nextTaskList;
 		}
-		/*if(WFConstants.OptTypes.RECALL.equals(optCode)){
-			String taskIdPre = awt.getTaskIdPre();
-			if(StringUtils.isEmpty(taskIdPre)){
-				log.error("getNextTasksByOptCode(): RECALL IS NOT ALLOWED: taskIdPre is null for optVO="+optVO);
-				return null;
-			}
-			WfTask task = this.selectById(awt.getTaskIdPre());
-			nextTaskList = new ArrayList<TaskVO>(1);
-			TaskVO taskVO = new TaskVO();
-			taskVO.setTaskType(WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
-			taskVO.setTaskDescpDisp(task.getTaskDescpDisp());
-			taskVO.setTaskId(task.getTaskId());
-			nextTaskList.add(taskVO);
-			return nextTaskList;
-		}*/
 		//other cases, if need to get next task list.
 		return null;
+	}
+	
+	private String getNextTaskIdByOptCodeAsDefault(TaskOptVO optVO){
+		List<TaskVO> nextTasks = getNextTasksByOptCode(optVO);
+		if(nextTasks==null || nextTasks.isEmpty()){
+			return null;
+		}
+		return nextTasks.get(0).getTaskId();
 	}
 	
 	
@@ -528,16 +527,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
 				awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
 				if(awt==null){
-					/*Map<String,Object> parmMap = new HashMap<String,Object>();
-					parmMap.put("rsWfId", optVO.getRsWfId());
-					parmMap.put("instNum", optVO.getInstNum());
-					parmMap.put("taskTypeCode", WFConstants.TaskTypes.E.getTypeCode());
-					parmMap.put("recaller", "%"+optVO.getCurrUserId()+"%");
-					List<WfTask> list = baseMapper.getEndTask4Recall(parmMap);
-					if(list==null || list.isEmpty()){
-						return null;
-					}
-					return list.get(0);*/
 					WfInstance instParm = new WfInstance();
 					instParm.setRsWfId(optVO.getRsWfId());
 					instParm.setInstNum(optVO.getInstNum());
@@ -552,7 +541,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 					return null;
 				}
 			}
-			
 		}
 		return this.selectById(awt.getTaskIdCurr());
 	}

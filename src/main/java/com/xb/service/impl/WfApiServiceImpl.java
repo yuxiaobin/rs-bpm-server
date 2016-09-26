@@ -84,37 +84,20 @@ public class WfApiServiceImpl implements IWfApiService {
 		if(nextTasks!=null && !nextTasks.isEmpty()){
 			nextTask = taskService.selectById(nextTasks.get(0).getTaskId());
 		}
-		/*if(WFConstants.OptTypes.RECALL.equals(optCode)){
-			WfInstHist parm = new WfInstHist();
-			parm.setOptUser(optVO.getCurrUserId());
-			parm.setInstId(inst.getInstId());
-			List<WfInstHist> hist4CurrUser = histService.selectList(parm, "OPT_SEQ DESC");
-			if(hist4CurrUser==null || hist4CurrUser.isEmpty()){
-				result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
-				result.put(RETURN_MSG, STATUS_MSG_OPT_NOT_ALLOW);
-				return false;
-			}
-			nextTask = taskService.selectById(hist4CurrUser.get(0).getTaskId());
-		}else{
-			nextTask = taskService.selectById(optVO.getNextTaskId());
-		}*/
-		
 		if(nextTask==null){
 			result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
 			result.put(RETURN_MSG, "cannot find next task due to invalid operation for current user");
 			return false;
 		}
-		String taskTypeCode = nextTask.getTaskType();
 		
 		boolean isNextStartEndTask = false;
-		
-			
+		String taskTypeCode = nextTask.getTaskType();
 		if(WFConstants.TaskTypes.S.getTypeCode().equals(taskTypeCode)
 				|| WFConstants.TaskTypes.E.getTypeCode().equals(taskTypeCode)){
 			isNextStartEndTask = true;
 		}else{
 			if(!WFConstants.OptTypes.RECALL.equals(optCode)){
-				List<String> assignedUserIdList = taskAssignService.getAssignedUsersByTaskId(optVO.getNextTaskId());
+				List<String> assignedUserIdList = taskAssignService.getAssignedUsersByTaskId(nextTask.getTaskId());
 				if(assignedUserIdList!=null){
 					boolean hasInvaldUser = false;
 					StringBuilder invalidUsers = new StringBuilder();

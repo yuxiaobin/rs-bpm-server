@@ -79,7 +79,7 @@ public abstract class TestBase {
 		});
 		JSONObject json = JSONObject.parseObject(response.extract().asString());
 		instNum = json.getInteger(WFConstants.ApiParams.RETURN_WF_INST_NUM);
-		getNextTask4Commit();
+//		getNextTask4Commit();
 		commitTask(starterId, nextTaskAssigners);//From start task committed to first task.
 	}
 	
@@ -99,9 +99,9 @@ public abstract class TestBase {
 	/**
 	 * Common method
 	 */
-	private void getNextTask4Commit(){
+	/*private void getNextTask4Commit(){
 		getNextTask("C");
-	}
+	}*/
 	private void getNextTask4Reject(){
 		getNextTask("RJ");
 	}
@@ -121,7 +121,7 @@ public abstract class TestBase {
 				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
 				JSONArray records = json.getJSONArray("records");
 				nextTaskId4Commit = records.getJSONObject(0).getString("taskId");
-				System.out.println("testGetNextTask4Commit():\t nextTaskId4Commit is "+nextTaskId4Commit);
+//				System.out.println("testGetNextTask4Commit():\t nextTaskId4Commit is "+nextTaskId4Commit);
 				return NotNull.NOT_NULL;
 			}
 		}) ;
@@ -138,13 +138,13 @@ public abstract class TestBase {
 	
 	public void commitTask(String committer, String nextAssignerIds, boolean needGetNextTaskFlag){
 		if(needGetNextTaskFlag){
-			getNextTask4Commit();
+//			getNextTask4Commit();
 		}
 		JSONObject parm = new JSONObject();
 		parm.put("userId", committer);
 		parm.put("gnmkId", getRefMkid());
 		parm.put("comments", "junitTest: "+committer+" commit");
-		parm.put("nextTaskId", nextTaskId4Commit);
+//		parm.put("nextTaskId", nextTaskId4Commit);
 		parm.put("nextUserIds", nextAssignerIds);
 		parm.put("optCode", "C");
 		parm.put("wfInstNum", instNum);
