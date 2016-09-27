@@ -62,6 +62,7 @@ public class WFApiController extends BaseController {
 	private static final String PARM_USER_ID = WFConstants.ApiParams.PARM_USER_ID;
 	private static final String PARM_GNMK_ID = WFConstants.ApiParams.PARM_GNMK_ID;
 	private static final String PARM_OPT_CODE = WFConstants.ApiParams.PARM_OPT_CODE;
+	private static final String PARM_CALLBACK_URL = WFConstants.ApiParams.PARM_CALLBACK_URL;
 	
 	
 	
@@ -200,6 +201,7 @@ public class WFApiController extends BaseController {
 		String instNumStr = req.getParameter(PARM_WF_INST_NUM);
 		String gnmkId = req.getParameter(PARM_GNMK_ID);
 		String optCode = req.getParameter(PARM_OPT_CODE);
+		String callbackUrl = req.getParameter(PARM_CALLBACK_URL);
 		if(StringUtils.isEmpty(instNumStr) || StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(optCode)){
 			req.setAttribute(RETURN_CODE, STATUS_CODE_INVALID);
 			req.setAttribute(RETURN_MSG, "passed in data is empty");
@@ -235,6 +237,8 @@ public class WFApiController extends BaseController {
 			if(WFConstants.OptTypes.TRACK.equals(optCode)){
 				return "wf-popup-track";
 			}else{
+				req.setAttribute("callbackUrl", callbackUrl);
+				req.setAttribute("userId", req.getParameter("userId"));
 				req.setAttribute(PARM_OPT_CODE, optCode);
 				//提交，退回，否决等操作事务页面
 				TaskOptVO optVO = new TaskOptVO();

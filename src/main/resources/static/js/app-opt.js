@@ -39,18 +39,29 @@ angular.module('taskApp', [ ])
         }
         this.submitTask = function(optVO){
             var delay = $q.defer();
-            var req = {
-                method: 'POST',
-                data:optVO,
-                url: basePath+"/task/process"
-            };
-            $http(req)
-                .success(function(data, status, headers, config){
-                    delay.resolve(data);
-                })
-                .error(function(data, status, headers, config){
-                    delay.reject(data);
-                });
+            var url = basePath+"/task/process";
+            if(optVO.callbackUrl!=""){
+                url = callbackUrl+"?userId="+userId+"&gnmkId="+optVO.refMkid+"&wfInstNum="+optVO.instNum+"&optCode="+optVO.optCode
+                    +"&comments="+optVO.comments+"&nextTaskId="+optVO.nextTaskId+"&nextUserIds="+optVO.nextAssigners+"&callback=JSON_CALLBACK";
+               $http.jsonp(url).success(function(succ){
+                    delay.resolve(succ);
+               }).error(function(data){
+                   delay.reject(data);
+               });
+            }else{
+                var req = {
+                    method: 'POST',
+                    data:optVO,
+                    url:url
+                };
+                $http(req)
+                    .success(function(data, status, headers, config){
+                        delay.resolve(data);
+                    })
+                    .error(function(data, status, headers, config){
+                        delay.reject(data);
+                    });
+            }
             return delay.promise;
         }
     }])
@@ -213,6 +224,11 @@ angular.module('taskApp', [ ])
                 assigners+=selectedUsersArray[i].id+",";
             }
             optVO.nextAssigners = assigners;
+            if(typeof(callbackUrl)!='undefined'){
+                optVO.callbackUrl = callbackUrl;
+            }else{
+                optVO.callbackUrl = "";
+            }
             taskService.submitTask(optVO).then(function(success){
                 alert( $scope.optTitle+"成功");
                 hideModal();

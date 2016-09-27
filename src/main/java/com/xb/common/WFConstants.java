@@ -47,6 +47,7 @@ public class WFConstants {
 		public static final String PARM_GNMK_ID = "gnmkId";
 		public static final String PARM_OPT_CODE = "optCode";
 		public static final String PARM_INST_NUM = "wfInstNum";
+		public static final String PARM_CALLBACK_URL = "callbackUrl";
 	}
 	
 	public static class AssignType{

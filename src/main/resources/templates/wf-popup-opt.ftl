@@ -17,6 +17,12 @@
         <#if optCode?exists>
             var optCode = "${optCode}";
         </#if>
+        <#if callbackUrl?exists>
+            var callbackUrl = ${callbackUrl};
+        </#if>
+        <#if userId?exists>
+            var userId = ${userId};
+        </#if>
         <#if TX_PR_CHOICES?exists>
             var TX_PR_CHOICES = ${TX_PR_CHOICES};
         </#if>
