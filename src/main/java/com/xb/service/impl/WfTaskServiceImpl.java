@@ -540,6 +540,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 					//存在不符合撤回条件的awt
 					return null;
 				}
+			}else{
+				return null;
 			}
 		}
 		return this.selectById(awt.getTaskIdCurr());
