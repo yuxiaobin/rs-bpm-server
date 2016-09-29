@@ -31,7 +31,7 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 */
 	public JSONObject startWFByGnmkId(String gnmkId, String userId);
 	
-	public boolean processTask(TaskOptVO optVO, String currUserId) throws BusinessException;
+	public JSONObject processTask(TaskOptVO optVO, String currUserId) throws BusinessException;
 	/**
 	 * 获取当前工作流状态
 	 * @param histId
