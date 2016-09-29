@@ -415,7 +415,7 @@ public class WFApiController extends BaseController {
 			if(!wfApiService.validateOperate(optVO, result)){
 				return result;
 			}
-			taskService.processTask(optVO, userId);
+			result = taskService.processTask(optVO, userId);
 			result.put(RETURN_CODE, STATUS_CODE_SUCC);
 			result.put(RETURN_MSG, "Succ");
 			return result;

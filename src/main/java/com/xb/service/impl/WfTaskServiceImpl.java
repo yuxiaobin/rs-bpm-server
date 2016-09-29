@@ -137,7 +137,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 
 	@Transactional
-	public boolean processTask(TaskOptVO optVO, String currUserId) throws BusinessException{
+	public JSONObject processTask(TaskOptVO optVO, String currUserId) throws BusinessException{
 		optVO.setCurrUserId(currUserId);
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null || !awt.getAssignerId().equals(currUserId)){
@@ -199,7 +199,10 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		optVO.setWfId(currtask.getWfId());
 		optVO.setPrevInstHistId(histService.createHistRecord(optVO, awt ,currUserId));
 		awtService.renewAwt(awt, currtask, nextTask, optVO, currUserId);
-		return true;
+		JSONObject result = new JSONObject();
+		result.put("buzStatusBefore", currtask.getBuzStatus());
+		result.put("buzStatusAfter", nextTask.getBuzStatus());
+		return result;
 	}
 	
 	private String getPrevTaskId(String currTaskId){
@@ -571,7 +574,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			if(allowReCall!=null &&allowReCall){
 				result.getJSONObject(2).put("disflag", false);
 			}
-			return result;//other option disabled
+			return filterDisabledOptions(result);
 		}
 		result.getJSONObject(0).put("disflag", false);
 		//Forward:
@@ -601,8 +604,18 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				result.getJSONObject(2).put("disflag", false);
 			}
 		}
-//		result.getJSONObject(2).put("disflag", false);//TODO: for testing 0922
-		return result;
+		return filterDisabledOptions(result);
+	}
+	
+	private JSONArray filterDisabledOptions(JSONArray result){
+		JSONArray filteredResult = new JSONArray();
+		for(int i=0;i<result.size();++i){
+			JSONObject jsn = result.getJSONObject(i);
+			if(!jsn.getBooleanValue("disflag")){
+				filteredResult.add(jsn);
+			}
+		}
+		return filteredResult;
 	}
 	
 	private JSONArray genOptionArray(){
@@ -610,41 +623,49 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		JSONObject option = null;
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.COMMIT);
+		option.put("descp", WFConstants.OptTypesDescp.COMMIT);
 		option.put("disflag", false);//A:active, I:inactive
 		result.add(option);
 		
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.REJECT);
+		option.put("descp", WFConstants.OptTypesDescp.REJECT);
 		option.put("disflag", true);
 		result.add(option);
 		
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.RECALL);
+		option.put("descp", WFConstants.OptTypesDescp.RECALL);
 		option.put("disflag", true);
 		result.add(option);
 		
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.VETO);
+		option.put("descp", WFConstants.OptTypesDescp.VETO);
 		option.put("disflag", true);
 		result.add(option);
 		
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.FORWARD);
+		option.put("descp", WFConstants.OptTypesDescp.FORWARD);
 		option.put("disflag", true);
 		result.add(option);
 		
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.LET_ME_DO);
+		option.put("descp", WFConstants.OptTypesDescp.LET_ME_DO);
 		option.put("disflag", true);
 		result.add(option);
 		
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.DISPATCH);
+		option.put("descp", WFConstants.OptTypesDescp.DISPATCH);
 		option.put("disflag", true);
 		result.add(option);
 		
 		option = new JSONObject();
 		option.put("value", WFConstants.OptTypes.TRACK);
+		option.put("descp", WFConstants.OptTypesDescp.TRACK);
 		option.put("disflag", false);
 		result.add(option);
 		return result;

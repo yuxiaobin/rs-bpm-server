@@ -15,6 +15,20 @@ public class WFConstants {
 		public static final String TRACK = "TK";//流程跟踪
 	}
 	
+	public static class OptTypesDescp{
+//		public static final String REQUEST = "RQ";
+//		public static final String APPROVE = "AP";
+		public static final String COMMIT = "流程提交";//提交
+		public static final String REJECT = "流程退回";//退回
+		public static final String VETO = "流程否决";//否决
+		public static final String FORWARD = "流程转交";//转交
+		public static final String RECALL = "流程撤回";//撤回
+		public static final String LET_ME_DO = "我来处理";//我来处理
+		public static final String DISPATCH = "流程调度";//流程调度
+		public static final String TRACK = "流程跟踪";//流程跟踪
+	}
+	
+	
 	public static class TxTypes{
 		public static final String COUNTERSIGN = "M";
 		public static final String NORMAL = "S";
