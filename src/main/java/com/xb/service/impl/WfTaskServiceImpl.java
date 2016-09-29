@@ -560,10 +560,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		parm.setInstNum(optVO.getInstNum());
 		parm.setRefMkid(optVO.getGnmkId());
 		WfInstance instance = instService.selectOne(parm);
-		return generateOptions(this.selectById(instance.getTaskIdCurr()), instance.getInstId(), needGroup);
+		return generateOptions(instance, needGroup);
 	}
 	
-	private JSONArray generateOptions(WfTask task, String instId, boolean needGroup){
+	private JSONArray generateOptions( WfInstance instance, boolean needGroup){
+		WfTask task = this.selectById(instance.getTaskIdCurr());
 		JSONArray result = genOptionArray();//[C, RJ, RC, V, F, LMD, D, TK]
 		if(task==null){
 			return result;
@@ -587,7 +588,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		//Let Me Do
 		if(WFConstants.TxTypes.NORMAL.equals(task.getTxType())){
 			WfAwt awtParm = new WfAwt();
-			awtParm.setInstId(instId);
+			awtParm.setInstId(instance.getInstId());
 			awtParm.setTaskIdCurr(task.getTaskId());
 			int awtCount = awtService.selectCount(awtParm);
 			if(awtCount>1){//普通事务&当前待处理人超过1个人
@@ -599,7 +600,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			if(allowGoBack!=null && allowGoBack){
 				result.getJSONObject(1).put("disflag", false);
 			}
-			Boolean allowReCall = choices.getBoolean("AllowReCall");
+		}
+		if(!StringUtils.isEmpty(instance.getTaskIdPre())){
+			WfTask prevTask = this.selectById(instance.getTaskIdPre());
+			JSONObject choicesPrev = JSONObject.parseObject(prevTask.getTxChoices());
+			Boolean allowReCall = choicesPrev.getBoolean("AllowReCall");
 			if(allowReCall!=null && allowReCall){
 				result.getJSONObject(2).put("disflag", false);
 			}
