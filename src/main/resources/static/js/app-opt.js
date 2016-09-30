@@ -231,7 +231,7 @@ angular.module('taskApp', [ ])
             }
             taskService.submitTask(optVO).then(function(success){
                 alert( $scope.optTitle+"成功");
-                hideModal();
+                hideModal(optCode);
             },function(fail){
                 alert( $scope.optTitle+"失败了");
             });
@@ -302,8 +302,15 @@ angular.module('taskApp', [ ])
 /**
  * Close opened modal / child page
  */
-function hideModal(){
+function hideModal(optCode_){
     var data_ = {opt:"C"};
+    if(angular.isUndefined(optCode_)){
+        data_.closeType="cancel";
+        data_.optCode="";
+    }else{
+        data_.closeType="confirm";
+        data_.optCode=optCode_;
+    }
     window.parent.postMessage(JSON.stringify(data_), '*');
     window.close();
 }
