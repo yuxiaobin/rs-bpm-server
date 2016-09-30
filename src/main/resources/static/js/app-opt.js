@@ -74,6 +74,11 @@ angular.module('taskApp', [ ])
             }
         }
         $scope.isEndTask = false;
+        if(typeof(callbackUrl)!='undefined'){
+            $scope.fromRemote = true;
+        }else{
+            $scope.fromRemote = false;
+        }
         taskService.getNextAssigners(rsWfId ,instNum, refMkid, optCode).then(function(succ){
             var result = succ.result;
             $scope.userList = result.users;
