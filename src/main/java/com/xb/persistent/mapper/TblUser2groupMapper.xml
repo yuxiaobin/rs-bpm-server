@@ -4,7 +4,7 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 user2group_id AS user2groupId, user_id AS userId, group_id AS groupId
+		 UGMB_MBID AS userId, UGMB_UGID AS groupId
 	</sql>
 
 
@@ -14,9 +14,9 @@
 	</resultMap>
 	
 	<select id="getUserListByIdList"  parameterType="java.util.List" resultMap="getUserListByIdListResultMap">
-select id, name from tbl_user
+select USERS_ID as id, USERS_NAME as name from USERS
 
-where id in
+where USERS_ID in
 <foreach collection="useridList" index="index" item="userid" open="("
     separator="," close=")">
   #{userid}
@@ -31,10 +31,10 @@ where id in
 	</resultMap>
 	
 	<select id="getGroupListWithUsersByIdList"  parameterType="java.util.List" resultMap="getGroupListWithUsersByIdListResultMap">
-select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
-from tbl_user u, tbl_user2group ug, tbl_group g
-where u.id=ug.user_id and ug.group_id=g.GROUP_ID
-and ug.GROUP_ID in
+select u.USERS_ID as ID, u.USERS_NAME as NAME, g.UG_UGID as GROUP_ID,g.UG_UGNAME as GROUP_NAME
+from USERS u, UGMB ug, UG g
+where u.USERS_ID=ug.UGMB_MBID and ug.UGMB_UGID=g.UG_UGID
+and ug.UGMB_UGID in
 <foreach collection="groupidList" index="index" item="groupid" open="("
     separator="," close=")">
   #{groupid}
@@ -42,30 +42,30 @@ and ug.GROUP_ID in
 </select>
 
 	<select id="getGroupListWithUsersAll"  resultMap="getGroupListWithUsersByIdListResultMap">
-select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
-from tbl_user u, tbl_user2group ug, tbl_group g
-where u.id=ug.user_id and ug.group_id=g.GROUP_ID
+select u.USERS_ID as ID, u.USERS_NAME as NAME, g.UG_UGID as GROUP_ID,g.UG_UGNAME as GROUP_NAME
+from USERS u, UGMB ug, UG g
+where u.USERS_ID=ug.UGMB_MBID and ug.UGMB_UGID=g.UG_UGID
 </select>
 	<select id="getGroupListWithWithoutUsersAll"  resultMap="getGroupListWithUsersByIdListResultMap">
-select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
-from tbl_group g
-left join tbl_user2group ug on ug.group_id=g.GROUP_ID
-left join tbl_user u on u.id=ug.user_id 
+select u.USERS_ID as ID, u.USERS_NAME as NAME, g.UG_UGID as GROUP_ID,g.UG_UGNAME as GROUP_NAME
+from UG g
+left join UGMB ug on ug.UGMB_UGID=g.UG_UGID
+left join USERS u on u.USERS_ID=ug.UGMB_MBID 
 </select>
 
 	<select id="getUsersInSpecGroup"  resultMap="getGroupListWithUsersByIdListResultMap">
-select u.ID, u.NAME, g.GROUP_ID,g.GROUP_NAME
-from tbl_user u, tbl_user2group ug, tbl_group g
-where u.id=ug.user_id and ug.group_id=g.GROUP_ID
-and ug.group_id=#{groupId}
+select u.USERS_ID as ID, u.USERS_NAME as NAME, g.UG_UGID as GROUP_ID,g.UG_UGNAME as GROUP_NAME
+from USERS u, UGMB ug, UG g
+where u.USERS_ID=ug.UGMB_MBID and ug.UGMB_UGID=g.UG_UGID
+and ug.UGMB_UGID=#{groupId}
 </select>
 
 	<select id="getAddableUsers"  resultMap="getGroupListWithUsersByIdListResultMap">
-select u.ID, u.NAME, g.GROUP_ID, g.GROUP_NAME
-from tbl_user u
-left join tbl_user2group ug on ug.user_id=u.id 
-left join tbl_group g on g.group_id=ug.group_id
-where u.id not in( select ug1.user_id from tbl_user2group ug1 where ug1.group_id=#{groupId})
+select u.USERS_ID as ID, u.USERS_NAME as NAME, g.UG_UGID as GROUP_ID,g.UG_UGNAME as GROUP_NAME
+from USERS u
+left join UGMB ug on ug.UGMB_MBID=u.USERS_ID 
+left join UG g on g.UG_UGID=ug.UGMB_UGID
+where u.USERS_ID not in( select ug1.UGMB_MBID from UGMB ug1 where ug1.UGMB_UGID=#{groupId})
 </select>
 
 

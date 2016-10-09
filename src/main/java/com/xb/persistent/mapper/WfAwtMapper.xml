@@ -22,7 +22,6 @@
 	  <result property="optUsersPre" column="opt_users_pre"/>
 	  <result property="taskOwner" column="task_owner"/>
 	  <result property="taskDescpDisp" column="task_descp_disp"/>
-	  <result property="rsWfId" column="rs_wf_id"/>
 	  <result property="instNum" column="inst_num"/>
 	  <result property="refMkid" column="ref_mkid"/>
 	  <!-- <result property="taskProcesser" column="opt_user"/> -->
@@ -33,7 +32,7 @@
 select awt.*,  inst.created_by as inst_creater,
 case when inst.CURR_ASSIGNERS is null then awt.ASSIGNER_ID 
 else inst.CURR_ASSIGNERS end as task_owner,
-task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
+task.task_descp_disp, inst.inst_num, inst.ref_mkid 
 from wf_awt awt
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 join wf_instance inst on inst.INST_ID=awt.INST_ID
@@ -44,7 +43,7 @@ where awt.ASSIGNER_ID=#{userId} and (awt.complete_flag is null or awt.complete_f
 select awt.*,  inst.created_by as inst_creater,
 case when inst.CURR_ASSIGNERS is null then awt.ASSIGNER_ID 
 else inst.CURR_ASSIGNERS end as task_owner,
-task.task_descp_disp, inst.rs_wf_id, inst.inst_num, inst.ref_mkid 
+task.task_descp_disp, inst.inst_num, inst.ref_mkid 
 from wf_awt awt
 join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
 join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
@@ -53,8 +52,8 @@ join wf_task task on task.TASK_ID = awt.TASK_ID_CURR
 	<if test="instId != null">
 	    and awt.INST_ID = #{instId}
 	</if>
-	<if test="rsWfId != null">
-	    and inst.RS_WF_ID=#{rsWfId}
+	<if test="refMkid != null">
+	    and inst.REF_MKID=#{refMkid}
 	</if>
 	<if test="instNum != null">
 	    and inst.INST_NUM=#{instNum} 
@@ -71,8 +70,8 @@ select awt.*
 from wf_awt awt
 join WF_INSTANCE inst on inst.INST_ID=awt.INST_ID
 <trim prefix="where" prefixOverrides="and |or">
-	<if test="rsWfId != null">
-	    and inst.RS_WF_ID=#{rsWfId}
+	<if test="refMkid != null">
+	    and inst.REF_MKID=#{refMkid}
 	</if>
 	<if test="instNum != null">
 	    and inst.INST_NUM=#{instNum} 

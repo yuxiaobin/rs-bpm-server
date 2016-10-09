@@ -90,12 +90,12 @@ public class WFInboxController extends BaseController {
 			}
 			Set<String> dupCheck = new HashSet<String>();
 			for(WfAwt awt:list){
-				dupCheck.add(awt.getTaskOwner()+"_"+awt.getRsWfId()+"_"+awt.getInstNum());
+				dupCheck.add(awt.getTaskOwner()+"_"+awt.getRefMkid()+"_"+awt.getInstNum());
 			}
 			List<WfAwt> doneList = histService.getDoneListByMe(userId, refMkid, instNum);
 			if(doneList!=null){
 				for(WfAwt awt:doneList){
-					String key = awt.getTaskOwner()+"_"+awt.getRsWfId()+"_"+awt.getInstNum();
+					String key = awt.getTaskOwner()+"_"+awt.getRefMkid()+"_"+awt.getInstNum();
 					if(!dupCheck.contains(key)){
 						list.add(awt);
 					}

@@ -39,7 +39,7 @@ public class GetAssigers4RecallEndTest extends TestBase4Normal{
 	private void getAssigner4Recall(String recaller){
 		JSONObject parm = new JSONObject();
 		parm.put("currUserId", recaller);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("optCode", "RC");
 		parm.put("instNum", instNum);
 		ValidatableResponse response  = given().contentType("application/json")
@@ -63,7 +63,7 @@ public class GetAssigers4RecallEndTest extends TestBase4Normal{
 	private void getNextTask4Recall(String recaller){
 		JSONObject parm = new JSONObject();
 		parm.put("currUserId", recaller);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("optCode", "RC");
 		parm.put("instNum", instNum);
 		ValidatableResponse response  = given().contentType("application/json")

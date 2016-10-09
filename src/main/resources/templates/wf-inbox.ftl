@@ -50,7 +50,7 @@
                     <tbody>
                     <tr ng-repeat="taskv in taskvList"
                         ng-click="selectTableRowInbox($event)"
-                        ng-dblclick="viewAwtInMK(taskv.rsWfId, taskv.instNum, taskv.refMkid)"
+                        ng-dblclick="viewAwtInMK(taskv.instNum, taskv.refMkid)"
                             >
                         <td>{{taskv.taskDescpDisp}}</td>
                         <td>{{taskv.awtTitle}}</td>

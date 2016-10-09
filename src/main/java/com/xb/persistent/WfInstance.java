@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
-import com.baomidou.mybatisplus.toolkit.CUBaseTO;
+import com.xb.base.CUBaseTO;
 
 /**
  *
@@ -30,10 +30,6 @@ public class WfInstance extends CUBaseTO implements Serializable {
 	/**  */
 	@TableField(value = "WF_STATUS")
 	private String wfStatus;
-
-	/**  */
-	@TableField(value = "RS_WF_ID")
-	private String rsWfId;
 
 	/**  */
 	@TableField(value = "INST_NUM")
@@ -109,14 +105,6 @@ public class WfInstance extends CUBaseTO implements Serializable {
 		this.wfStatus = wfStatus;
 	}
 
-	public String getRsWfId() {
-		return this.rsWfId;
-	}
-
-	public void setRsWfId(String rsWfId) {
-		this.rsWfId = rsWfId;
-	}
-
 	public Integer getInstNum() {
 		return this.instNum;
 	}
@@ -143,7 +131,7 @@ public class WfInstance extends CUBaseTO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "WfInstance [instId=" + instId + ", wfId=" + wfId + ", wfStatus=" + wfStatus + ", rsWfId=" + rsWfId
+		return "WfInstance [instId=" + instId + ", wfId=" + wfId + ", wfStatus=" + wfStatus
 				+ ", instNum=" + instNum + ", refMkid=" + refMkid + ", currAssigners=" + currAssigners + ", taskIdCurr="
 				+ taskIdCurr + ", taskIdPre=" + taskIdPre + ", optUsersPre=" + optUsersPre + "]";
 	}

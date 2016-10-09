@@ -4,16 +4,16 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xb.persistent.RsWorkflow;
-import com.xb.persistent.WfDef;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
+import com.xb.persistent.WfVersion;
 
 public class WFDetailVO {
 	
 	private JSONObject wfData;
 
 	private RsWorkflow rsWF;
-	private WfDef wfDef;// latest record > max Version
+	private WfVersion wfDef;// latest record > max Version
 //	private RsModule module;
 
 	List<WfTask> tasks;
@@ -27,11 +27,12 @@ public class WFDetailVO {
 		this.rsWF = rsWF;
 	}
 
-	public WfDef getWfDef() {
+	
+	public WfVersion getWfDef() {
 		return wfDef;
 	}
 
-	public void setWfDef(WfDef wfDef) {
+	public void setWfDef(WfVersion wfDef) {
 		this.wfDef = wfDef;
 	}
 

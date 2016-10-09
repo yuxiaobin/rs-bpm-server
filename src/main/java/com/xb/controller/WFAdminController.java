@@ -18,7 +18,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.persistent.RsWorkflow;
 import com.xb.service.IRsWorkflowService;
-import com.xb.service.IWfDefService;
 import com.xb.utils.WfDataUtil;
 import com.xb.vo.ModuleVO;
 import com.xb.vo.WFDetailVO;
@@ -29,8 +28,6 @@ public class WFAdminController extends BaseController {
 	
 	@Autowired
 	IRsWorkflowService wfService;
-	@Autowired
-	IWfDefService wfDefService;
 	
 	@RequestMapping("/")
 	public String hello(HttpSession session){
@@ -50,14 +47,13 @@ public class WFAdminController extends BaseController {
 	@ResponseBody
 	public Object createModule(@RequestBody ModuleVO moduleVO){
 		RsWorkflow wf = new RsWorkflow();
-		wf.setGnmkId(moduleVO.getGnmkId());
+		wf.setRefMkid(moduleVO.getRefMkid());
 		List<RsWorkflow> list = wfService.selectList(wf);
 		if(list!=null && !list.isEmpty()){
 			moduleVO.setStatusCode("dup");
 			return moduleVO;
 		}
 		wfService.insert(wf);
-		moduleVO.setRsWfId(wf.getRsWfId());
 		return moduleVO;
 	}
 	
@@ -69,36 +65,31 @@ public class WFAdminController extends BaseController {
 		return page;
 	}
 	
-	@RequestMapping("/define/{rsWfId}")
-	public String viewWf4Module(@PathVariable String rsWfId, HttpSession session, HttpServletRequest req) throws Exception{
-		if(StringUtils.isEmpty(rsWfId)){
-			System.out.println("viewWf4Module(): rsWfId is empty");
+	@RequestMapping("/define/{refMkid}")
+	public String viewWf4Module(@PathVariable String refMkid, HttpSession session, HttpServletRequest req) throws Exception{
+		if(StringUtils.isEmpty(refMkid)){
+			System.out.println("viewWf4Module(): refMkid is empty");
 			return "";
 		}
-		RsWorkflow wf = wfService.selectById(rsWfId);
-		if(wf==null){
-			throw new Exception("No record found");
-		}
-		req.setAttribute("rsWfId", rsWfId);
-		req.setAttribute("gnmkId", wf.getGnmkId());
+		req.setAttribute("refMkid", refMkid);
 		return "wf-define";
 	}
 	
-	@RequestMapping(value="/module/{rsWfId}/wf",method=RequestMethod.GET )
+	@RequestMapping(value="/module/{refMkid}/wf",method=RequestMethod.GET )
 	@ResponseBody
-	public Object getWfDtl4Module(@PathVariable String rsWfId, HttpSession session){
-		if(StringUtils.isEmpty(rsWfId)){
-			System.out.println("viewWf4Module(): rsWfId is empty");
+	public Object getWfDtl4Module(@PathVariable String refMkid, HttpSession session){
+		if(StringUtils.isEmpty(refMkid)){
+			System.out.println("viewWf4Module(): refMkid is empty");
 			return "";
 		}
-		return WfDataUtil.generateWfJson(wfService.getWF4Module(rsWfId,null));
+		return WfDataUtil.generateWfJson(wfService.getWF4Module(refMkid,null));
 	}
 	
-	@RequestMapping(value="/module/{rsWfId}/wf",method=RequestMethod.POST )
+	@RequestMapping(value="/module/{refMkid}/wf",method=RequestMethod.POST )
 	@ResponseBody
-	public Object createWF(@PathVariable String rsWfId, @RequestBody JSONObject wfData){
+	public Object createWF(@PathVariable String refMkid, @RequestBody JSONObject wfData){
 		ModuleVO module = new ModuleVO();
-		module.setRsWfId(rsWfId);
+		module.setRefMkid(refMkid);
 		WFDetailVO wfDetail = new WFDetailVO();
 		wfDetail.setWfData(wfData);
 		wfService.createWF4Module(module, wfDetail);

@@ -68,16 +68,17 @@ public class WfApiServiceImpl implements IWfApiService {
 				return true;
 			}
 		}
+		String refMkid = optVO.getRefMkid();
 		WfInstance instParm = new WfInstance();
 		instParm.setInstNum(optVO.getInstNum());
-		instParm.setRefMkid(optVO.getGnmkId());
+		instParm.setRefMkid(refMkid);
 		WfInstance inst = instService.selectOne(instParm);
 		if(inst==null){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "invalid parameter");
 			return false;
 		}
-		optVO.setRsWfId(inst.getRsWfId());
+		optVO.setRefMkid(refMkid);
 		
 		WfTask nextTask = null;
 		List<TaskVO> nextTasks = taskService.getNextTasksByOptCode(optVO);

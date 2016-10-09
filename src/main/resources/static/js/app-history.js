@@ -19,11 +19,11 @@ angular.module('app', [ ])
                 });
             return delay.promise;
         };
-        this.getTaskOptions = function(rsWfId,instNum){
+        this.getTaskOptions = function(refMkid,instNum){
             var delay = $q.defer();
             var req = {
                 method: 'GET',
-                url: basePath+'/task/options/nogroup?rsWfId='+rsWfId+"&instNum="+instNum
+                url: basePath+'/task/options/nogroup?refMkid='+refMkid+"&instNum="+instNum
             };
             $http(req)
                 .success(function(data, status, headers, config){
@@ -73,8 +73,7 @@ angular.module('app', [ ])
             }
             var instNum = $scope.selectedRcdInstNum;
             var refMkid = $scope.refMkid;
-            var rsWfId = $scope.rsWfId;
-            var url_ = basePath+"/task/loadprocess?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid;
+            var url_ = basePath+"/task/loadprocess?instNum="+instNum+"&refMkid="+refMkid;
             if (val_ == 'C') {
                 $('iframe').attr("src",url_+"&optCode=C");
                 $('#myModal').modal({backdrop:false});
@@ -87,7 +86,7 @@ angular.module('app', [ ])
                 $('iframe').attr("src",url_+"&optCode=TK");
                 $('#myModal').modal({backdrop:true});
             }else if(val_ == "LMD"){
-                inboxService.letmedo(rsWfId,instNum).then(function(){
+                inboxService.letmedo(refMkid, instNum).then(function(){
                     $('#messageModal').modal({backdrop:true});
                     $timeout(function(){
                         $("#messageModal").modal("hide");
@@ -110,8 +109,7 @@ angular.module('app', [ ])
             var tr_ = $(evt.target).parent();
             $scope.selectedRcdInstNum = tr_.attr("rs-inst-num");
             $scope.refMkid = tr_.attr("rs-ref-mkid");
-            $scope.rsWfId = tr_.attr("rs-wf-id");
-            histService.getTaskOptions($scope.rsWfId, $scope.selectedRcdInstNum).then(
+            histService.getTaskOptions($scope.refMkid, $scope.selectedRcdInstNum).then(
                 function(optArray){
                     $scope.optGroupList = $.grep($scope.optGroupList,function(value){
                         value.opts = $.grep(value.opts,function(val){

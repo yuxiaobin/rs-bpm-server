@@ -16,10 +16,10 @@ public interface IWfInstHistService extends ICommonService<WfInstHist> {
 
 	public List<WfInstHist> viewWfInstHistory(String instId);
 	
-	public List<WfInstHist> viewWfInstHistory(String rsWfId, Integer instNum);
+	public List<WfInstHist> viewWfInstHistory(String refMkid, Integer instNum);
 	
 	public String createHistRecord(TaskOptVO optVO, WfAwt awt , String currUserId);
 	
-	public List<WfAwt> getDoneListByMe(String userId, String gnmkId, Integer instNum);
+	public List<WfAwt> getDoneListByMe(String userId, String refMkid, Integer instNum);
 	
 }

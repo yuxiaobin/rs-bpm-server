@@ -20,11 +20,11 @@
 	
 	<select id="getTaskAssignerListWithName"  resultMap="getTaskAssignerListWithNameResultMap">
 select a.task_id, a.assign_type, a.assign_rel_id, a.def_sel_flag, a.sel_all_flag, a.exe_condition
-,u.name as username, g.group_name
+,u.USERS_NAME as username, g.UG_UGNAME as group_name
 from wf_task_assign a
-left join tbl_user u on a.ASSIGN_REL_ID = u.id and a.ASSIGN_TYPE='U'
-left join tbl_group g on a.ASSIGN_REL_ID=g.GROUP_ID and a.ASSIGN_TYPE='G'
+left join USERS u on a.ASSIGN_REL_ID = u.USERS_ID and a.ASSIGN_TYPE='U'
+left join UG g on a.ASSIGN_REL_ID=g.UG_UGID and a.ASSIGN_TYPE='G'
 where a.task_id=#{taskId}
-order by u.name,g.group_name 
+order by u.USERS_NAME,g.UG_UGNAME 
 </select>
 </mapper>

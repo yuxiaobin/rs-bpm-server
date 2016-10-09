@@ -82,7 +82,7 @@ jsPlumb.ready(function () {
         return d;
     };
 
-    var url_ = basePath+"/wf/status?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid
+    var url_ = basePath+"/wf/status?instNum="+instNum+"&refMkid="+refMkid
     $.ajax(
         {
             type: "GET",

@@ -4,7 +4,7 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 id, name, age, email, created_dt AS createdDt
+		USERS_ID as id, USERS_NAME as name
 	</sql>
 
 </mapper>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfCustVarsMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 CUST_VARS_ID AS custVarsId, WF_ID AS wfId, VAR_TYPE AS varType, var_code AS varCode, var_descp AS varDescp, var_expression AS varExpression, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+	</sql>
+
+</mapper>

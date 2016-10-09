@@ -5,9 +5,6 @@
 
     <script>
         var basePath = "${base.contextPath}";
-        <#if rsWfId?exists>
-            var rsWfId = "${rsWfId}";
-        </#if>
         <#if instNum?exists>
             var instNum = "${instNum}";
         </#if>

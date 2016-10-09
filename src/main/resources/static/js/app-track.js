@@ -7,7 +7,7 @@ angular.module('app', [ ])
             var delay = $q.defer();
             var req = {
                 method: 'GET',
-                url: basePath+"/wf/hist?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid
+                url: basePath+"/wf/hist?instNum="+instNum+"&refMkid="+refMkid
             };
             $http(req)
                 .success(function(data, status, headers, config){

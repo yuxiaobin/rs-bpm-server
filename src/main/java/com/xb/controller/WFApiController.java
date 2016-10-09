@@ -134,15 +134,15 @@ public class WFApiController extends BaseController {
 	@ResponseBody
 	public Object startWf(@RequestBody JSONObject parm){
 		String userId = parm.getString(PARM_USER_ID);
-		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_GNMK_ID);
 		JSONObject result = new JSONObject();
-		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(userId)){
+		if(StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(userId)){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
 		}
 		try{
-			JSONObject startResult = taskService.startWFByGnmkId(gnmkId, userId);
+			JSONObject startResult = taskService.startWFByRefMkid(refMkid, userId);
 			if(startResult!=null){
 				result.put(RETURN_CODE, STATUS_CODE_SUCC);
 				result.put(RETURN_WF_INST_NUM, startResult.getInteger(RETURN_WF_INST_NUM));
@@ -164,10 +164,10 @@ public class WFApiController extends BaseController {
 	@ResponseBody
 	public Object getTaskOptions(@RequestBody JSONObject parm){
 		String userId = parm.getString(PARM_USER_ID);
-		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_GNMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		JSONObject result = new JSONObject();
-		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(wfInstNumStr)){
+		if(StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(wfInstNumStr)){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
@@ -185,7 +185,7 @@ public class WFApiController extends BaseController {
 			TaskOptVO optVO = new TaskOptVO();
 			optVO.setCurrUserId(userId);
 			optVO.setInstNum(instNum);
-			optVO.setGnmkId(gnmkId);
+			optVO.setRefMkid(refMkid);
 			result.put(RETURN_RECORDS, taskService.getTaskOptions(optVO, false));
 			result.put(RETURN_CODE, STATUS_CODE_SUCC);
 		}catch(Exception e){
@@ -199,10 +199,10 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/operate",method=RequestMethod.GET )
 	public Object loadProcessTask(HttpServletRequest req){
 		String instNumStr = req.getParameter(PARM_WF_INST_NUM);
-		String gnmkId = req.getParameter(PARM_GNMK_ID);
+		String refMkid = req.getParameter(PARM_GNMK_ID);
 		String optCode = req.getParameter(PARM_OPT_CODE);
 		String callbackUrl = req.getParameter(PARM_CALLBACK_URL);
-		if(StringUtils.isEmpty(instNumStr) || StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(optCode)){
+		if(StringUtils.isEmpty(instNumStr) || StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(optCode)){
 			req.setAttribute(RETURN_CODE, STATUS_CODE_INVALID);
 			req.setAttribute(RETURN_MSG, "passed in data is empty");
 			return "error";
@@ -223,17 +223,15 @@ public class WFApiController extends BaseController {
 		
 		try{
 			RsWorkflow wfparm = new RsWorkflow();
-			wfparm.setGnmkId(gnmkId);
+			wfparm.setRefMkid(refMkid);
 			RsWorkflow wf = rsWfService.selectOne(wfparm);
 			if(wf==null){
 				req.setAttribute(RETURN_CODE, STATUS_CODE_INVALID);
-				req.setAttribute(RETURN_MSG, "no record found for gnmkId="+gnmkId);
+				req.setAttribute(RETURN_MSG, "no record found for refMkid="+refMkid);
 				return "error";
 			}
-			String rsWfId = wf.getRsWfId();
-			req.setAttribute("rsWfId", rsWfId);
 			req.setAttribute("instNum", instNum);
-			req.setAttribute("refMkid", gnmkId);
+			req.setAttribute("refMkid", refMkid);
 			if(WFConstants.OptTypes.TRACK.equals(optCode)){
 				return "wf-popup-track";
 			}else{
@@ -242,7 +240,7 @@ public class WFApiController extends BaseController {
 				req.setAttribute(PARM_OPT_CODE, optCode);
 				//提交，退回，否决等操作事务页面
 				TaskOptVO optVO = new TaskOptVO();
-				optVO.setRsWfId(rsWfId);
+				optVO.setRefMkid(refMkid);
 				optVO.setInstNum(instNum);
 				optVO.setOptCode(optCode);
 				req.setAttribute("TX_PR_CHOICES",taskService.getCurrentTaskByRefNum(optVO).getTxPrChoices());
@@ -267,11 +265,11 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/tasks",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getTasks(@RequestBody JSONObject parm){
-		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_GNMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		String optCode = parm.getString(PARM_OPT_CODE);
 		JSONObject result = new JSONObject();
-		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode) ){
+		if(StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode) ){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
@@ -282,15 +280,15 @@ public class WFApiController extends BaseController {
 		Integer instNum = Integer.parseInt(wfInstNumStr);;
 		try{
 			RsWorkflow wfparm = new RsWorkflow();
-			wfparm.setGnmkId(gnmkId);
+			wfparm.setRefMkid(refMkid);
 			RsWorkflow wf = rsWfService.selectOne(wfparm);
 			if(wf==null){
 				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "no record found for gnmkId="+gnmkId);
+				result.put(RETURN_MSG, "no record found for refMkid="+refMkid);
 				return result;
 			}
 			TaskOptVO optVO = new TaskOptVO();
-			optVO.setRsWfId(wf.getRsWfId());
+			optVO.setRefMkid(refMkid);
 			optVO.setInstNum(instNum);
 			optVO.setOptCode(optCode);
 			List<TaskVO> taskList = taskService.getNextTasksByOptCode(optVO);
@@ -318,10 +316,10 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/history",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getWFHistory(@RequestBody JSONObject parm){
-		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_GNMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		JSONObject result = new JSONObject();
-		if(StringUtils.isEmpty(gnmkId) || StringUtils.isEmpty(wfInstNumStr) ){
+		if(StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(wfInstNumStr) ){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
@@ -338,11 +336,11 @@ public class WFApiController extends BaseController {
 		try{
 			WfInstance instParm = new WfInstance();
 			instParm.setInstNum(instNum);
-			instParm.setRefMkid(gnmkId);
+			instParm.setRefMkid(refMkid);
 			WfInstance inst = instService.selectOne(instParm);
 			if(inst==null){
 				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "no record found for gnmkId="+gnmkId);
+				result.put(RETURN_MSG, "no record found for refMkid="+refMkid);
 				return result;
 			}
 			List<WfInstHist> histList = histService.viewWfInstHistory(inst.getInstId());
@@ -385,13 +383,13 @@ public class WFApiController extends BaseController {
 	@ResponseBody
 	public Object doOperate(@RequestBody JSONObject parm){
 		String userId = parm.getString(PARM_USER_ID);
-		String gnmkId = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_GNMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		String optCode = parm.getString(PARM_OPT_CODE);
 		JSONObject result = new JSONObject();
-		if(StringUtils.isEmpty(userId) || StringUtils.isEmpty(gnmkId)
+		if(StringUtils.isEmpty(userId) || StringUtils.isEmpty(refMkid)
 				|| StringUtils.isEmpty(wfInstNumStr) || StringUtils.isEmpty(optCode)){
-			log.warn("================================= invalid parameter= for gnmkId= "+ gnmkId+"===================");
+			log.warn("================================= invalid parameter= for refMkid= "+ refMkid+"===================");
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
 			result.put(RETURN_MSG, "passed in data is empty");
 			return result;
@@ -404,7 +402,7 @@ public class WFApiController extends BaseController {
 		}
 		TaskOptVO optVO = new TaskOptVO();
 		optVO.setCurrUserId(userId);
-		optVO.setGnmkId(gnmkId);
+		optVO.setRefMkid(refMkid);
 		optVO.setInstNum(Integer.parseInt(wfInstNumStr));
 		optVO.setOptCode(optCode);
 		optVO.setNextAssigners(parm.getString("nextUserIds"));

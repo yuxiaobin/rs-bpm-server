@@ -6,55 +6,52 @@ import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
-import com.baomidou.mybatisplus.toolkit.CUBaseTO;
+import com.xb.base.CUBaseTO;
 
 /**
  *
- * 
+ * null
  *
  */
-@TableName("wf_def")
-public class WfDef extends CUBaseTO implements Serializable {
+@TableName("WF_VERSION")
+public class WfVersion extends CUBaseTO implements Serializable {
 
 	@TableField(exist = false)
 	private static final long serialVersionUID = 1L;
 
-	/**  */
-	@TableId(value = "WF_ID", type = IdType.UUID)
+	/** null */
+	@TableId(value = "WF_VERSION_ID", type=IdType.UUID)
 	private String wfId;
 
-	/**  */
-	@TableField(value = "RS_WF_ID")
-	private String rsWfId;
+	/** null */
+	@TableField(value = "REF_MKID")
+	private String refMkid;
 
-	/**  */
-	private Integer VERSION;
+	/** null */
+	private Double VERSION;
 
-	
 	public String getWfId() {
-		return this.wfId;
+		return wfId;
 	}
 
 	public void setWfId(String wfId) {
 		this.wfId = wfId;
 	}
 
-	public String getRsWfId() {
-		return this.rsWfId;
+	public String getRefMkid() {
+		return refMkid;
 	}
 
-	public void setRsWfId(String rsWfId) {
-		this.rsWfId = rsWfId;
+	public void setRefMkid(String refMkid) {
+		this.refMkid = refMkid;
 	}
 
-	public Integer getVERSION() {
+	public Double getVERSION() {
 		return this.VERSION;
 	}
 
-	public void setVERSION(Integer VERSION) {
+	public void setVERSION(Double VERSION) {
 		this.VERSION = VERSION;
 	}
-
-	
 
 }

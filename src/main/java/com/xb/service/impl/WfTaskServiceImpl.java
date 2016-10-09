@@ -22,21 +22,21 @@ import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
-import com.xb.persistent.WfDef;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskAssign;
 import com.xb.persistent.WfTaskConn;
+import com.xb.persistent.WfVersion;
 import com.xb.persistent.mapper.WfTaskMapper;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfAwtService;
-import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskAssignService;
 import com.xb.service.IWfTaskConnService;
 import com.xb.service.IWfTaskService;
+import com.xb.service.IWfVersionService;
 import com.xb.vo.TaskOptVO;
 import com.xb.vo.TaskVO;
 import com.xb.vo.WFDetailVO;
@@ -60,7 +60,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	@Autowired
 	IWfInstanceService instService;
 	@Autowired
-	IWfDefService wfDefService;
+	IWfVersionService wfDefService;
 	@Autowired
 	IRsWorkflowService rsWfService;
 	@Autowired
@@ -75,33 +75,32 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return awtService.getAwtByUserId(userId);
 	}
 	
-	public JSONObject startWFByGnmkId(String gnmkId, String userId){
+	public JSONObject startWFByRefMkid(String refMkid, String userId){
 		RsWorkflow wfparm = new RsWorkflow();
-		wfparm.setGnmkId(gnmkId);
+		wfparm.setRefMkid(refMkid);
 		RsWorkflow wf = rsWfService.selectOne(wfparm);
 		if(wf==null){
 			return null;
 		}
-		return startWF4Module(wf.getRsWfId(),userId);
+		return startWF4Module(wf.getRefMkid(),userId);
 	}
 	
 	@Transactional
-	public JSONObject startWF4Module(String rsWfId, String currUserId){
-		RsWorkflow wf = rsWfService.selectById(rsWfId);
-		WfDef wfDefParm = new WfDef();
-		wfDefParm.setRsWfId(rsWfId);
-		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
+	public JSONObject startWF4Module(String refMkid, String currUserId){
+		WfVersion wfDefParm = new WfVersion();
+		wfDefParm.setRefMkid(refMkid);
+		List<WfVersion> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
 		if (wfDefList == null || wfDefList.isEmpty()) {
 			return null;
 		}
 		String wfId = wfDefList.get(0).getWfId();
 		synchronized (wfId+"_st") {
 			WfInstance instParm = new WfInstance();
-			instParm.setRsWfId(rsWfId);
-			List<WfInstance> instList4RsWfId = instService.selectList(instParm, "INST_NUM desc");
+			instParm.setRefMkid(refMkid);
+			List<WfInstance> instList4RefMkid = instService.selectList(instParm, "INST_NUM desc");
 			int instNumCurr = 1;
-			if(instList4RsWfId!=null && !instList4RsWfId.isEmpty()){
-				instNumCurr = instList4RsWfId.get(0).getInstNum()+1;
+			if(instList4RefMkid!=null && !instList4RefMkid.isEmpty()){
+				instNumCurr = instList4RefMkid.get(0).getInstNum()+1;
 			}
 			
 			WfTask taskParm = new WfTask();
@@ -113,9 +112,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			WfInstance wfInst = new WfInstance();
 			wfInst.setWfId(wfId);
 			wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
-			wfInst.setRsWfId(rsWfId);
 			wfInst.setInstNum(instNumCurr);
-			wfInst.setRefMkid(wf.getGnmkId());
+			wfInst.setRefMkid(refMkid);
 			wfInst.setCurrAssigners(currUserId);
 			wfInst.setTaskIdCurr(taskId);
 			instService.insert(wfInst);
@@ -144,7 +142,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			//for recall closed workflow, there is no awt.
 			if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
 				WfInstance instParm = new WfInstance();
-				instParm.setRsWfId(optVO.getRsWfId());
+				instParm.setRefMkid(optVO.getRefMkid());
 				instParm.setInstNum(optVO.getInstNum());
 				WfInstance inst = instService.selectOne(instParm);
 				if(inst==null){
@@ -225,9 +223,9 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return null;
 	}
 		
-	public WFDetailVO getWFStatus(String rsWfId, Integer instNum){
+	public WFDetailVO getWFStatus(String refMkid, Integer instNum){
 		WfInstance parmInst = new WfInstance();
-		parmInst.setRsWfId(rsWfId);
+		parmInst.setRefMkid(refMkid);
 		parmInst.setInstNum(instNum);
 		List<WfInstance> instList = instService.selectList(parmInst);
 		if(instList!=null && !instList.isEmpty()){
@@ -245,14 +243,9 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	public WFDetailVO getWFStatus(String instId){
 		WFDetailVO result = new WFDetailVO();
 		WfInstance instance = instService.selectById(instId);
-		WfDef wfDef = wfDefService.selectById(instance.getWfId());
+		WfVersion wfDef = wfDefService.selectById(instance.getWfId());
 		result.setWfDef(wfDef);
-		RsWorkflow rsWf = rsWfService.selectById(wfDef.getRsWfId());
 		
-		if (rsWf == null) {
-			return result;
-		}
-		result.setRsWF(rsWf);
 		List<WfTask> taskList = baseMapper.getTaskListWithStatus(instance.getInstId());
 		
 		if(WFConstants.WFStatus.DONE.equals(instance.getWfStatus())){
@@ -275,9 +268,15 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				assignerAllList.addAll(task.getAssignerList());
 			}
 		}
-		this.insertBatch(taskList);
+//		this.insertBatch(taskList);
+		for(WfTask task:taskList){
+			this.insert(task);
+		}
 		if(assignerAllList!=null && !assignerAllList.isEmpty()){
-			taskAssignerService.insertBatch(assignerAllList);
+			for(WfTaskAssign ta:assignerAllList){
+				taskAssignerService.insert(ta);
+			}
+//			taskAssignerService.insertBatch(assignerAllList);
 		}
 	}
 	
@@ -299,8 +298,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		if(WFConstants.OptTypes.RECALL.equals(optCode)){
 			WfInstance instParm = new WfInstance();
 			instParm.setInstNum(optVO.getInstNum());
-			instParm.setRefMkid(optVO.getGnmkId());
-			instParm.setRsWfId(optVO.getRsWfId());
+			instParm.setRefMkid(optVO.getRefMkid());
 			WfInstance inst = instService.selectOne(instParm);
 			WfTask task = this.selectById(inst.getTaskIdPre());
 			if(!StringUtils.isEmpty(optVO.getCurrUserId())){
@@ -504,16 +502,17 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	
 	private WfAwt getAwtByParm(TaskOptVO optVO){
 		WfAwt awt =  null;
+		String refMkid = optVO.getRefMkid();
 		if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
-			List<WfAwt> awtList = awtService.getAwt4Recall(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
+			List<WfAwt> awtList = awtService.getAwt4Recall(refMkid, optVO.getInstNum(), optVO.getCurrUserId());
 			if(awtList==null || awtList.isEmpty()){
 				return null;
 			}
 			return awtList.get(0);
 		}else{
-			awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), optVO.getCurrUserId());
+			awt = awtService.getAwtByParam(refMkid, optVO.getInstNum(), optVO.getCurrUserId());
 			if(awt==null && optVO.getCurrUserId()!=null){
-				awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
+				awt = awtService.getAwtByParam(refMkid, optVO.getInstNum(), null);
 			}
 			return awt;
 		}
@@ -527,11 +526,12 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			 * 但是END-TASK如果是允许撤回，那就可以撤回，且撤回到上一个
 			 * 所以这里要返回END-TASK
 			 */
+			String refMkid = optVO.getRefMkid();
 			if(WFConstants.OptTypes.RECALL.equals(optVO.getOptCode())){
-				awt = awtService.getAwtByParam(optVO.getRsWfId(), optVO.getInstNum(), null);
+				awt = awtService.getAwtByParam(refMkid, optVO.getInstNum(), null);
 				if(awt==null){
 					WfInstance instParm = new WfInstance();
-					instParm.setRsWfId(optVO.getRsWfId());
+					instParm.setRefMkid(refMkid);
 					instParm.setInstNum(optVO.getInstNum());
 					WfInstance inst = instService.selectOne(instParm);
 					if(inst!=null){
@@ -556,9 +556,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			//TODO: need to check if any special cases
 		}
 		WfInstance parm = new WfInstance();
-		parm.setRsWfId(optVO.getRsWfId());
 		parm.setInstNum(optVO.getInstNum());
-		parm.setRefMkid(optVO.getGnmkId());
+		parm.setRefMkid(optVO.getRefMkid());
 		WfInstance instance = instService.selectOne(parm);
 		return generateOptions(instance, needGroup);
 	}
@@ -575,6 +574,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			if(allowReCall!=null &&allowReCall){
 				result.getJSONObject(2).put("disflag", false);
 			}
+			result.getJSONObject(0).put("disflag", true);
 			return filterDisabledOptions(result);
 		}
 		result.getJSONObject(0).put("disflag", false);

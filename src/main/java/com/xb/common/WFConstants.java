@@ -58,7 +58,7 @@ public class WFConstants {
 		public static final String RETURN_RECORDS_COUNT = "count";
 		
 		public static final String PARM_USER_ID = "userId";
-		public static final String PARM_GNMK_ID = "gnmkId";
+		public static final String PARM_GNMK_ID = "refMkid";
 		public static final String PARM_OPT_CODE = "optCode";
 		public static final String PARM_INST_NUM = "wfInstNum";
 		public static final String PARM_CALLBACK_URL = "callback_url";

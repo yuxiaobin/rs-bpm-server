@@ -19,11 +19,11 @@ angular.module('app', [ ])
                 });
             return delay.promise;
         };
-        this.getTaskOptions = function(rsWfId,instNum){
+        this.getTaskOptions = function(refMkid,instNum){
             var delay = $q.defer();
             var req = {
                 method: 'GET',
-                url: basePath+'/task/options/nogroup?rsWfId='+rsWfId+"&instNum="+instNum
+                url: basePath+'/task/options/nogroup?refMkid='+refMkid+"&instNum="+instNum
             };
             $http(req)
                 .success(function(data, status, headers, config){
@@ -34,10 +34,10 @@ angular.module('app', [ ])
                 });
             return delay.promise;
         };
-        this.letmedo = function(rsWfId,instNum){
+        this.letmedo = function(refMkid,instNum){
             var delay = $q.defer();
             var parm = {
-                rsWfId:rsWfId,instNum:instNum,optCode:"LMD"
+            		refMkid:refMkid,instNum:instNum,optCode:"LMD"
             };
             var req = {
                 method: 'POST',
@@ -68,8 +68,8 @@ angular.module('app', [ ])
             $scope.userId = userId;
         }
 
-        $scope.viewAwtInMK = function(rsWfId, instNum, refMkid){
-            $window.location.href = basePath+"/mk/task?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid;
+        $scope.viewAwtInMK = function(instNum, refMkid){
+            $window.location.href = basePath+"/mk/task?instNum="+instNum+"&refMkid="+refMkid;
         };
 
         window.reloadTask = function(){
@@ -86,8 +86,7 @@ angular.module('app', [ ])
             }
             var instNum = $scope.selectedRcdInstNum;
             var refMkid = $scope.refMkid;
-            var rsWfId = $scope.rsWfId;
-            var url_ = basePath+"/task/loadprocess?rsWfId="+rsWfId+"&instNum="+instNum+"&refMkid="+refMkid;
+            var url_ = basePath+"/task/loadprocess?instNum="+instNum+"&refMkid="+refMkid;
             if (val_ == 'C') {
                 $('iframe').attr("src",url_+"&optCode=C");
                 $('#myModal').modal({backdrop:false});
@@ -100,7 +99,7 @@ angular.module('app', [ ])
                 $('iframe').attr("src",url_+"&optCode=TK");
                 $('#myModal').modal({backdrop:true});
             }else if(val_ == "LMD"){
-                inboxService.letmedo(rsWfId,instNum).then(function(){
+                inboxService.letmedo(refMkid, instNum).then(function(){
                     $('#messageModal').modal({backdrop:true});
                     $timeout(function(){
                         $("#messageModal").modal("hide");
@@ -125,8 +124,7 @@ angular.module('app', [ ])
             var tr_ = $(evt.target).parent();
             $scope.selectedRcdInstNum = tr_.attr("rs-inst-num");
             $scope.refMkid = tr_.attr("rs-ref-mkid");
-            $scope.rsWfId = tr_.attr("rs-wf-id");
-            inboxService.getTaskOptions($scope.rsWfId, $scope.selectedRcdInstNum).then(
+            inboxService.getTaskOptions($scope.refMkid, $scope.selectedRcdInstNum).then(
                 function(optArray){
                     $scope.optGroupList = $.grep($scope.optGroupList,function(value){
                         value.opts = $.grep(value.opts,function(val){

@@ -12,31 +12,20 @@ import com.baomidou.mybatisplus.annotations.TableName;
  * 
  *
  */
-@TableName("tbl_user2group")
+@TableName("UGMB")
 public class TblUser2group implements Serializable {
 
 	@TableField(exist = false)
 	private static final long serialVersionUID = 1L;
 
 	/**  */
-	@TableId(value = "user2group_id", type = IdType.UUID)
-	private String user2groupId;
-
-	/**  */
-	@TableField(value = "user_id")
+	@TableField(value = "UGMB_MBID")
 	private String userId;
 
 	/**  */
-	@TableField(value = "group_id")
+	@TableId(value = "UGMB_UGID", type = IdType.UUID)
 	private String groupId;
 
-	public String getUser2groupId() {
-		return this.user2groupId;
-	}
-
-	public void setUser2groupId(String user2groupId) {
-		this.user2groupId = user2groupId;
-	}
 
 	public String getUserId() {
 		return this.userId;

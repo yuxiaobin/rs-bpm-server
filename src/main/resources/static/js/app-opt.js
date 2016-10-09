@@ -3,9 +3,9 @@
  */
 angular.module('taskApp', [ ])
     .service('taskService', ['$http', '$q', function ($http, $q) {
-        this.getNextTasks = function(rsWfId ,instNum, refMkid, optCode){
+        this.getNextTasks = function(instNum, refMkid, optCode){
             var delay = $q.defer();
-            var parm = {rsWfId:rsWfId,instNum:instNum,refMkid:refMkid,optCode:optCode};
+            var parm = {instNum:instNum,refMkid:refMkid,optCode:optCode};
             var req = {
                 method: 'POST',
                 data:parm,
@@ -20,9 +20,9 @@ angular.module('taskApp', [ ])
                 });
             return delay.promise;
         };
-        this.getNextAssigners = function(rsWfId ,instNum, refMkid, optCode){
+        this.getNextAssigners = function(instNum, refMkid, optCode){
             var delay = $q.defer();
-            var parm = {rsWfId:rsWfId,instNum:instNum,refMkid:refMkid,optCode:optCode};
+            var parm = {instNum:instNum,refMkid:refMkid,optCode:optCode};
             var req = {
                 method: 'POST',
                 data:parm,
@@ -41,7 +41,7 @@ angular.module('taskApp', [ ])
             var delay = $q.defer();
             var url = basePath+"/task/process";
             if(optVO.callbackUrl!=""){
-                url = callbackUrl+"?userId="+userId+"&gnmkId="+optVO.refMkid+"&wfInstNum="+optVO.instNum+"&optCode="+optVO.optCode
+                url = callbackUrl+"?userId="+userId+"&refMkid="+optVO.refMkid+"&wfInstNum="+optVO.instNum+"&optCode="+optVO.optCode
                     +"&comments="+optVO.comments+"&nextTaskId="+optVO.nextTaskId+"&nextUserIds="+optVO.nextAssigners+"&callback=JSON_CALLBACK";
                $http.jsonp(url).success(function(succ){
                     delay.resolve(succ);
@@ -79,7 +79,7 @@ angular.module('taskApp', [ ])
         }else{
             $scope.fromRemote = false;
         }
-        taskService.getNextAssigners(rsWfId ,instNum, refMkid, optCode).then(function(succ){
+        taskService.getNextAssigners(instNum, refMkid, optCode).then(function(succ){
             var result = succ.result;
             $scope.userList = result.users;
             $scope.groupList = result.groups;
@@ -92,7 +92,7 @@ angular.module('taskApp', [ ])
                 $scope.renderDefaultUserGroupSelection();
             }
         });
-        taskService.getNextTasks(rsWfId ,instNum, refMkid, optCode).then(function(succ){
+        taskService.getNextTasks(instNum, refMkid, optCode).then(function(succ){
            $scope.taskList = succ.records;//[{taskDescpDisp:"xxx",taskType:"start-task"}]
            if($scope.taskList.length==1){
                $scope.taskList[0].checkedFlag = true;
@@ -221,7 +221,7 @@ angular.module('taskApp', [ ])
                 alert("请选择下一步处理人员");
                 return;
             }
-            var optVO = {rsWfId:rsWfId,instNum:instNum,refMkid:refMkid,optCode:optCode};
+            var optVO = {instNum:instNum,refMkid:refMkid,optCode:optCode};
             optVO.nextTaskId = selectedNextTaskId;
             optVO.comments = $("#comments").val();
             var assigners = ",";

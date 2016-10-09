@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
-import com.baomidou.mybatisplus.toolkit.CUBaseTO;
+import com.xb.base.CUBaseTO;
 
 /**
  *
@@ -83,9 +83,6 @@ public class WfAwt extends CUBaseTO implements Serializable,Cloneable {
 	private String taskDescpDisp;
 	
 	@TableField(exist = false)
-	private String rsWfId;
-	
-	@TableField(exist = false)
 	private Integer instNum;
 	
 	@TableField(exist = false)
@@ -130,14 +127,6 @@ public class WfAwt extends CUBaseTO implements Serializable,Cloneable {
 
 	public void setRefMkid(String refMkid) {
 		this.refMkid = refMkid;
-	}
-
-	public String getRsWfId() {
-		return rsWfId;
-	}
-
-	public void setRsWfId(String rsWfId) {
-		this.rsWfId = rsWfId;
 	}
 
 	public Integer getInstNum() {

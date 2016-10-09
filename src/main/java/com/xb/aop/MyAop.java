@@ -1,5 +1,6 @@
 package com.xb.aop;
 
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,8 +16,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.baomidou.framework.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.toolkit.CUBaseTO;
+import com.xb.base.CUBaseTO;
+import com.xb.utils.UserSessionUtil;
 
 @Aspect
 @Component
@@ -49,8 +50,12 @@ public class MyAop {
 	public void baseMapInsert(){
 		
 	}
+	@Pointcut("execution(public * com.baomidou.mybatisplus.mapper.BaseMapper.update*(..))")
+	public void baseMapUpdate(){
+		
+	}
 	
-	@Pointcut("baseInsert() || baseMapInsert()")//|| insertService()
+	@Pointcut("baseMapInsert() ||baseMapUpdate()")//|| insertService()
 	private void embeddedPt(){
 		
 	}
@@ -58,24 +63,32 @@ public class MyAop {
 	@Before("embeddedPt()")
 	public void doBeforeModify(JoinPoint joinPoint) throws Throwable {
 		RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+		CUBaseTO baseTO = null;
 		if(attrs==null){
-			CUBaseTO baseTO = ServiceImpl.threadLocal.get();
+			baseTO = UserSessionUtil.getUserSession();
 			if(baseTO==null){
 				baseTO = new CUBaseTO();
 			}
 			baseTO.setCreatedBy("mockup");
 			baseTO.setUpdatedBy("mockup");
-			ServiceImpl.threadLocal.set(baseTO);
-			return;
-		}
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		@SuppressWarnings("unchecked")
-		Map<String,Object> userinfo = (Map<String, Object>) request.getSession().getAttribute("USERINFO");
-		String userId = null;
-		if(userinfo==null || userinfo.get("userId") ==null){
-			userId = "system";
+			UserSessionUtil.setUserSession(baseTO);
 		}else{
-			userId = (String)userinfo.get("userId");
+			HttpServletRequest request = ((ServletRequestAttributes) attrs).getRequest();
+			@SuppressWarnings("unchecked")
+			Map<String,Object> userinfo = (Map<String, Object>) request.getSession().getAttribute("USERINFO");
+			String userId = null;
+			if(userinfo==null || userinfo.get("userId") ==null){
+				userId = "system";
+			}else{
+				userId = (String)userinfo.get("userId");
+			}
+			baseTO = UserSessionUtil.getUserSession();
+			if(baseTO==null){
+				baseTO = new CUBaseTO();
+			}
+			baseTO.setCreatedBy(userId);
+			baseTO.setUpdatedBy(userId);
+			UserSessionUtil.setUserSession(baseTO);
 		}
 		String methodName = joinPoint.getSignature().getName();
 		boolean isInsert = false;
@@ -87,47 +100,25 @@ public class MyAop {
 			isUpdate = true;
 		}
 		logger.debug("doBeforeModify=========isInsert="+isInsert+",isUpdate="+isUpdate);
-		CUBaseTO baseTO = ServiceImpl.threadLocal.get();
-		if(baseTO==null){
-			baseTO = new CUBaseTO();
-		}
-		baseTO.setCreatedBy(userId);
-		baseTO.setUpdatedBy(userId);
-		ServiceImpl.threadLocal.set(baseTO);
-		/*Object[] args = joinPoint.getArgs();
-		if(args!=null){
-			for(int i=0;i<args.length;++i){
-				if(args[i] instanceof BaseTO){
-					BaseTO baseTO = (BaseTO)args[i];
-					if(isInsert){
-						baseTO.setCreatedBy(userId);
-						baseTO.setCreatedDt(new Date());
-					}
-					if(isUpdate){
-						baseTO.setUpdatedBy(userId);
-						baseTO.setUpdatedDt(new Date());
-					}
-				}
-				if(args[i] instanceof List){
-					List list = (List) args[i];
-					if(list!=null){
-						for(Object obj : list){
-							if(obj instanceof BaseTO){
-								BaseTO baseTO = (BaseTO)obj;
-								if(isInsert){
-									baseTO.setCreatedBy(userId);
-									baseTO.setCreatedDt(new Date());
-								}
-								if(isUpdate){
-									baseTO.setUpdatedBy(userId);
-									baseTO.setUpdatedDt(new Date());
-								}
-							}
+		if(isInsert||isUpdate){
+			Object[] args = joinPoint.getArgs();
+			if(args!=null){
+				for(int i=0;i<args.length;++i){
+					if(args[i] instanceof CUBaseTO){
+						CUBaseTO baseArg = (CUBaseTO)args[i];
+						if(isInsert){
+							baseArg.setCreatedBy(baseTO.getCreatedBy());
+							baseArg.setCreatedDt(new Date());
+						}
+						if(isUpdate){
+							baseArg.setUpdatedBy(baseTO.getCreatedBy());
+							baseArg.setUpdatedDt(new Date());
 						}
 					}
 				}
 			}
-		}*/
+			
+		}
 		// // 记录下请求内容
 		// logger.info("URL : " + request.getRequestURL().toString());
 		// logger.info("HTTP_METHOD : " + request.getMethod());

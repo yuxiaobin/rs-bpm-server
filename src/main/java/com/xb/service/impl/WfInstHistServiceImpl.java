@@ -65,9 +65,9 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 		return list;
 	}
 	
-	public List<WfInstHist> viewWfInstHistory(String rsWfId, Integer instNum){
+	public List<WfInstHist> viewWfInstHistory(String refMkid, Integer instNum){
 		WfInstance instParm = new WfInstance();
-		instParm.setRsWfId(rsWfId);
+		instParm.setRefMkid(refMkid);
 		instParm.setInstNum(instNum);
 		WfInstance inst = instService.selectOne(instParm);
 		if(inst!=null){
@@ -116,10 +116,10 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 	}
 
 	
-	public List<WfAwt> getDoneListByMe(String userId, String gnmkId, Integer instNum){
+	public List<WfAwt> getDoneListByMe(String userId, String refMkid, Integer instNum){
 		Map<String,Object> parm = new HashMap<String,Object>();
 		parm.put("userId", userId);
-		parm.put("gnmkId", gnmkId);
+		parm.put("refMkid", refMkid);
 		parm.put("instNum", instNum);
 		return baseMapper.getDoneListByMe(parm);
 	}

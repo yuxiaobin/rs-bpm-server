@@ -246,7 +246,7 @@ jsPlumb.ready(function () {
         newNodeById(startNode);
         newNodeById(endNode);
     }
-    var url_ = basePath+"/wfadmin/module/"+rsWfId+"/wf";
+    var url_ = basePath+"/wfadmin/module/"+refMkid+"/wf";
     $.ajax({
             type: "GET",
             url: url_,
@@ -371,7 +371,7 @@ jsPlumb.ready(function () {
         $.ajax(
             {
                 type: "POST",
-                url: basePath+"/wfadmin/module/"+rsWfId+"/wf",
+                url: basePath+"/wfadmin/module/"+refMkid+"/wf",
                 data:json_str,
                 headers: { 'Content-Type': "application/json" },
                 success: function (msg) {

@@ -35,22 +35,22 @@ public interface TblUserMapper extends CommonMapper<TblUser> {
 	public void deleteUnitResult3(@Param("refMkid") String refMkid);
 	
 	@Delete({
-		"delete from wf_task where wf_id in (select def.wf_id from wf_def def, rs_workflow wf where def.RS_WF_ID=wf.RS_WF_ID and wf.gnmk_id=#{refMkid})"
+		"delete from wf_task where wf_id in (select wf_version_id from wf_version where ref_mkid=#{refMkid})"
 	})
 	public void deleteUnitResult4WfTask(@Param("refMkid") String refMkid);
 	
 	@Delete({
-		"delete from wf_task_conn where wf_id in (select def.wf_id from wf_def def, rs_workflow wf where def.RS_WF_ID=wf.RS_WF_ID and wf.gnmk_id=#{refMkid})"
+		"delete from wf_task_conn where wf_id in (select wf_version_id from wf_version where ref_mkid=#{refMkid})"
 	})
 	public void deleteUnitResult4WfConn(@Param("refMkid") String refMkid);
 	
 	@Delete({
-		"delete from WF_DEF where RS_WF_ID in (select RS_WF_ID from rs_workflow wf where wf.gnmk_id=#{refMkid})"
+		"delete from wf_version where ref_mkid =#{refMkid}"
 	})
 	public void deleteUnitResult4WfDef(@Param("refMkid") String refMkid);
 	
 	@Delete({
-		"delete from rs_workflow where gnmk_id=#{refMkid}"
+		"delete from wfdef where wfdef_mkid=#{refMkid}"
 	})
 	public void deleteUnitResult4RsWorkflow(@Param("refMkid") String refMkid);
 	

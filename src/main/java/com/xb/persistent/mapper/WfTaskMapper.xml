@@ -50,7 +50,7 @@ join wf_instance inst on inst.WF_ID=task.WF_ID and inst.INST_ID=#{instId}
 select  task.*
 from wf_task task, wf_instance inst
 where task.wf_id=inst.wf_id 
-and inst.rs_wf_id=#{rsWfId} and inst.inst_num=#{instNum} and inst.OPT_USERS_PRE like #{recaller}
+and inst.REF_MKID=#{refMkid} and inst.inst_num=#{instNum} and inst.OPT_USERS_PRE like #{recaller}
 and task.task_type=#{taskTypeCode}
 
 </select>

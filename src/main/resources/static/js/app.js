@@ -5,12 +5,12 @@
  */
 angular.module('app', [ ])
     .service('wfService', ['$http', '$q', function ($http, $q) {
-        this.newModule = function(gnmkId){
+        this.newModule = function(refMkid){
             var delay = $q.defer();
             var req = {
                 method: 'POST',
                 url: basePath+'/wfadmin/module',
-                data:{gnmkId:gnmkId}
+                data:{refMkid:refMkid}
             };
             $http(req)
                 .success(function(data, status, headers, config){
@@ -39,11 +39,11 @@ angular.module('app', [ ])
     }])
     .controller('ctrl', ['$scope', 'wfService', function ($scope, wfService) {
         $scope.newModule = function () {
-            if($scope.gnmkId==undefined || $scope.gnmkId==""){
+            if($scope.refMkid==undefined || $scope.refMkid==""){
                 alert("请输入功能模块编号");
                 return;
             }else{
-                wfService.newModule($scope.gnmkId).then(function(success){
+                wfService.newModule($scope.refMkid).then(function(success){
                     if(success.statusCode=="dup"){
                         alert("该功能模块编号已存在");
                         return;
@@ -51,7 +51,7 @@ angular.module('app', [ ])
                     if($scope.moduleList==undefined){
                         $scope.moduleList = []
                     }
-                    $scope.moduleList[$scope.moduleList.length] = {rsWfId:success.rsWfId, gnmkId:success.gnmkId};
+                    $scope.moduleList[$scope.moduleList.length] = {refMkid:success.refMkid};
                 },function(fail){
                     console.error("newModule failed");
                     alert("创建失败");

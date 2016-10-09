@@ -49,7 +49,10 @@ public class TblGroupServiceImpl extends CommonServiceImpl<TblGroupMapper, TblGr
 			u2g.setUserId(userId);
 			records.add(u2g);
 		}
-		user2GroupService.insertBatch(records);
+//		user2GroupService.insertBatch(records);
+		for(TblUser2group tg:records){
+			user2GroupService.insert(tg);
+		}
 	}
 	
 	@Transactional

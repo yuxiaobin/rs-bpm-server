@@ -11,16 +11,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.persistent.RsWorkflow;
-import com.xb.persistent.WfDef;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
+import com.xb.persistent.WfVersion;
 import com.xb.persistent.mapper.RsWorkflowMapper;
 import com.xb.service.IRsWorkflowService;
-import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskConnService;
 import com.xb.service.IWfTaskService;
+import com.xb.service.IWfVersionService;
 import com.xb.utils.WfDataUtil;
 import com.xb.vo.ModuleVO;
 import com.xb.vo.WFDetailVO;
@@ -34,7 +34,7 @@ import com.xb.vo.WFDetailVO;
 public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, RsWorkflow> implements IRsWorkflowService {
 
 	@Autowired
-	IWfDefService wfDefService;
+	IWfVersionService wfDefService;
 	@Autowired
 	IWfTaskService wfTaskService;
 	@Autowired
@@ -52,20 +52,20 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 	 */
 	@Transactional
 	public void createWF4Module(ModuleVO module, WFDetailVO wfDetail) {
-		RsWorkflow rsWf = this.selectById(module.getRsWfId());
-		WfDef wfDefParm = new WfDef();
-		wfDefParm.setRsWfId(rsWf.getRsWfId());
-		List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
-		WfDef wfDef = null;
+		String refMkid = module.getRefMkid();
+		WfVersion wfDefParm = new WfVersion();
+		wfDefParm.setRefMkid(refMkid);
+		List<WfVersion> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
+		WfVersion wfDef = null;
 		if(wfDefList==null || wfDefList.isEmpty()){
-			wfDef = new WfDef();
-			wfDef.setRsWfId(rsWf.getRsWfId());
-			wfDef.setVERSION(1);
+			wfDef = new WfVersion();
+			wfDef.setRefMkid(refMkid);
+			wfDef.setVERSION(1d);
 			wfDefService.insert(wfDef);
 		}else{
-			WfDef oldWfDef = wfDefList.get(0);
-			wfDef = new WfDef();
-			wfDef.setRsWfId(rsWf.getRsWfId());
+			WfVersion oldWfDef = wfDefList.get(0);
+			wfDef = new WfVersion();
+			wfDef.setRefMkid(refMkid);
 			wfDef.setVERSION(oldWfDef.getVERSION()+1);
 			wfDefService.insert(wfDef);
 		}
@@ -78,7 +78,10 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 		JSONArray connsj = wfData.getJSONArray("conns");
 		List<WfTaskConn> connList = WfDataUtil.generateTaskConnList(connsj, wfId, taskList);
 		
-		wfTaskConnService.insertBatch(connList);
+//		wfTaskConnService.insertBatch(connList);
+		for(WfTaskConn con:connList){
+			wfTaskConnService.insert(con);
+		}
 	}
 
 	/**
@@ -87,22 +90,16 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 	 * @param moduleId
 	 * @return
 	 */
-	public WFDetailVO getWF4Module(String rsWfId, String wfId) {
+	public WFDetailVO getWF4Module(String refMkid, String wfId) {
 		WFDetailVO result = new WFDetailVO();
-		RsWorkflow rsWf = this.selectById(rsWfId);
-		if (rsWf == null) {
-			return result;
-		}
-		result.setRsWF(rsWf);
-		
-		WfDef wfDef  = null;
+		WfVersion wfDef  = null;
 		if(wfId!=null){
 			wfDef = wfDefService.selectById(wfId);
 		}
 		if(wfDef==null){
-			WfDef wfDefParm = new WfDef();
-			wfDefParm.setRsWfId(rsWf.getRsWfId());
-			List<WfDef> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
+			WfVersion wfDefParm = new WfVersion();
+			wfDefParm.setRefMkid(refMkid);
+			List<WfVersion> wfDefList = wfDefService.selectList(wfDefParm, "version desc");
 			if (wfDefList == null || wfDefList.isEmpty()) {
 				return result;
 			}

@@ -21,15 +21,15 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	
 	public List<WfAwt> getTasksInbox(String userId);
 	
-	public JSONObject startWF4Module(String rsWfId, String userId);
+	public JSONObject startWF4Module(String refMkid, String userId);
 	
 	/**
-	 * API : 根据gnmkId启动工作流
-	 * @param gnmkId
+	 * API : 根据refMkid启动工作流
+	 * @param refMkid
 	 * @param userId
 	 * @return JSONObject{ instNum:xxx, currTaskId:xxx }
 	 */
-	public JSONObject startWFByGnmkId(String gnmkId, String userId);
+	public JSONObject startWFByRefMkid(String refMkid, String userId);
 	
 	public JSONObject processTask(TaskOptVO optVO, String currUserId) throws BusinessException;
 	/**
@@ -39,7 +39,7 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 */
 	public WFDetailVO getWFStatus(String instId);
 	
-	public WFDetailVO getWFStatus(String rsWfId, Integer instNum);
+	public WFDetailVO getWFStatus(String refMkid, Integer instNum);
 	
 	public void batchCreateTasksWithAssigners(List<WfTask> taskList);
 	
@@ -54,7 +54,7 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	
 	/**
 	 * 根据操作的类型（提交/退回等等）获取下一步的任务节点Assigners
-	 * @param optVO:rsWfId,instNum
+	 * @param optVO:refMkid,instNum
 	 * @return {
 	 * 		users:[ //事务定义对应用户
 	 * 			{id:xxx,name:xxx,defSelMod:true/false, checkFlag:true/false},... 
@@ -70,16 +70,16 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	public JSONObject getNextAssignersByOptCode(TaskOptVO optVO);
 	
 	/**
-	 * 根据rsWfId,instNum等参数获取当前待办事宜对应的task
+	 * 根据refMkid,instNum等参数获取当前待办事宜对应的task
 	 * @param optVO
 	 * @return
 	 */
 	public WfTask getCurrentTaskByRefNum(TaskOptVO optVO);
 	
 	/**
-	 * 根据rsWfId&instNum 获取当前task的可操作菜单列表
+	 * 根据refMkid&instNum 获取当前task的可操作菜单列表
 	 * 
-	 * @param optVO {rsWfId, instNum}
+	 * @param optVO {refMkid, instNum}
 	 * @param needGroup	是否需要分组
 	 * @return
 	 */

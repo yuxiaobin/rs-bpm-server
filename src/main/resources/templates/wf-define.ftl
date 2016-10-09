@@ -16,37 +16,113 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/bootstrap.min.css">
     <script>
         var basePath = "${base.contextPath}";
-        <#if rsWfId?exists>
-            var rsWfId = "${rsWfId}";
+        <#if refMkid?exists>
+            var refMkid = "${refMkid}";
         </#if>
     </script>
 </head>
-<body data-demo-id="statemachine" data-library="dom" class="home-template" ng-app="taskApp">
+<body data-demo-id="statemachine" data-library="dom" class="home-template" >
 <header class="site-header">
     <div class="container">
         <div class="row">
             <div class="col-xs-6">
-                <h1>功能模块ID：${gnmkId}</h1>
+                <h1>功能模块ID：${refMkid}</h1>
             </div>
             <div class="col-xs-6">
                 <div style="position: absolute;right: 10px;"> <h3><a href="${base.contextPath}/wf">回首页</a></h3></div>
             </div>
 
         </div>
+        <div class="row">
+            <ul class="nav nav-pills nav-justified">
+                <li role="presentation" class="active"><a href="#" onclick="showWfDef(this)">工作流</a></li>
+                <li><a href="#" onclick="showCustVar(this)">自定义项</a></li>
+            </ul>
+            <div>
+                <input type="button" class="btn btn-lg btn-primary" value="Save" id="Save">
+                <input type="button" class="btn btn-lg btn-primary" value="Reset" id="resetBtn">
+            </div>
+        </div>
     </div>
 </header>
-<div class="jtk-demo-main">
+<div class="jtk-demo-main" id="wfDefDiv">
     <!-- demo -->
     <div class="rsmenu">
         <div class="w menu-task" rs-data-type="user-task">事务</div>
-        <div class="w menu-task rs-cond-task" rs-type="user-task"><div class="task-descp">Condition Node</div></div>
+        <div class="w menu-task rs-cond-task" rs-data-type="rs-cond-task"><div class="task-descp">Condition Node</div></div>
     </div>
     <div class="rscontainer jtk-demo-canvas canvas-wide statemachine-demo jtk-surface jtk-surface-nopan " id="canvas">
     </div>
-    <div>
-        <!--<input type="button" value="Remove All" id="removeAll">-->
-        <input type="button" class="btn btn-lg btn-primary" value="Save" id="Save">
-        <input type="button" class="btn btn-lg btn-primary" value="Reset" id="resetBtn">
+
+</div>
+<div class="row" id="custVarDiv" ng-app="funcVarApp" style="display: none">
+    <div class="col-xs-12">
+        <table class="table table-striped">
+            <thead><tr>
+                <th>类型</th>
+                <th>编码</th>
+                <th>名称</th>
+                <th>表达式</th>
+            </tr></thead>
+            <tbody>
+            <tr ng-repeat="funcVar in funcVarList" ng-click="">
+                <td ng-if="funcVar.varType=='U'">自定义人员</td>
+                <td ng-if="funcVar.varType=='V'">自定义变量</td>
+                <td>{{funcVar.varCode}}</td>
+                <td>{{funcVar.varDescp}}</td>
+                <td>{{funcVar.varExpression}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-xs-12">
+        <div class="row">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" ng-click="">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>增加
+                </button>
+                <button type="button" class="btn btn-default" ng-click="">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>删除
+                </button>
+                <button type="button" class="btn btn-default" ng-click="">
+                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span>保存
+                </button>
+                <button type="button" class="btn btn-default" ng-click="">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>放弃
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 bs-example" id="funcVarEdit" style="display:none">
+        <div class="row">
+            <div class="col-xs-5" >
+                <select id="selectVarType" class="selectpicker" multiple data-live-search="true"
+                        ng-model="custVar.varType">
+                    <option value="U">自定义人员</option>
+                    <option value="V">自定义变量</option>
+                </select>
+            </div>
+            <div class="col-xs-5">
+                <div class="input-group">
+                    <span class="input-group-addon" >编码：</span>
+                    <input type="text" name="varCode" ng-model="custVar.varCode">
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <div class="input-group">
+                    <span class="input-group-addon" >名称：</span>
+                    <input type="text" name="varDescp" ng-model="custVar.varDescp">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon" >表达式：</span>
+                    <textarea class="form-control" id="varExpression" ng-model="custVar.varExpression"></textarea>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -116,6 +192,10 @@
 <!--  demo code -->
 <script src="${base.contextPath}/static/js/common.js"></script>
 <script src="${base.contextPath}/static/js/rs-bpm.js"></script>
+
+<script src="${base.contextPath}/static/js/angular.js"></script>
+<script src="${base.contextPath}/static/js/plugin/bootstrap-select.js"></script>
+<script src="${base.contextPath}/static/js/app-wf.js"></script>
 
 <script>
     var parmJsonStr = "";

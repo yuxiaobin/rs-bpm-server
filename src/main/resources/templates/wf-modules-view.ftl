@@ -41,10 +41,10 @@
             <a class="package list-group-item" ng-repeat="module in moduleList" href="" >
                 <div class="row">
                     <div class="col-md-3">
-                        <h4 class="package-name" ng-bind="module.gnmkId"></h4>
+                        <h4 class="package-name" ng-bind="module.refMkid"></h4>
                     </div>
                     <div class="col-md-9 hidden-xs">
-                        <i href="#" ng-click="triggerWF(module.rsWfId)">发起</i>
+                        <i href="#" ng-click="triggerWF(module.refMkid)">发起</i>
                     </div>
                 </div>
             </a>

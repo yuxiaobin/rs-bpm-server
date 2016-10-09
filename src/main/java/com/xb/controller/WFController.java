@@ -20,10 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.persistent.RsWorkflow;
 import com.xb.service.IRsWorkflowService;
-import com.xb.service.ITblUser2groupService;
-import com.xb.service.ITblUserService;
 import com.xb.service.IWfAwtService;
-import com.xb.service.IWfDefService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
@@ -38,17 +35,11 @@ public class WFController extends BaseController {
 	@Autowired
 	IRsWorkflowService wfService;
 	@Autowired
-	IWfDefService wfDefService;
-	@Autowired
 	IWfTaskService taskService;
 	@Autowired
 	IWfInstHistService instHistService;
 	@Autowired
 	IWfInstanceService instService;
-	@Autowired
-	ITblUserService userService;
-	@Autowired
-	ITblUser2groupService user2GroupService;
 	@Autowired
 	IWfAwtService awtService;
 	
@@ -95,7 +86,7 @@ public class WFController extends BaseController {
 	@RequestMapping(value="/start", method=RequestMethod.POST)
 	@ResponseBody
 	public Object startWf4Module(@RequestBody TaskOptVO optVO, HttpSession session){
-		taskService.startWF4Module(optVO.getRsWfId(), getCurrUserId(session));
+		taskService.startWF4Module(optVO.getRefMkid(), getCurrUserId(session));
 		JSONObject result = new JSONObject();
 		result.put("message", "success");
 		return result;
@@ -111,7 +102,7 @@ public class WFController extends BaseController {
 	@RequestMapping(value="/hist",method=RequestMethod.GET )
 	@ResponseBody
 	public Object viewInstHistory(HttpSession session,HttpServletRequest req){
-		String rsWfId = req.getParameter("rsWfId");
+		String refMkid = req.getParameter("refMkid");
 		String instNumStr = req.getParameter("instNum");
 		if(StringUtils.isEmpty(instNumStr) || !NumberUtils.isNumber(instNumStr)){
 			System.err.println("getWfStatus(): invalid instNum="+instNumStr);
@@ -119,21 +110,20 @@ public class WFController extends BaseController {
 		}
 		int instNum = NumberUtils.toInt(instNumStr);
 		JSONObject result = new JSONObject();
-		result.put("records", instHistService.viewWfInstHistory(rsWfId, instNum));
+		result.put("records", instHistService.viewWfInstHistory(refMkid, instNum));
 		return result;
 	}
 	
 	@RequestMapping(value="/status",method=RequestMethod.GET )
 	@ResponseBody
 	public Object getWfStatus(HttpSession session, HttpServletRequest req){
-		String rsWfId = req.getParameter("rsWfId");
 		String instNum = req.getParameter("instNum");
-//		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter("refMkid");
 		if(StringUtils.isEmpty(instNum) || !NumberUtils.isNumber(instNum)){
 			System.err.println("getWfStatus(): invalid instNum="+instNum);
 			return "";
 		}
-		JSONObject result = WfDataUtil.generateWfJson(taskService.getWFStatus(rsWfId, NumberUtils.toInt(instNum)));
+		JSONObject result = WfDataUtil.generateWfJson(taskService.getWFStatus(refMkid, NumberUtils.toInt(instNum)));
 		return result;
 	}
 	/**********************Workflow Track * end ********************/

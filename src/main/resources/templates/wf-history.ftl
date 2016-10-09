@@ -79,7 +79,7 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="taskv in taskvList"
-                        rs-inst-num="{{taskv.instNum}}" rs-ref-mkid="{{taskv.refMkid}}" rs-wf-id="{{taskv.rsWfId}}"
+                        rs-inst-num="{{taskv.instNum}}" rs-ref-mkid="{{taskv.refMkid}}" 
                         ng-click="selectTableRow($event)">
                         <td>{{taskv.taskDescpDisp}}</td>
                         <td>{{taskv.taskOwner}}</td>

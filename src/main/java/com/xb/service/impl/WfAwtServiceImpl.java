@@ -52,9 +52,9 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		return baseMapper.getAwtByUserId(userId);
 	}
 	
-	public WfAwt getAwtByParam(String rsWfId, int instNum, String currUserId){
+	public WfAwt getAwtByParam(String refMkid, int instNum, String currUserId){
 		Map<String,Object> parmMap = new HashMap<String,Object>();
-		parmMap.put("rsWfId", rsWfId);
+		parmMap.put("refMkid", refMkid);
 		parmMap.put("instNum", instNum);
 		parmMap.put("currUserId", currUserId);
 		List<WfAwt> awtList = baseMapper.getAwtByParam(parmMap);
@@ -302,7 +302,10 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		}
 		this.deleteById(awt.getWfAwtId());
 		if(!awtNewList.isEmpty()){
-			this.insertBatch(awtNewList);
+			for(WfAwt awtTmp:awtNewList){
+				this.insert(awtTmp);
+			}
+//			this.insertBatch(awtNewList);
 		}
 		return false;
 	}
@@ -471,9 +474,9 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	}
 
 	@Override
-	public List<WfAwt> getAwt4Recall(String rsWfId, int instNum, String currRecallUser) {
+	public List<WfAwt> getAwt4Recall(String refMkid, int instNum, String currRecallUser) {
 		Map<String,Object> parmMap = new HashMap<String,Object>();
-		parmMap.put("rsWfId", rsWfId);
+		parmMap.put("refMkid", refMkid);
 		parmMap.put("instNum", instNum);
 		parmMap.put("currRecallUser", currRecallUser);
 		return baseMapper.getAwt4Recall(parmMap);

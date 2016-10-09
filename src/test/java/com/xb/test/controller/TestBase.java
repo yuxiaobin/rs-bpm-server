@@ -32,7 +32,7 @@ public abstract class TestBase {
 	@Value("${local.server.port}")   // 6
     int port;
 	
-	String rsWfId;
+	String refMkid;
 	Integer instNum;
 	String nextTaskId4Commit;
 	
@@ -59,7 +59,7 @@ public abstract class TestBase {
 	public void startWf(String starterId, String nextTaskAssigners){
 		JSONObject parm = new JSONObject();
 		parm.put("userId", starterId);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		ValidatableResponse response = given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfapi/start")
@@ -86,7 +86,7 @@ public abstract class TestBase {
 	public void letMeDo(String userId){
 		JSONObject parm = new JSONObject();
 		parm.put("userId", userId);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("optCode", "LMD");
 		parm.put("wfInstNum", instNum);
 		given().contentType("application/json")
@@ -109,7 +109,7 @@ public abstract class TestBase {
 	private void getNextTask(String optCode){
 		JSONObject parm = new JSONObject();
 		parm.put("wfInstNum", instNum);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("optCode", optCode);
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
@@ -142,7 +142,7 @@ public abstract class TestBase {
 		}
 		JSONObject parm = new JSONObject();
 		parm.put("userId", committer);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("comments", "junitTest: "+committer+" commit");
 //		parm.put("nextTaskId", nextTaskId4Commit);
 		parm.put("nextUserIds", nextAssignerIds);
@@ -166,7 +166,7 @@ public abstract class TestBase {
 		
 		JSONObject parm = new JSONObject();
 		parm.put("userId", rejector);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("comments", "junitTest: "+rejector+" reject task");
 		parm.put("nextTaskId", nextTaskId4Commit);
 		parm.put("nextUserIds", nextAssignerIds);
@@ -188,7 +188,7 @@ public abstract class TestBase {
 	public void forwardTask(String fromUser, String toUser){
 		JSONObject parm = new JSONObject();
 		parm.put("userId", fromUser);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("comments", "junitTest: from:"+fromUser+" forward to "+toUser);
 		parm.put("nextUserIds", toUser);
 		parm.put("optCode", "F");
@@ -208,7 +208,7 @@ public abstract class TestBase {
 	public void recallSuccess(String recaller){
 		JSONObject parm = new JSONObject();
 		parm.put("userId", recaller);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("wfInstNum", instNum);
 		parm.put("optCode", "RC");
 		parm.put("comments", "junitTest: "+recaller+" recall");
@@ -228,7 +228,7 @@ public abstract class TestBase {
 	public void recallFail(String recaller){
 		JSONObject parm = new JSONObject();
 		parm.put("userId", recaller);
-		parm.put("gnmkId", getRefMkid());
+		parm.put("refMkid", getRefMkid());
 		parm.put("wfInstNum", instNum);
 		parm.put("optCode", "RC");
 		parm.put("comments", "junitTest: "+recaller+" recall");
@@ -274,7 +274,7 @@ public abstract class TestBase {
 				}
 				int count = 0;
 				for(int i=0;i<records.size();++i){
-					if(records.getJSONObject(i).getString("gnmkId").equals(getRefMkid())){
+					if(records.getJSONObject(i).getString("refMkid").equals(getRefMkid())){
 						count++;
 					}
 				}

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.annotations.TableField;
 
-public class BaseTO {
+public class CUBaseTO {
 
 	/**  */
 	@TableField(value = "CREATED_BY")

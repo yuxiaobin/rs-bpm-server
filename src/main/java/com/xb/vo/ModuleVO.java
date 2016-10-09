@@ -2,9 +2,7 @@ package com.xb.vo;
 
 public class ModuleVO {
 	
-	private String rsWfId;
-	
-	private String gnmkId;
+	private String refMkid;
 	
 	private String statusCode;
 	
@@ -16,20 +14,12 @@ public class ModuleVO {
 		this.statusCode = statusCode;
 	}
 
-	public String getGnmkId() {
-		return gnmkId;
+	public String getRefMkid() {
+		return refMkid;
 	}
 
-	public void setGnmkId(String gnmkId) {
-		this.gnmkId = gnmkId;
-	}
-
-	public String getRsWfId() {
-		return rsWfId;
-	}
-
-	public void setRsWfId(String rsWfId) {
-		this.rsWfId = rsWfId;
+	public void setRefMkid(String refMkid) {
+		this.refMkid = refMkid;
 	}
 
 }

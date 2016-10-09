@@ -4,7 +4,7 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="Base_Column_List">
-		 RS_WF_ID AS rsWfId, GNMK_ID as gnmkId ,CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
+		 WFDEF_WFID AS rsWfId, WFDEF_MKID as refMkid
 	</sql>
 
 </mapper>

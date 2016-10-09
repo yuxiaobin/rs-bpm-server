@@ -2,7 +2,6 @@ package com.xb.vo;
 
 public class TaskOptVO {
 
-	private String rsWfId;
 	private Integer instNum;
 	
 	private String comments;
@@ -10,11 +9,11 @@ public class TaskOptVO {
 	private String nextTaskId;//当前选择的事务节点ID. Next Task ID
 	private String optCode;//C:提交，V:否决，RJ:退回，RD:撤回
 	
-	private String gnmkId;
+	private String refMkid;
 	
 	/**********以上为处理事务时必填字段*************/
 	
-//	private String currTaskId;//撤回操作时，不用指定，通过instNum+gnmkId+currUserId -> history ->找最后一条@0908
+//	private String currTaskId;//撤回操作时，不用指定，通过instNum+refMkid+currUserId -> history ->找最后一条@0908
 	private String prevInstHistId;
 	private String currUserId;
 	private boolean nextEndTaskFlag;
@@ -53,12 +52,6 @@ public class TaskOptVO {
 	public void setOptCode(String optCode) {
 		this.optCode = optCode;
 	}
-	public String getRsWfId() {
-		return rsWfId;
-	}
-	public void setRsWfId(String rsWfId) {
-		this.rsWfId = rsWfId;
-	}
 	public Integer getInstNum() {
 		return instNum;
 	}
@@ -84,16 +77,17 @@ public class TaskOptVO {
 		this.nextTaskId = nextTaskId;
 	}
 	
-	public String getGnmkId() {
-		return gnmkId;
+	
+	public String getRefMkid() {
+		return refMkid;
 	}
-	public void setGnmkId(String gnmkId) {
-		this.gnmkId = gnmkId;
+	public void setRefMkid(String refMkid) {
+		this.refMkid = refMkid;
 	}
 	@Override
 	public String toString() {
-		return "TaskOptVO [rsWfId=" + rsWfId + ", instNum=" + instNum + ", comments=" + comments + ", nextAssigners="
-				+ nextAssigners + ", nextTaskId=" + nextTaskId + ", optCode=" + optCode + ", gnmkId=" + gnmkId
+		return "TaskOptVO [instNum=" + instNum + ", comments=" + comments + ", nextAssigners="
+				+ nextAssigners + ", nextTaskId=" + nextTaskId + ", optCode=" + optCode + ", refMkid=" + refMkid
 				+ ", prevInstHistId=" + prevInstHistId + ", currUserId=" + currUserId + ", nextEndTaskFlag="
 				+ nextEndTaskFlag + ", wfId=" + wfId + "]";
 	}

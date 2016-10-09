@@ -19,23 +19,23 @@ public interface IWfAwtService extends ICommonService<WfAwt> {
 	
 	/**
 	 * 根据参数获取待办事宜
-	 * 业务表只会存rsWfId & instNum(实例号)
+	 * 业务表只会存refMkid & instNum(实例号)
 	 * 
-	 * @param rsWfId
+	 * @param refMkid
 	 * @param instNum
 	 * @param currUserId
 	 * @return
 	 */
-	public WfAwt getAwtByParam(String rsWfId, int instNum, String currRecallUser);
+	public WfAwt getAwtByParam(String refMkid, int instNum, String currRecallUser);
 	
 	/**
 	 * 根据撤回人，找上一步处理人包含该撤回人的所有待办事宜
-	 * @param rsWfId
+	 * @param refMkid
 	 * @param instNum
 	 * @param currOptUser
 	 * @return
 	 */
-	public List<WfAwt> getAwt4Recall(String rsWfId, int instNum, String currOptUser);
+	public List<WfAwt> getAwt4Recall(String refMkid, int instNum, String currOptUser);
 	
 	public List<WfAwt> getAwtListByInstId(String instId);
 	

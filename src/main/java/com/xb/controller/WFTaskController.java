@@ -56,10 +56,8 @@ public class WFTaskController extends BaseController {
 	@RequestMapping("/loadprocess")
 	public Object loadProcessTask(HttpSession session, HttpServletRequest req){
 		
-		String rsWfId = req.getParameter("rsWfId");
 		String instNum = req.getParameter("instNum");
 		String refMkid = req.getParameter("refMkid");
-		req.setAttribute("rsWfId", rsWfId);
 		req.setAttribute("instNum", instNum);
 		req.setAttribute("refMkid", refMkid);
 		String optCode = req.getParameter("optCode");
@@ -69,7 +67,7 @@ public class WFTaskController extends BaseController {
 			req.setAttribute("optCode", optCode);
 			//提交，退回，否决等操作事务页面
 			TaskOptVO optVO = new TaskOptVO();
-			optVO.setRsWfId(rsWfId);
+			optVO.setRefMkid(refMkid);
 			optVO.setInstNum(Integer.parseInt(instNum));
 			optVO.setOptCode(optCode);
 			req.setAttribute("TX_PR_CHOICES",taskService.getCurrentTaskByRefNum(optVO).getTxPrChoices());
@@ -105,7 +103,7 @@ public class WFTaskController extends BaseController {
 	@ResponseBody
 	public Object getTaskOptions(HttpServletRequest req	){
 		TaskOptVO optVO = new TaskOptVO();
-		String rsWfId = req.getParameter("rsWfId");
+		String refMkid = req.getParameter("refMkid");
 		String instNum = req.getParameter("instNum");
 		if(NumberUtils.isNumber(instNum)){
 			optVO.setInstNum(NumberUtils.toInt(instNum));
@@ -114,7 +112,7 @@ public class WFTaskController extends BaseController {
 			System.err.println("getTaskOptions(): invalid instNum="+instNum);
 			return new JSONArray();
 		}
-		optVO.setRsWfId(rsWfId);
+		optVO.setRefMkid(refMkid);
 		return taskService.getTaskOptions(optVO, true);
 	}
 	
@@ -122,7 +120,7 @@ public class WFTaskController extends BaseController {
 	@ResponseBody
 	public Object getTaskOptionsNoGroup(HttpServletRequest req	){
 		TaskOptVO optVO = new TaskOptVO();
-		String rsWfId = req.getParameter("rsWfId");
+		String refMkid = req.getParameter("refMkid");
 		String instNum = req.getParameter("instNum");
 		if(NumberUtils.isNumber(instNum)){
 			optVO.setInstNum(NumberUtils.toInt(instNum));
@@ -131,7 +129,7 @@ public class WFTaskController extends BaseController {
 			System.err.println("getTaskOptions(): invalid instNum="+instNum);
 			return new JSONArray();
 		}
-		optVO.setRsWfId(rsWfId);
+		optVO.setRefMkid(refMkid);
 		return taskService.getTaskOptions(optVO, false);
 	}
 	
