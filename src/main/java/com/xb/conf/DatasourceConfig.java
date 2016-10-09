@@ -29,6 +29,7 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 public class DatasourceConfig {
 	
 	private static final String MYSQL_PREFIX = "mysql.";
+	private static final String ORACLE_PREFIX = "oracle.";
 	private static final String DRUID_PREFIX = "druid.";
 	
     @Autowired
@@ -66,8 +67,8 @@ public class DatasourceConfig {
     	
         if (propertySource instanceof MapPropertySource) {
             for (String key : ((MapPropertySource) propertySource).getPropertyNames()) {
-            	if (key.startsWith(MYSQL_PREFIX)) {
-					map.put(key.replaceFirst(MYSQL_PREFIX, ""), propertySource.getProperty(key));
+            	if (key.startsWith(ORACLE_PREFIX)) {
+					map.put(key.replaceFirst(ORACLE_PREFIX, ""), propertySource.getProperty(key));
 				} else if (key.startsWith(DRUID_PREFIX)) {
 					map.put(key.replaceFirst(DRUID_PREFIX, ""), propertySource.getProperty(key));
 				}
