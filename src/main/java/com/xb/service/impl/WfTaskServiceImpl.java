@@ -76,13 +76,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	}
 	
 	public JSONObject startWFByRefMkid(String refMkid, String userId){
-		RsWorkflow wfparm = new RsWorkflow();
-		wfparm.setRefMkid(refMkid);
-		RsWorkflow wf = rsWfService.selectOne(wfparm);
-		if(wf==null){
-			return null;
-		}
-		return startWF4Module(wf.getRefMkid(),userId);
+		return startWF4Module(refMkid,userId);
 	}
 	
 	@Transactional

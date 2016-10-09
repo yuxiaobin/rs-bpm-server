@@ -42,10 +42,7 @@
                 </select><br>
                 <label for="buzStatus" class="control-label">业务状态:</label>
                 <select id="buzStatus" class="selectpicker" data-hide-disabled="true" data-live-search="false" ng-model="task.buzStatus" ng-disabled="isStartEndNode">
-                    <option value="I">初始</option>
-                    <option value="H">会签</option>
-                    <option value="F">确认</option>
-                    <option value="C">完成</option>
+                    <option ng-repeat="buzStatusOpt in buzStatusOptions" value="{{buzStatusOpt.value}}">{{buzStatusOpt.descp}}</option>
                 </select><br>
                 <label for="timeLimitTp" class="control-label">完成期限:</label>
                 <input type="number" min="1" class="input-sm" id="durTime" style="width:80" ng-model="task.timeLimit" ng-disabled="isStartEndNode">

@@ -289,7 +289,7 @@ public abstract class TestBase {
 	public void getNextTaskOptions(String currUserId){
 		JSONObject parm = new JSONObject();
 		parm.put(WFConstants.ApiParams.PARM_USER_ID, currUserId);
-		parm.put(WFConstants.ApiParams.PARM_GNMK_ID, getRefMkid());
+		parm.put(WFConstants.ApiParams.PARM_REFMK_ID, getRefMkid());
 		parm.put(WFConstants.ApiParams.PARM_INST_NUM, instNum);
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
@@ -306,7 +306,7 @@ public abstract class TestBase {
 	
 	public void getHistory(){
 		JSONObject parm = new JSONObject();
-		parm.put(WFConstants.ApiParams.PARM_GNMK_ID, getRefMkid());
+		parm.put(WFConstants.ApiParams.PARM_REFMK_ID, getRefMkid());
 		parm.put(WFConstants.ApiParams.PARM_INST_NUM, instNum);
 		given().contentType("application/json")
 		.request().body(parm.toJSONString())

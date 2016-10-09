@@ -25,6 +25,17 @@ public class RsWorkflow implements Serializable {
 	@TableField(value = "WFDEF_MKID")
 	private String refMkid;
 	
+	@TableField(value = "WFDEF_ZTXX")//状态信息
+	private String buzStatusSet;
+
+	public String getBuzStatusSet() {
+		return buzStatusSet;
+	}
+
+	public void setBuzStatusSet(String buzStatusSet) {
+		this.buzStatusSet = buzStatusSet;
+	}
+
 	public String getRefMkid() {
 		return refMkid;
 	}

@@ -38,6 +38,21 @@ angular.module('taskApp', [ ])
                 });
             return delay.promise;
         };
+        this.getBuzStatus = function(refMkid){
+            var delay = $q.defer();
+            var req = {
+                method: 'GET',
+                url: basePath+'/task/buzStatus?refMkid='+refMkid
+            };
+            $http(req)
+                .success(function(data, status, headers, config){
+                    delay.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                    delay.reject(data);
+                });
+            return delay.promise;
+        };
     }])
     .controller('taskCtrl', ['$scope','$timeout', 'userGroupService', function ($scope,$timeout, userGroupService) {
         if(angular.isUndefined( $scope.userGroupChoices)){
@@ -74,6 +89,28 @@ angular.module('taskApp', [ ])
                 }
             })
         });
+
+        $scope.getBuzStatusOptions = function(refMkid){
+            userGroupService.getBuzStatus(refMkid).then(function(succ){
+                $scope.buzStatusOptions = succ;
+                if(angular.isUndefined($scope.task.buzStatus) || $scope.task.buzStatus==""){
+                    if(taskData.taskType==RS_TYPE_END){
+                        $scope.task.buzStatus = succ[succ.length-1].value;
+                    }else{
+                        $scope.task.buzStatus = succ[0].value;
+                    }
+                }
+                $("#buzStatus").selectpicker('hide').selectpicker("destroy");
+                setTimeout(function(){
+                    $("#buzStatus").selectpicker('show').selectpicker('val', $scope.task.buzStatus);
+                },100);
+            },function(fail){
+                $scope.buzStatusOptions = [{value:"",descp:"无可用状态"}];
+                $scope.task.buzStatus = "";
+            });
+        };
+        $scope.getBuzStatusOptions(taskData.refMkid);
+
         $scope.task = taskData;
         if(taskData.taskType==RS_TYPE_START || taskData.taskType==RS_TYPE_END){
             $scope.showAssignerEdit = false;

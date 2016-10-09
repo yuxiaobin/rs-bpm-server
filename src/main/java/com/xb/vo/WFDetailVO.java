@@ -14,7 +14,6 @@ public class WFDetailVO {
 
 	private RsWorkflow rsWF;
 	private WfVersion wfDef;// latest record > max Version
-//	private RsModule module;
 
 	List<WfTask> tasks;
 	List<WfTaskConn> conns;
@@ -59,14 +58,6 @@ public class WFDetailVO {
 	public void setWfData(JSONObject wfData) {
 		this.wfData = wfData;
 	}
-
-//	public RsModule getModule() {
-//		return module;
-//	}
-//
-//	public void setModule(RsModule module) {
-//		this.module = module;
-//	}
 
 	
 }

@@ -143,6 +143,9 @@
     <li class=""><a href="#edit">Edit</a></li>
     <li class=""><a href="#delete">Delete</a></li>
 </ul>
+<ul id="activityMenu2StartEnd" class="contextMenu">
+    <li class=""><a href="#edit">Edit</a></li>
+</ul>
 <!-- JS -->
 <!-- support lib for bezier stuff -->
 <script src="${base.contextPath}/static/js/lib/jsBezier-0.8.js"></script>
@@ -248,6 +251,7 @@
         parmJson.moduleId	=el.attr("moduleId");
         parmJson.runParam	=el.attr("runParam");
         parmJson.taskDescp	=el.attr("taskDescp");
+        parmJson.refMkid = refMkid;
         parmJsonStr = JSON.stringify(parmJson);
         $('iframe').attr("src",basePath+"/wfadmin/task?taskData="+parmJsonStr);
         $('#myModal').modal({backdrop:false});

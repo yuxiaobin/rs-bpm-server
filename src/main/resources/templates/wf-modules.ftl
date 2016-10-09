@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>
-    <div class="container-fluid">
+    <!--<div class="container-fluid">
         <div class="collapse navbar-collapse">
             <form class="navbar-form navbar-left">
                 <div class="form-group" style="margin-top: auto;"><input type="text" class="form-control" ng-model="refMkid"  placeholder="功能模块编号"></div>
@@ -28,7 +28,7 @@
                        value="New Module" ng-click="newModule()">
             </form>
         </div>
-    </div>
+    </div>-->
 </header>
 
 <main class="packages-list-container" id="all-packages">
@@ -44,10 +44,10 @@
                     </div>
                 </div>
             </a>
-            <a class="package list-group-item" ng-repeat="module in moduleList" href="${base.contextPath}/wfadmin/define/{{module.refMkid}}" >
+            <a class="package list-group-item" ng-repeat="module in moduleList" href="${base.contextPath}/wfadmin/define/{{module.rsWfId}}" >
                 <div class="row">
                     <div class="col-md-3">
-                        <h4 class="package-name" ng-bind="module.refMkid">功能模块编号</h4>
+                        <h4 class="package-name" ng-bind="module.rsWfId">功能模块编号</h4>
                     </div>
                     <div class="col-md-9 hidden-xs">
                         <p class="package-description">工作流</p>

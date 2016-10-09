@@ -19,7 +19,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
-import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
@@ -60,7 +59,7 @@ public class WFApiController extends BaseController {
 	
 	private static final String PARM_WF_INST_NUM = WFConstants.ApiParams.RETURN_WF_INST_NUM;
 	private static final String PARM_USER_ID = WFConstants.ApiParams.PARM_USER_ID;
-	private static final String PARM_GNMK_ID = WFConstants.ApiParams.PARM_GNMK_ID;
+	private static final String PARM_REFMK_ID = WFConstants.ApiParams.PARM_REFMK_ID;
 	private static final String PARM_OPT_CODE = WFConstants.ApiParams.PARM_OPT_CODE;
 	private static final String PARM_CALLBACK_URL = WFConstants.ApiParams.PARM_CALLBACK_URL;
 	
@@ -111,7 +110,7 @@ public class WFApiController extends BaseController {
 			record.put("preOperator", awt.getOptUsersPre());//上一步处理人
 			record.put(RETURN_TASK_OWNER, awt.getTaskOwner());//待处理人 	//			record.put("txProcesser", awt.getOptUsersPre());//已处理人
 			record.put("taskCreater", awt.getInstCreater());//创建人
-			record.put(PARM_GNMK_ID, awt.getRefMkid());//工作流ID
+			record.put(PARM_REFMK_ID, awt.getRefMkid());//工作流ID
 			record.put(RETURN_WF_INST_NUM, awt.getInstNum());//实例号
 			records.add(record);
 		}
@@ -134,7 +133,7 @@ public class WFApiController extends BaseController {
 	@ResponseBody
 	public Object startWf(@RequestBody JSONObject parm){
 		String userId = parm.getString(PARM_USER_ID);
-		String refMkid = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_REFMK_ID);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(userId)){
 			result.put(RETURN_CODE, STATUS_CODE_INVALID);
@@ -164,7 +163,7 @@ public class WFApiController extends BaseController {
 	@ResponseBody
 	public Object getTaskOptions(@RequestBody JSONObject parm){
 		String userId = parm.getString(PARM_USER_ID);
-		String refMkid = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_REFMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(wfInstNumStr)){
@@ -199,7 +198,7 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/operate",method=RequestMethod.GET )
 	public Object loadProcessTask(HttpServletRequest req){
 		String instNumStr = req.getParameter(PARM_WF_INST_NUM);
-		String refMkid = req.getParameter(PARM_GNMK_ID);
+		String refMkid = req.getParameter(PARM_REFMK_ID);
 		String optCode = req.getParameter(PARM_OPT_CODE);
 		String callbackUrl = req.getParameter(PARM_CALLBACK_URL);
 		if(StringUtils.isEmpty(instNumStr) || StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(optCode)){
@@ -222,14 +221,6 @@ public class WFApiController extends BaseController {
 		}
 		
 		try{
-			RsWorkflow wfparm = new RsWorkflow();
-			wfparm.setRefMkid(refMkid);
-			RsWorkflow wf = rsWfService.selectOne(wfparm);
-			if(wf==null){
-				req.setAttribute(RETURN_CODE, STATUS_CODE_INVALID);
-				req.setAttribute(RETURN_MSG, "no record found for refMkid="+refMkid);
-				return "error";
-			}
 			req.setAttribute("instNum", instNum);
 			req.setAttribute("refMkid", refMkid);
 			if(WFConstants.OptTypes.TRACK.equals(optCode)){
@@ -265,7 +256,7 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/tasks",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getTasks(@RequestBody JSONObject parm){
-		String refMkid = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_REFMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		String optCode = parm.getString(PARM_OPT_CODE);
 		JSONObject result = new JSONObject();
@@ -279,14 +270,6 @@ public class WFApiController extends BaseController {
 		}
 		Integer instNum = Integer.parseInt(wfInstNumStr);;
 		try{
-			RsWorkflow wfparm = new RsWorkflow();
-			wfparm.setRefMkid(refMkid);
-			RsWorkflow wf = rsWfService.selectOne(wfparm);
-			if(wf==null){
-				result.put(RETURN_CODE, STATUS_CODE_INVALID);
-				result.put(RETURN_MSG, "no record found for refMkid="+refMkid);
-				return result;
-			}
 			TaskOptVO optVO = new TaskOptVO();
 			optVO.setRefMkid(refMkid);
 			optVO.setInstNum(instNum);
@@ -316,7 +299,7 @@ public class WFApiController extends BaseController {
 	@RequestMapping(value="/history",method=RequestMethod.POST )
 	@ResponseBody
 	public Object getWFHistory(@RequestBody JSONObject parm){
-		String refMkid = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_REFMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		JSONObject result = new JSONObject();
 		if(StringUtils.isEmpty(refMkid) || StringUtils.isEmpty(wfInstNumStr) ){
@@ -383,7 +366,7 @@ public class WFApiController extends BaseController {
 	@ResponseBody
 	public Object doOperate(@RequestBody JSONObject parm){
 		String userId = parm.getString(PARM_USER_ID);
-		String refMkid = parm.getString(PARM_GNMK_ID);
+		String refMkid = parm.getString(PARM_REFMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
 		String optCode = parm.getString(PARM_OPT_CODE);
 		JSONObject result = new JSONObject();
