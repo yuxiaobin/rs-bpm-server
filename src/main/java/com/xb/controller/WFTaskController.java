@@ -67,9 +67,9 @@ public class WFTaskController extends BaseController {
 	public Object loadProcessTask(HttpSession session, HttpServletRequest req){
 		
 		String instNum = req.getParameter("instNum");
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		req.setAttribute("instNum", instNum);
-		req.setAttribute("refMkid", refMkid);
+		req.setAttribute(PARM_REF_MKID, refMkid);
 		String optCode = req.getParameter("optCode");
 		if(WFConstants.OptTypes.TRACK.equals(optCode)){
 			return "wf-popup-track";
@@ -112,12 +112,16 @@ public class WFTaskController extends BaseController {
 	@RequestMapping(value="/buzStatus",method=RequestMethod.GET )
 	@ResponseBody
 	public Object getBuzStatus(HttpServletRequest req	){
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		if(StringUtils.isEmpty(refMkid)){
 			return new JSONArray(0);
 		}
 		RsWorkflow res = rsWfService.selectById(refMkid);
 		String buzStatusSet = res.getBuzStatusSet();
+		if(StringUtils.isEmpty(buzStatusSet)){
+			log.warn(String.format(WARN_MSG_BUZ_STATUS, "buzStatusSet is empty",refMkid));
+			return new JSONArray(0);
+		}
 		String[] array = buzStatusSet.split(";");
 		JSONArray result = new JSONArray(array.length);
 		JSONObject json = null;
@@ -139,7 +143,7 @@ public class WFTaskController extends BaseController {
 	@ResponseBody
 	public Object getTaskOptions(HttpServletRequest req	){
 		TaskOptVO optVO = new TaskOptVO();
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		String instNum = req.getParameter("instNum");
 		if(NumberUtils.isNumber(instNum)){
 			optVO.setInstNum(NumberUtils.toInt(instNum));
@@ -156,7 +160,7 @@ public class WFTaskController extends BaseController {
 	@ResponseBody
 	public Object getTaskOptionsNoGroup(HttpServletRequest req	){
 		TaskOptVO optVO = new TaskOptVO();
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		String instNum = req.getParameter("instNum");
 		if(NumberUtils.isNumber(instNum)){
 			optVO.setInstNum(NumberUtils.toInt(instNum));

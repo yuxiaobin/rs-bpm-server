@@ -20,16 +20,16 @@ public abstract class TestBase4Normal extends TestBase{
 		RestAssured.port = port;
 		//create workflow
 		JSONObject parm = new JSONObject();
-		parm.put("refMkid", getRefMkid());
+		parm.put(PARM_REF_MKID, getRefMkid());
 		given().contentType("application/json")
         .request().body(parm.toJSONString())
         .when().post("/wfadmin/module")
         .then()
-        .body("refMkid", new ResponseAwareMatcher<Response>() {
+        .body(PARM_REF_MKID, new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
 				JSONObject json = JSONObject.parseObject(response.getBody().prettyPrint());
-				refMkid = json.getString("refMkid");
+				refMkid = json.getString(PARM_REF_MKID);
 				return NotNull.NOT_NULL;
 			}
 		});

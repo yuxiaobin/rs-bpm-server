@@ -71,7 +71,7 @@ public class WFAdminController extends BaseController {
 			System.out.println("viewWf4Module(): refMkid is empty");
 			return "";
 		}
-		req.setAttribute("refMkid", refMkid);
+		req.setAttribute(PARM_REF_MKID, refMkid);
 		return "wf-define";
 	}
 	

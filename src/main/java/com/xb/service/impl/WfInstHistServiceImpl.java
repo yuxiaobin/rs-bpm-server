@@ -119,7 +119,7 @@ public class WfInstHistServiceImpl extends CommonServiceImpl<WfInstHistMapper, W
 	public List<WfAwt> getDoneListByMe(String userId, String refMkid, Integer instNum){
 		Map<String,Object> parm = new HashMap<String,Object>();
 		parm.put("userId", userId);
-		parm.put("refMkid", refMkid);
+		parm.put(WFConstants.ApiParams.PARM_REFMK_ID, refMkid);
 		parm.put("instNum", instNum);
 		return baseMapper.getDoneListByMe(parm);
 	}

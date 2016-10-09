@@ -66,7 +66,7 @@ public class WFInboxController extends BaseController {
 			userId = "system";
 		}
 		String instNumStr = req.getParameter("instNum");
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		Integer instNum = null;
 		if(!StringUtils.isEmpty(instNumStr)){
 			try{

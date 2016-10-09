@@ -102,7 +102,7 @@ public class WFController extends BaseController {
 	@RequestMapping(value="/hist",method=RequestMethod.GET )
 	@ResponseBody
 	public Object viewInstHistory(HttpSession session,HttpServletRequest req){
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		String instNumStr = req.getParameter("instNum");
 		if(StringUtils.isEmpty(instNumStr) || !NumberUtils.isNumber(instNumStr)){
 			System.err.println("getWfStatus(): invalid instNum="+instNumStr);
@@ -118,7 +118,7 @@ public class WFController extends BaseController {
 	@ResponseBody
 	public Object getWfStatus(HttpSession session, HttpServletRequest req){
 		String instNum = req.getParameter("instNum");
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		if(StringUtils.isEmpty(instNum) || !NumberUtils.isNumber(instNum)){
 			System.err.println("getWfStatus(): invalid instNum="+instNum);
 			return "";

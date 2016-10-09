@@ -54,7 +54,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	
 	public WfAwt getAwtByParam(String refMkid, int instNum, String currUserId){
 		Map<String,Object> parmMap = new HashMap<String,Object>();
-		parmMap.put("refMkid", refMkid);
+		parmMap.put(WFConstants.ApiParams.PARM_REFMK_ID, refMkid);
 		parmMap.put("instNum", instNum);
 		parmMap.put("currUserId", currUserId);
 		List<WfAwt> awtList = baseMapper.getAwtByParam(parmMap);
@@ -476,7 +476,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 	@Override
 	public List<WfAwt> getAwt4Recall(String refMkid, int instNum, String currRecallUser) {
 		Map<String,Object> parmMap = new HashMap<String,Object>();
-		parmMap.put("refMkid", refMkid);
+		parmMap.put(WFConstants.ApiParams.PARM_REFMK_ID, refMkid);
 		parmMap.put("instNum", instNum);
 		parmMap.put("currRecallUser", currRecallUser);
 		return baseMapper.getAwt4Recall(parmMap);

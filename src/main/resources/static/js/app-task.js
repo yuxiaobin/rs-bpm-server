@@ -92,21 +92,34 @@ angular.module('taskApp', [ ])
 
         $scope.getBuzStatusOptions = function(refMkid){
             userGroupService.getBuzStatus(refMkid).then(function(succ){
-                $scope.buzStatusOptions = succ;
-                if(angular.isUndefined($scope.task.buzStatus) || $scope.task.buzStatus==""){
-                    if(taskData.taskType==RS_TYPE_END){
-                        $scope.task.buzStatus = succ[succ.length-1].value;
-                    }else{
-                        $scope.task.buzStatus = succ[0].value;
+                if(succ.length==0){
+                    $scope.buzStatusOptions = [{value:"",descp:"没有定义状态"}];
+                    $scope.task.buzStatus = "";
+                    $("#buzStatus").selectpicker('hide').selectpicker("destroy");
+                    setTimeout(function(){
+                        $("#buzStatus").selectpicker('show').selectpicker('val', "");
+                    },100);
+                }else{
+                    $scope.buzStatusOptions = succ;
+                    if(angular.isUndefined($scope.task.buzStatus) || $scope.task.buzStatus==""){
+                        if(taskData.taskType==RS_TYPE_END){
+                            $scope.task.buzStatus = succ[succ.length-1].value;
+                        }else{
+                            $scope.task.buzStatus = succ[0].value;
+                        }
                     }
+                    $("#buzStatus").selectpicker('hide').selectpicker("destroy");
+                    setTimeout(function(){
+                        $("#buzStatus").selectpicker('show').selectpicker('val', $scope.task.buzStatus);
+                    },100);
                 }
+            },function(fail){
+                $scope.buzStatusOptions = [{value:"",descp:"没有定义状态"}];
+                $scope.task.buzStatus = "";
                 $("#buzStatus").selectpicker('hide').selectpicker("destroy");
                 setTimeout(function(){
-                    $("#buzStatus").selectpicker('show').selectpicker('val', $scope.task.buzStatus);
+                    $("#buzStatus").selectpicker('show').selectpicker('val', "");
                 },100);
-            },function(fail){
-                $scope.buzStatusOptions = [{value:"",descp:"无可用状态"}];
-                $scope.task.buzStatus = "";
             });
         };
         $scope.getBuzStatusOptions(taskData.refMkid);

@@ -222,7 +222,7 @@ public class WFApiController extends BaseController {
 		
 		try{
 			req.setAttribute("instNum", instNum);
-			req.setAttribute("refMkid", refMkid);
+			req.setAttribute(PARM_REF_MKID, refMkid);
 			if(WFConstants.OptTypes.TRACK.equals(optCode)){
 				return "wf-popup-track";
 			}else{

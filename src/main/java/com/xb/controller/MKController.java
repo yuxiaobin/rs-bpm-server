@@ -34,9 +34,9 @@ public class MKController extends BaseController {
 		String userId = (String) userinfo.get("userId");
 		req.setAttribute("userId", userId);
 		String instNum = req.getParameter("instNum");
-		String refMkid = req.getParameter("refMkid");
+		String refMkid = req.getParameter(PARM_REF_MKID);
 		req.setAttribute("instNum", instNum);
-		req.setAttribute("refMkid", refMkid);
+		req.setAttribute(PARM_REF_MKID, refMkid);
 		return "wf-mk";
 	}
 	
