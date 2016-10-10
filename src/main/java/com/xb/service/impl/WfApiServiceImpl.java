@@ -47,6 +47,11 @@ public class WfApiServiceImpl implements IWfApiService {
 		if(StringUtils.isEmpty(nextAssigners)){
 			isNextAssignerEmpty = true;
 		}else{
+			
+			if(nextAssigners.startsWith(",")) {
+				nextAssigners = nextAssigners.substring(1);
+			}
+			
 			nextAssignerArray = nextAssigners.split(",");
 			for(String str:nextAssignerArray){
 				if(!StringUtils.isEmpty(str.trim())){
