@@ -42,7 +42,7 @@ angular.module('taskApp', [ ])
             var delay = $q.defer();
             var req = {
                 method: 'GET',
-                url: basePath+'/task/buzStatus?refMkid='+refMkid
+                url: basePath+'/wfadmin/buzStatus?refMkid='+refMkid
             };
             $http(req)
                 .success(function(data, status, headers, config){
@@ -54,7 +54,7 @@ angular.module('taskApp', [ ])
             return delay.promise;
         };
     }])
-    .controller('taskCtrl', ['$scope','$timeout', 'userGroupService', function ($scope,$timeout, userGroupService) {
+    .controller('taskCtrl', ['$scope', '$timeout', 'userGroupService', function ($scope, $timeout, userGroupService) {
         if(angular.isUndefined( $scope.userGroupChoices)){
             $scope.userGroupChoices = {};
         }

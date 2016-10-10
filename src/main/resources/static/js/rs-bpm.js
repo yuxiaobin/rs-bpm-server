@@ -1,12 +1,7 @@
-/*var RS_TYPE_START = "start-task";
-var RS_TYPE_END = "end-task";
-var RS_TYPE_USER = "user-task";
-var RS_TYPE_CONDITION = "rs-cond-task";
-var RS_ATTR_ASSIGN_USERS = "rs-data-assign-users";
-var RS_ATTR_ASSIGN_GROUPS = "rs-data-assign-groups";
-var RS_ATTR_TASK_TYPE = "rs-data-type";*/
-
-//var result_data = {"tasks":[{"id":"start-task","rsType":"start-task","descp":"Start","position":{"top":26,"left":312}},{"id":"end-task","rsType":"end-task","descp":"End","position":{"top":370,"left":350}},{"id":"userTask1","rsType":"user-task","descp":"userTask1","position":{"top":200,"left":550}},{"id":"userTask2","rsType":"user-task","descp":"userTask2","position":{"top":370,"left":550}},{"id":"condition","rsType":"rs-cond-task","descp":"condition adjust","position":{"top":173,"left":312}},{"id":"1469524101052","rsType":"rs-cond-task","descp":"Condition Node","position":{"top":231,"left":115}},{"id":"1469524108740","rsType":"user-task","descp":"User Task","position":{"top":376,"left":101}}],"conns":[{"con_id":"con_5","con_descp":"Start to process","con_value":"","source_id":"start-task","target_id":"condition"},{"con_id":"con_11","con_descp":"Yes","con_value":"","source_id":"condition","target_id":"end-task"},{"con_id":"con_17","con_descp":"No","con_value":"","source_id":"condition","target_id":"userTask1"},{"con_id":"con_23","con_descp":"Next step","con_value":"","source_id":"userTask1","target_id":"userTask2"},{"con_id":"con_29","con_descp":"Over","con_value":"","source_id":"userTask2","target_id":"end-task"},{"con_id":"con_35","con_descp":"Next","con_value":"","source_id":"condition","target_id":"1469524101052"},{"con_id":"con_41","con_descp":"Next","con_value":"","source_id":"1469524101052","target_id":"1469524108740"},{"con_id":"con_47","con_descp":"Next","con_value":"","source_id":"1469524108740","target_id":"end-task"}]}
+/**
+ *
+ * @type {Array}
+ */
 var result_data = [];
 var nodeList = result_data.tasks;
 var connList = result_data.conns;
@@ -58,7 +53,7 @@ jsPlumb.ready(function () {
                 length: 14,
                 foldback: 0.8
             } ],
-            [ "Label", { label: "<i>Next</i>", id: "label", cssClass: "aLabel" }]
+            [ "Label", { label: "<i>"+CONNECTION_LABEL_NORMAL+"</i>", id: "label", cssClass: "aLabel" }]
         ],
         Container: "canvas"
     });
@@ -99,7 +94,24 @@ jsPlumb.ready(function () {
     var connectionClickTime = "";
     instance.bind("click", function (c) {
         if(connectionClickTime!="" && new Date().getTime()-connectionClickTime<200){
-            instance.detach(c);
+            var sourceNodeId = c.source.getAttribute("id");
+            var sourceNodeType = c.source.getAttribute(RS_ATTR_TASK_TYPE);
+            if(RS_TYPE_CONDITION==sourceNodeType){
+                $("#condConnId").show();
+            }else{
+                $("#condConnId").hide();
+            }
+            var conn_nameDisp = c.getOverlay("label").getElement().firstChild.innerHTML;
+            $("#sourceNodeId").val(sourceNodeId);
+            $("#currConnId").val(c.getId());
+            $("#conn_nameDisp").val(conn_nameDisp);
+            var condResult = c.getParameter(CONNECTION_CON_VALUE);
+            if(condResult=="true"){
+                $("#condResultTrue").click();
+            }else{
+                $("#condResultFalse").click();
+            }
+            $('#condConnModal').modal({backdrop:false});
         }else{
             connectionClickTime = new Date().getTime();
         }
@@ -108,7 +120,6 @@ jsPlumb.ready(function () {
     instance.bind("connection", function (info) {
         var connection_id = info.connection.id;
         var connection_label = info.connection.getOverlay("label").getElement();
-//        $(connection_label).attr("connection_id",info.connection.id)
         $(connection_label).attr("connection_id",info.connection.id)
             .contextMenu({
             menu: 'connMenu'
@@ -116,7 +127,6 @@ jsPlumb.ready(function () {
             function(action, el, pos) {
                 var id_ = $(el).attr("id");
                 if (action == 'edit') {
-                    console.log("edit");
                     editCondition(id_);//TODO 0825
                 }
                 else if (action == 'delete') {
@@ -125,23 +135,33 @@ jsPlumb.ready(function () {
                 }
             });
         var con_source = info.source;
-        var sourceNodeConnections = $.grep(instance.getAllConnections(), function(value) {
-            return value.sourceId == con_source.id;
-        });
-        var sourceNodeConnections_count = sourceNodeConnections.length;
+        var connJspId = info.connection.getId();
+        var connArray = instance.getConnections({source:con_source});
         if($(con_source).hasClass(RS_TYPE_CONDITION)){
-            if(sourceNodeConnections_count>1){
-                connection_label.firstChild.innerHTML = "No";
-                if(sourceNodeConnections_count>2){
-                    instance.detach(info);
-                    console.log("Condition Node can have reached Maximum 2 connections");
+            if(connArray.length==1){
+                connection_label.firstChild.innerHTML = CONNECTION_LABEL_TRUE;
+                info.connection.setParameter(CONNECTION_CON_VALUE,"true");
+            }else if(connArray.length==2){
+                for(var i=0;i<2;++i){
+                    var con_ = connArray[i];
+                    if(con_.getId()!=connJspId){
+                        var conResVal =  con_.getParameter(CONNECTION_CON_VALUE);
+                        if("true"==conResVal){
+                            connection_label.firstChild.innerHTML = CONNECTION_LABEL_FALSE;
+                            info.connection.setParameter(CONNECTION_CON_VALUE,"false");
+                        }else{
+                            connection_label.firstChild.innerHTML = CONNECTION_LABEL_TRUE;
+                            info.connection.setParameter(CONNECTION_CON_VALUE,"true");
+                        }
+                    }
                 }
-            }else{ connection_label.firstChild.innerHTML = "Yes";}
+            }else{
+                instance.detach(info);
+            }
         }
         else{
-            if(sourceNodeConnections_count>1){
+            if(connArray.length>1){
                 instance.detach(info);
-                console.log("Non-condition Node can have reached Maximum 1 connections");
             }
         }
     });
@@ -372,8 +392,7 @@ jsPlumb.ready(function () {
         save_data.conns = save_conns;
         var json_str = JSON.stringify(save_data);
         console.log(json_str);
-        $.ajax(
-            {
+        $.ajax({
                 type: "POST",
                 url: basePath+"/wfadmin/module/"+refMkid+"/wf",
                 data:json_str,
@@ -400,4 +419,49 @@ jsPlumb.ready(function () {
     });
 });
 
+function editCondition(id){
+    $('#condConnModal').modal({backdrop:false});
+}
+function cancelCondConnEdit(){
+    $("#condConnModal").modal("hide");
+}
+function updateCondConnEdit(){
+    var sourceNodeId = $("#sourceNodeId").val();
+    var currConnId = $("#currConnId").val();
+    var sourceNodeType = $("#"+sourceNodeId).attr(RS_ATTR_TASK_TYPE);
+    var connArray = window.jsp.getConnections({source:sourceNodeId});
 
+    var currConn = "";
+    if(RS_TYPE_CONDITION==sourceNodeType){
+        var rd_val = getRadioValue("condResult");
+        for(var i=0;i<connArray.length;++i){
+            var con_ = connArray[i];
+            if(con_.getId()==currConnId){
+                currConn = con_;
+            }else{
+                if(rd_val==con_.getParameter(CONNECTION_CON_VALUE)){
+                    alert("判断条件冲突");
+                    return;
+                }
+            }
+        }
+        currConn.setParameter(CONNECTION_CON_VALUE,rd_val);
+        currConn.getOverlay("label").getElement().firstChild.innerHTML = $("#conn_nameDisp").val();
+    }else{
+        connArray[0].getOverlay("label").getElement().firstChild.innerHTML = $("#conn_nameDisp").val();
+    }
+    $("#condConnModal").modal("hide");
+
+}
+
+function getRadioValue(rdName){
+    var obj=document.getElementsByName(rdName);
+    var rd_val = "";
+    for(i=0;i<obj.length;i++){
+        if(obj[i].checked){
+            rd_val = obj[i].value;
+            break;
+        }
+    }
+    return rd_val;
+}

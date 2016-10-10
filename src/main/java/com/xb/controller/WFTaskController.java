@@ -4,8 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -19,8 +17,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.xb.base.BaseController;
 import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
-import com.xb.persistent.RsWorkflow;
-import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
@@ -36,18 +32,12 @@ import com.xb.vo.TaskOptVO;
 @RequestMapping("/task")
 public class WFTaskController extends BaseController {
 	
-	private static Logger log = LogManager.getLogger(WFApiController.class);
-	
-	private static final String WARN_MSG_BUZ_STATUS = "Invalid buzStatus[%s] found for refMkid=%s, parse buzStatus ignored ";
-	
 	@Autowired
 	IWfTaskService taskService;
 	@Autowired
 	IWfInstHistService instHistService;
 	@Autowired
 	IWfInstanceService instService;
-	@Autowired
-	IRsWorkflowService rsWfService;
 	
 	@RequestMapping("/process")
 	@ResponseBody
@@ -106,36 +96,6 @@ public class WFTaskController extends BaseController {
 		}
 		JSONObject result = new JSONObject();
 		result.put("result", taskService.getNextAssignersByOptCode(optVO));
-		return result;
-	}
-	
-	@RequestMapping(value="/buzStatus",method=RequestMethod.GET )
-	@ResponseBody
-	public Object getBuzStatus(HttpServletRequest req	){
-		String refMkid = req.getParameter(PARM_REF_MKID);
-		if(StringUtils.isEmpty(refMkid)){
-			return new JSONArray(0);
-		}
-		RsWorkflow res = rsWfService.selectById(refMkid);
-		String buzStatusSet = res.getBuzStatusSet();
-		if(StringUtils.isEmpty(buzStatusSet)){
-			log.warn(String.format(WARN_MSG_BUZ_STATUS, "buzStatusSet is empty",refMkid));
-			return new JSONArray(0);
-		}
-		String[] array = buzStatusSet.split(";");
-		JSONArray result = new JSONArray(array.length);
-		JSONObject json = null;
-		for(String str:array){
-			String[] arr = str.split(":");
-			if(arr.length!=2){
-				log.warn(String.format(WARN_MSG_BUZ_STATUS, str,refMkid));
-				continue;
-			}
-			json = new JSONObject();
-			json.put("value", arr[0]);
-			json.put("descp", arr[1]);
-			result.add(json);
-		}
 		return result;
 	}
 	

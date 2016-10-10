@@ -60,7 +60,7 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 		if(wfDefList==null || wfDefList.isEmpty()){
 			wfDef = new WfVersion();
 			wfDef.setRefMkid(refMkid);
-			wfDef.setVERSION(1d);
+			wfDef.setVERSION(1);
 			wfDefService.insert(wfDef);
 		}else{
 			WfVersion oldWfDef = wfDefList.get(0);

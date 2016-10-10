@@ -1,7 +1,9 @@
 package com.xb.service;
 
-import com.xb.persistent.WfCustVars;
+import java.util.List;
+
 import com.baomidou.framework.service.ICommonService;
+import com.xb.persistent.WfCustVars;
 
 /**
  *
@@ -10,5 +12,5 @@ import com.baomidou.framework.service.ICommonService;
  */
 public interface IWfCustVarsService extends ICommonService<WfCustVars> {
 
-
+	public List<WfCustVars> getCustVars(String refMkid, Integer version);
 }

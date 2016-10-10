@@ -28,7 +28,7 @@ public class WfVersion extends CUBaseTO implements Serializable {
 	private String refMkid;
 
 	/** null */
-	private Double VERSION;
+	private Integer VERSION;
 
 	public String getWfId() {
 		return wfId;
@@ -46,11 +46,11 @@ public class WfVersion extends CUBaseTO implements Serializable {
 		this.refMkid = refMkid;
 	}
 
-	public Double getVERSION() {
+	public Integer getVERSION() {
 		return this.VERSION;
 	}
 
-	public void setVERSION(Double VERSION) {
+	public void setVERSION(Integer VERSION) {
 		this.VERSION = VERSION;
 	}
 

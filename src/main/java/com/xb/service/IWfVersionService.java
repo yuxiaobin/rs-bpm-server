@@ -1,7 +1,7 @@
 package com.xb.service;
 
-import com.xb.persistent.WfVersion;
 import com.baomidou.framework.service.ICommonService;
+import com.xb.persistent.WfVersion;
 
 /**
  *
@@ -9,6 +9,5 @@ import com.baomidou.framework.service.ICommonService;
  *
  */
 public interface IWfVersionService extends ICommonService<WfVersion> {
-
 
 }

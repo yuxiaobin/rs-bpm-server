@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,9 +17,12 @@ import com.xb.common.WFConstants;
 
 public class BaseController {
 	
+	protected static Logger log = LogManager.getLogger(BaseController.class);
+	
 	protected static final String SESSION_USERINFO = "USERINFO";
 	
 	protected static final String PARM_REF_MKID = WFConstants.ApiParams.PARM_REFMK_ID;
+	protected static final String PARM_WF_VERSION = "version";
 	
 	@SuppressWarnings("unchecked")
 	public Map<String,Object> getUserInfo(HttpSession session){
