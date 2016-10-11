@@ -2,9 +2,11 @@ package com.xb.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.transaction.Transactional;
@@ -20,8 +22,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
-import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfAwt;
+import com.xb.persistent.WfCustVars;
 import com.xb.persistent.WfInstHist;
 import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
@@ -255,7 +257,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return result;
 	}
 	
-	public void batchCreateTasksWithAssigners(List<WfTask> taskList){
+	public void batchCreateTasksWithAssigners(List<WfTask> taskList, List<WfCustVars> custUserList){
 		List<WfTaskAssign> assignerAllList = new LinkedList<WfTaskAssign>();
 		for(WfTask task:taskList){
 			if(task.getAssignerList()!=null){
@@ -266,8 +268,19 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		for(WfTask task:taskList){
 			this.insert(task);
 		}
+		Map<String,String> custUserMap = null;
+		if(custUserList!=null && !custUserList.isEmpty()){
+			custUserMap = new HashMap<String,String>(custUserList.size());
+			for(WfCustVars custUser:custUserList){
+				custUserMap.put(custUser.getVarCode(), custUser.getCustVarsId());
+			}
+		}
 		if(assignerAllList!=null && !assignerAllList.isEmpty()){
 			for(WfTaskAssign ta:assignerAllList){
+				if(WFConstants.ASSIGNER_TYPE_CUST.equals(ta.getAssignType()) && custUserMap!=null){
+					String varCode = ta.getAssignRelId();
+					ta.setAssignRelId(custUserMap.get(varCode));
+				}
 				taskAssignerService.insert(ta);
 			}
 //			taskAssignerService.insertBatch(assignerAllList);

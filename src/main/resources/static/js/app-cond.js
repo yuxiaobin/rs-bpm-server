@@ -21,7 +21,6 @@ angular.module('conditionApp', [ ])
         };
     }])
     .controller('ctrl', ['$scope','$window','$timeout', 'funcVarService', function ($scope,$window,$timeout, funcVarService) {
-        $scope.custUsers = [];
         $scope.custFuncVars = [];
         $scope.getFuncVars = function(refMkid){
             funcVarService.getFuncVars(refMkid).then(function(records){

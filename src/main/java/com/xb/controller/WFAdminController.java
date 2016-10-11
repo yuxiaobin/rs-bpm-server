@@ -1,9 +1,6 @@
 package com.xb.controller;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -209,22 +206,7 @@ public class WFAdminController extends BaseController {
 	}
 	
 	private JSONArray getFuncVarsFromEntityAnnotation(String refMkid){
-		JSONObject funcVarsJson = entityFactory.getFuncVariables(refMkid);
-		if(funcVarsJson==null){
-			funcVarsJson = new JSONObject();
-		}
-		JSONArray funcVarsArray = new JSONArray(funcVarsJson.size());
-		Set<Entry<String, Object>> set = funcVarsJson.entrySet();
-		Iterator<Entry<String, Object>> it = set.iterator();
-		JSONObject record = null;
-		while(it.hasNext()){
-			Entry<String,Object> ety = it.next();
-			record = new JSONObject();
-			record.put(PARM_VAR_CODE, ety.getKey());
-			record.put(PARM_VAR_DESCP, ety.getValue());
-			funcVarsArray.add(record);
-		}
-		return funcVarsArray;
+		return entityFactory.getFuncVariables(refMkid);
 	}
 	
 	private static final String ERROR_MSG_INVALID_VERSION = "getCustVars(): invalid version[%s] with refMikd=%s";

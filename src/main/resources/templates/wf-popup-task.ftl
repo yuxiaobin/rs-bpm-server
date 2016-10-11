@@ -232,8 +232,8 @@
                         <ul class="dropdown-menu">
                             <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('U',$event)">添加用户</a></li>
                             <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('G',$event)">添加用户组</a></li>
-                            <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('R',$event)">添加岗位</a></li>
-                            <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('Z',$event)">添加自定义</a></li>
+                            <!--<li><a href="javascript:void(0)" ng-click="selectAddUserGroups('R',$event)">添加岗位</a></li>-->
+                            <li><a href="javascript:void(0)" ng-click="selectAddUserGroups('C',$event)">添加自定义</a></li>
                         </ul>
                     </div>
                     <!--<button type="button" class="btn btn-default">

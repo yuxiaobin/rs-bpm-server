@@ -3,9 +3,9 @@
  *
  * Popup page for Edit Task
  */
-var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{CODE:"G",DESCP:"添加用户组"}, ADD_POST:{CODE:"R",DESCP:"添加岗位"}};
+var addUserGroupTypes = {ADD_USER:{CODE:"U",DESCP:"添加用户"}, ADD_GROUP:{CODE:"G",DESCP:"添加用户组"},ADD_CUST:{CODE:"C",DESCP:"添加自定义人员" /*ADD_POST:{CODE:"R",DESCP:"添加岗位"*/}};
 var selectModeTypes = {NOT_SELECTED:"默认不选中", SELECTED_WITH_CANCEL:"默认选中，允许取消", SELECTED_WITHOUT_CANCEL:"默认选中，不允许取消"};
-var assignTypeDescps = {USER:"用户", GROUP:"用户组", POST:"岗位", OTHER:"自定义"};
+var assignTypeDescps = {USER:"用户", GROUP:"用户组", /*POST:"岗位", */OTHER:"自定义"};
 angular.module('taskApp', [ ])
     .service('userGroupService',['$http', '$q', function ($http, $q) {
         this.getAllUsers = function(){
@@ -71,8 +71,8 @@ angular.module('taskApp', [ ])
                                 item.assignTypeDesc = assignTypeDescps.USER;
                             }else if(item.assignTypeCode==addUserGroupTypes.ADD_GROUP.CODE){
                                 item.assignTypeDesc =  assignTypeDescps.GROUP;
-                            } else if(item.assignTypeCode==addUserGroupTypes.ADD_POST.CODE){
-                                item.assignTypeDesc =  assignTypeDescps.POST;
+//                            } else if(item.assignTypeCode==addUserGroupTypes.ADD_POST.CODE){
+//                                item.assignTypeDesc =  assignTypeDescps.POST;
                             }else{
                                 item.assignTypeDesc = assignTypeDescps.OTHER;
                             }
@@ -142,6 +142,15 @@ angular.module('taskApp', [ ])
             $scope.txTypeOptions = [{value:"S",descp:"一般事务"},{value:"M",descp:"会签事务"}]
         }
 
+        $scope.custUsers = [];
+        if(typeof(taskData.custFuncVarArray)!='undefined'){
+            var funcVarArray = taskData.custFuncVarArray;
+            for(var i=0;i<funcVarArray.length;++i){
+                if(funcVarArray[i].varType=="U"){
+                    $scope.custUsers[$scope.custUsers.length] = {varCode:funcVarArray[i].varCode,varDescp:funcVarArray[i].varDescp};
+                }
+            }
+        }
 
         if($scope.task.TX_PR_CHOICES.NoticeNextAfterGo || $scope.task.TX_PR_CHOICES.NoticeFirstAfterGo || $scope.task.TX_PR_CHOICES.NoticePreviousAfterGo || $scope.task.TX_PR_CHOICES.NoticeElseAfterGo){
             $scope.needNotifyFlag = true;
@@ -274,7 +283,7 @@ angular.module('taskApp', [ ])
             if(angular.isUndefined($scope.assignerList)){
                 $scope.assignerList = [];
             }
-            if(angular.isUndefined($scope.userGroupChoices.userGroupIds) || $scope.userGroupChoices.userGroupIds==""){
+            if(angular.isUndefined($scope.userGroupChoices.userGroupIds) || $scope.userGroupChoices.userGroupIds==""){//dropdown:selected id(s)
                 alert("请选择需要添加的用户或用户组");
                 return;
             }
@@ -296,8 +305,8 @@ angular.module('taskApp', [ ])
                     assigner.assignTypeDesc = assignTypeDescps.USER;
                 }else if($scope.ugflag == addUserGroupTypes.ADD_GROUP.CODE){
                     assigner.assignTypeDesc = assignTypeDescps.GROUP;
-                }else if($scope.ugflag == addUserGroupTypes.ADD_POST.CODE){
-                    assigner.assignTypeDesc = assignTypeDescps.POST;
+//                }else if($scope.ugflag == addUserGroupTypes.ADD_POST.CODE){
+//                    assigner.assignTypeDesc = assignTypeDescps.POST;
                 }else{
                     assigner.assignTypeDesc = assignTypeDescps.OTHER;
                 }
@@ -370,6 +379,13 @@ angular.module('taskApp', [ ])
             }else if(assign_type==addUserGroupTypes.ADD_GROUP.CODE){
                 $scope.userGroupOptList = $scope.groupList;
                 $("#addDropdownTxt").text(addUserGroupTypes.ADD_GROUP.DESCP);
+            }else{
+                $scope.userGroupOptList = [];
+                for(var i=0;i<$scope.custUsers.length;++i){
+                    var custUser = $scope.custUsers[i];
+                    $scope.userGroupOptList[$scope.userGroupOptList.length] = {id:custUser.varCode, name:custUser.varDescp};
+                }
+                $("#addDropdownTxt").text(addUserGroupTypes.ADD_CUST.DESCP);
             }
             var def_sel_mod = selectedTr.attr("def-sel-mod");
             var exe_conn = selectedTr.attr("exe-conn");
@@ -386,36 +402,30 @@ angular.module('taskApp', [ ])
             $("#addUserGroupId").css("display","");
         };
         /**
-         * 选择添加用户、用户组、其他等
+         * 选择添加用户、用户组、自定义用户等
          * @param ugflag
          * @param evt
          */
         $scope.selectAddUserGroups = function(ugflag,evt){
             $scope.ugflag = ugflag;
             if(addUserGroupTypes.ADD_USER.CODE==ugflag){
-                $("#showUsers").css("display","");
-                $("#showGroups").css("display","none");
                 $scope.userGroupOptList = $scope.userList;
-                $("#selectedUserGroup").selectpicker('hide').selectpicker("destroy");
-                setTimeout(function(){
-                    $("#selectedUserGroup").selectpicker('show')
-                },100);
-                $("#addUserGroupId").css("display","");
             }
             else if(addUserGroupTypes.ADD_GROUP.CODE==ugflag){
-                $("#showGroups").css("display","");
-                $("#showUsers").css("display","none");
                 $scope.userGroupOptList = $scope.groupList;
-                $("#selectedUserGroup").selectpicker('hide').selectpicker("destroy");
-                setTimeout(function(){
-                    $("#selectedUserGroup").selectpicker('show')
-                },100);
-                $("#addUserGroupId").css("display","");
             }else{
-                //TODO for other types
+                $scope.userGroupOptList = [];
+                for(var i=0;i<$scope.custUsers.length;++i){
+                    var custUser = $scope.custUsers[i];
+                    $scope.userGroupOptList[$scope.userGroupOptList.length] = {id:custUser.varCode, name:custUser.varDescp};
+                }
             }
+            $("#selectedUserGroup").selectpicker('hide').selectpicker("destroy");
+            setTimeout(function(){
+                $("#selectedUserGroup").selectpicker('show')
+            },100);
+            $("#addUserGroupId").css("display","");
             $("#addDropdownTxt").text($(evt.target).text());
-
         }
         $scope.selectAssignerDefSelMode = function(evt){
             var sel_target = $(evt.target);

@@ -8,7 +8,7 @@ public class SampleBuzEntity {
 	
 	private String name;
 	
-	@FuncVar(value="数量")
+	@FuncVar(value="数量", dbColunm = "amount")
 	private Integer amount;
 	
 	public String getId() {

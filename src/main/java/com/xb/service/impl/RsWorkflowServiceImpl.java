@@ -1,5 +1,6 @@
 package com.xb.service.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -76,33 +77,34 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 		}
 		String wfId = wfDef.getWfId();
 		JSONObject wfData = wfDetail.getWfData();
+		
+		JSONArray custFuncVarArray = wfData.getJSONArray("custFuncVarArray");
+		List<WfCustVars> custUserList = new LinkedList<WfCustVars>();
+		if(custFuncVarArray!=null && !custFuncVarArray.isEmpty()){
+			JSONObject jsn = null;
+			WfCustVars custVar = null;
+			for(int i=0;i<custFuncVarArray.size();++i){
+				jsn = custFuncVarArray.getJSONObject(i);
+				custVar = new WfCustVars();
+				custVar.setWfId(wfId);
+				custVar.setVarCode(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE));
+				custVar.setVarType(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_TYPE));
+				custVar.setVarDescp(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_DESCP));
+				custVar.setVarExpression(jsn.getString(WFConstants.FuncVarsParm.PARAM_VAR_EXPRESSION));
+				custVarsService.insert(custVar);
+				if("U".equals(custVar.getVarType())){
+					custUserList.add(custVar);
+				}
+			}
+		}
 		JSONArray tasksj = wfData.getJSONArray("tasks");
 		List<WfTask> taskList = WfDataUtil.generateTaskList(tasksj, wfId);
-		wfTaskService.batchCreateTasksWithAssigners(taskList);
-		
+		wfTaskService.batchCreateTasksWithAssigners(taskList, custUserList);
 		JSONArray connsj = wfData.getJSONArray("conns");
 		List<WfTaskConn> connList = WfDataUtil.generateTaskConnList(connsj, wfId, taskList);
-		
 //		wfTaskConnService.insertBatch(connList);//oracle not support: insert into tableA(a) values(1),(2),(3);
 		for(WfTaskConn con:connList){
 			wfTaskConnService.insert(con);
-		}
-		
-		JSONArray custFuncVarArray = wfData.getJSONArray("custFuncVarArray");
-		if(custFuncVarArray==null || custFuncVarArray.isEmpty()){
-			return;
-		}
-		JSONObject jsn = null;
-		WfCustVars custVar = null;
-		for(int i=0;i<custFuncVarArray.size();++i){
-			jsn = custFuncVarArray.getJSONObject(i);
-			custVar = new WfCustVars();
-			custVar.setWfId(wfId);
-			custVar.setVarCode(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE));
-			custVar.setVarType(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_TYPE));
-			custVar.setVarDescp(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_DESCP));
-			custVar.setVarExpression(jsn.getString(WFConstants.FuncVarsParm.PARAM_VAR_EXPRESSION));
-			custVarsService.insert(custVar);
 		}
 	}
 

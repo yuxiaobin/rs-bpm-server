@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.ICommonService;
 import com.xb.common.BusinessException;
 import com.xb.persistent.WfAwt;
+import com.xb.persistent.WfCustVars;
 import com.xb.persistent.WfTask;
 import com.xb.vo.TaskOptVO;
 import com.xb.vo.TaskVO;
@@ -41,7 +42,7 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	
 	public WFDetailVO getWFStatus(String refMkid, Integer instNum);
 	
-	public void batchCreateTasksWithAssigners(List<WfTask> taskList);
+	public void batchCreateTasksWithAssigners(List<WfTask> taskList, List<WfCustVars> custVarList);
 	
 	public List<WfTask> selectTasksWithAssigners(String wfId);
 	

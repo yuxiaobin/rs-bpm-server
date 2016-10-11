@@ -51,6 +51,12 @@ public class WfTaskAssign extends CUBaseTO implements Serializable {
 	private String userName;
 	
 	@TableField(exist = false)
+	private String varCode;
+	
+	@TableField(exist = false)
+	private String varDescp;
+	
+	@TableField(exist = false)
 	private String groupName;
 
 	public String getTaskAssignId() {
@@ -123,6 +129,30 @@ public class WfTaskAssign extends CUBaseTO implements Serializable {
 
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
+	}
+
+	public String getVarCode() {
+		return varCode;
+	}
+
+	public void setVarCode(String varCode) {
+		this.varCode = varCode;
+	}
+
+	public String getVarDescp() {
+		return varDescp;
+	}
+
+	public void setVarDescp(String varDescp) {
+		this.varDescp = varDescp;
+	}
+
+	@Override
+	public String toString() {
+		return "WfTaskAssign [taskAssignId=" + taskAssignId + ", taskId=" + taskId + ", assignType=" + assignType
+				+ ", assignRelId=" + assignRelId + ", defSelFlag=" + defSelFlag + ", selAllFlag=" + selAllFlag
+				+ ", exeCondition=" + exeCondition + ", userName=" + userName + ", varCode=" + varCode + ", varDescp="
+				+ varDescp + ", groupName=" + groupName + "]";
 	}
 
 }

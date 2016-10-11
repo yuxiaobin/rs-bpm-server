@@ -265,7 +265,7 @@
 
 <script>
     var parmJsonStr = "";
-    var custFuncVarArray;
+    var custFuncVarArray=[];
     function editTask(id_){
         var parmJson = {};
         var el = $("#"+id_);
@@ -275,10 +275,14 @@
         parmJson.refMkid = refMkid;
         parmJson.taskType = el.attr(RS_ATTR_TASK_TYPE);
         if(RS_TYPE_CONDITION==parmJson.taskType){
-            parmJson.custFuncVarArray = custFuncVarArray;
+            parmJson.custFuncVarArray = $.grep(custFuncVarArray,function(value){
+                return value.varType=="V";
+            });
             parmJson.condExp = el.attr(RS_ATTR_COND_EXPRESSION);
-            //TODO 1010: pass expression & display & description
         }else{
+            parmJson.custFuncVarArray = $.grep(custFuncVarArray,function(value){
+                return value.varType=="U";
+            });
             var assignersStr = el.attr(RS_ATTR_ASSIGNERS);
             if(assignersStr==undefined || assignersStr==""){
                 assignersStr = "[]";

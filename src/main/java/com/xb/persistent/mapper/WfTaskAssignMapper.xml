@@ -16,14 +16,17 @@
 	  <result property="exeCondition" column="exe_condition"/>
 	  <result property="userName" column="username"/>
 	  <result property="groupName" column="group_name"/>
+	  <result property="varCode" column="var_code"/>
+	  <result property="varDescp" column="var_descp"/>
 	</resultMap>
 	
 	<select id="getTaskAssignerListWithName"  resultMap="getTaskAssignerListWithNameResultMap">
 select a.task_id, a.assign_type, a.assign_rel_id, a.def_sel_flag, a.sel_all_flag, a.exe_condition
-,u.USERS_NAME as username, g.UG_UGNAME as group_name
+,u.USERS_NAME as username, g.UG_UGNAME as group_name, c.var_descp,c.var_code
 from wf_task_assign a
 left join USERS u on a.ASSIGN_REL_ID = u.USERS_ID and a.ASSIGN_TYPE='U'
 left join UG g on a.ASSIGN_REL_ID=g.UG_UGID and a.ASSIGN_TYPE='G'
+left join wf_cust_vars c on a.assign_rel_id = c.CUST_VARS_ID and a.assign_type='C'
 where a.task_id=#{taskId}
 order by u.USERS_NAME,g.UG_UGNAME 
 </select>
