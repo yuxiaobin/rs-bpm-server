@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
+import com.xb.common.WFConstants;
 import com.xb.persistent.RsWorkflow;
+import com.xb.persistent.WfCustVars;
 import com.xb.persistent.WfTask;
 import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.WfVersion;
 import com.xb.persistent.mapper.RsWorkflowMapper;
 import com.xb.service.IRsWorkflowService;
+import com.xb.service.IWfCustVarsService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskConnService;
@@ -43,6 +46,8 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 	IWfInstanceService wfInstService;
 	@Autowired
 	IWfInstHistService wfInstHistService;
+	@Autowired
+	IWfCustVarsService custVarsService;
 
 	/**
 	 * Create Workflow related for module.
@@ -78,9 +83,26 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 		JSONArray connsj = wfData.getJSONArray("conns");
 		List<WfTaskConn> connList = WfDataUtil.generateTaskConnList(connsj, wfId, taskList);
 		
-//		wfTaskConnService.insertBatch(connList);
+//		wfTaskConnService.insertBatch(connList);//oracle not support: insert into tableA(a) values(1),(2),(3);
 		for(WfTaskConn con:connList){
 			wfTaskConnService.insert(con);
+		}
+		
+		JSONArray custFuncVarArray = wfData.getJSONArray("custFuncVarArray");
+		if(custFuncVarArray==null || custFuncVarArray.isEmpty()){
+			return;
+		}
+		JSONObject jsn = null;
+		WfCustVars custVar = null;
+		for(int i=0;i<custFuncVarArray.size();++i){
+			jsn = custFuncVarArray.getJSONObject(i);
+			custVar = new WfCustVars();
+			custVar.setWfId(wfId);
+			custVar.setVarCode(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE));
+			custVar.setVarType(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_TYPE));
+			custVar.setVarDescp(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_DESCP));
+			custVar.setVarExpression(jsn.getString(WFConstants.FuncVarsParm.PARAM_VAR_EXPRESSION));
+			custVarsService.insert(custVar);
 		}
 	}
 

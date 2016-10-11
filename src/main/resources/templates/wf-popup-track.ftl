@@ -127,6 +127,7 @@
 <script src="${base.contextPath}/static/js/jquery-1.9.1.min.js"></script>
 <script src="${base.contextPath}/static/js/jquery-ui.js"></script>
 <!--  demo code -->
+<script src="${base.contextPath}/static/js/common.js"></script>
 <script src="${base.contextPath}/static/js/rs-bpm-view.js"></script>
 <script src="${base.contextPath}/static/js/angular.js"></script>
 <script src="${base.contextPath}/static/js/app-track.js"></script>

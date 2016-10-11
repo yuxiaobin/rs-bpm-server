@@ -13,11 +13,12 @@
 	  <result property="taskPgId" column="task_pg_id"/>
 	  <result property="taskType" column="task_type"/>
 	  <result property="taskDescp" column="task_descp"/>
+	  <result property="taskDescpDisp" column="task_descp_disp"/>
 	  <result property="posTop" column="pos_top"/>
 	  <result property="posLeft" column="pos_left"/>
-	  <result property="assignUsers" column="assign_users"/>
-	  <result property="taskDescpDisp" column="task_descp_disp"/>
+	  <result property="condExp" column="cond_exp"/>
 	  
+	  <result property="assignUsers" column="assign_users"/>
 	  <result property="txCode" column="tx_code"/>
 	  <result property="txType" column="tx_type"/>
 	  <result property="buzStatus" column="buz_status"/>

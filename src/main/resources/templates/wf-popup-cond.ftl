@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="col-xs-12">
-                    <div class="btn btn-info" style="margin-left: 20px;" ng-repeat="funcVar in custFuncVars">{{funcVar.varDescp}} - {{funcVar.varCode}}</div>
+                    <div class="btn btn-info" style="margin-left: 20px;" ng-repeat="funcVar in custFuncVars" ng-click="selectFuncVar(funcVar)">{{funcVar.varDescp}} - {{funcVar.varCode}}</div>
                 </div>
             </div>
             <div class="row" style="margin-top:10px">

@@ -2,6 +2,13 @@ package com.xb.common;
 
 public class WFConstants {
 	
+	public static class FuncVarsParm{
+		public static final String PARM_VAR_TYPE = "varType";
+		public static final String PARM_VAR_CODE = "varCode";
+		public static final String PARM_VAR_DESCP = "varDescp";
+		public static final String PARAM_VAR_EXPRESSION = "varExpression";
+	}
+	
 	public static class OptTypes{
 //		public static final String REQUEST = "RQ";
 //		public static final String APPROVE = "AP";

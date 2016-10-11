@@ -111,9 +111,9 @@
     -moz-transform:rotate(-45deg); 	/* Firefox */
     -webkit-transform:rotate(-45deg); /* Safari �� Chrome */
     -o-transform:rotate(-45deg); 	/* Opera */
-    position: absolute;
-    left:10px;
-    top:12px;
+    /*position: absolute;*/
+    left:6px;
+    top:18px;
 }
 
 .rs-processed{
@@ -121,4 +121,8 @@
 }
 .rs-pending{
     border: 3px solid  red;
+}
+
+.table > tr.active td {
+    border-bottom:1pt solid black;
 }

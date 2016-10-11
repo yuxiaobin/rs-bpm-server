@@ -1,6 +1,3 @@
-var RS_TYPE_START = "start-task";
-var RS_TYPE_END = "end-task";
-var RS_TYPE_CONDITION = "rs-cond-task";
 
 var result_data = [];
 var nodeList = [];
@@ -19,7 +16,7 @@ jsPlumb.ready(function () {
                 length: 14,
                 foldback: 0.8
             } ],
-            [ "Label", { label: "<i>Next</i>", id: "label", cssClass: "aLabel" }]
+            [ "Label", { label: "<i>"+CONNECTION_LABEL_NORMAL+"</i>", id: "label", cssClass: "aLabel" }]
         ],
         Container: "canvas"
     });
@@ -63,7 +60,8 @@ jsPlumb.ready(function () {
 
     var newNodeById = function(node_) {
         var d = document.createElement("div");
-        d.className = "w "+node_.rsType;
+	    var taskType = node_.rsType;
+        d.className = "w "+taskType;
         if("PEND"==node_.status){
             $(d).css("border","3px solid red");
         }else if("PROC"==node_.status){

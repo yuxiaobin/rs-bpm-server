@@ -17,6 +17,11 @@ import com.xb.persistent.WfTaskConn;
 import com.xb.vo.WFDetailVO;
 
 public class WfDataUtil {
+	
+	private static final String ATTR_TASK_DESCP = "taskDescp";
+	private static final String ATTR_TASK_DESCP_DISP = "taskDescpDisp";
+	private static final String ATTR_TASK_RS_TYPE = "rsType";
+	private static final String ATTR_TASK_POSITION= "position";
 
 	/****************************
 	 * generate json from object
@@ -41,67 +46,70 @@ public class WfDataUtil {
 		for (int i = 0; i < tasks.size(); ++i) {
 			WfTask task = tasks.get(i);
 			record = new JSONObject();
-			record.put("pgId", task.getTaskPgId());
-			record.put("rsType", WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
-			record.put("taskDescp", task.getTaskDescp());
-			record.put("taskDescpDisp", task.getTaskDescpDisp());
 			record.put("id", task.getTaskId());
-//			record.put("assignUsers", task.getAssignUsers());
-//			record.put("assignGroups", task.getAssignGroups());
-			List<WfTaskAssign> assignerList = task.getAssignerList();
-			JSONArray assigners = new JSONArray();
-			if(assignerList!=null){
-				JSONObject asnj = null;
-				for(WfTaskAssign asn:assignerList){
-					asnj = new JSONObject();
-					String assignType = asn.getAssignType();
-					if(assignType==null){
-						assignType = "";
-					}
-					switch(assignType) {
-						case "U": asnj.put("name", asn.getUserName());break;
-						case "G": asnj.put("name", asn.getGroupName());break;
-						default: break;
-					}
-					asnj.put("assignTypeCode", assignType);
-					asnj.put("id", asn.getAssignRelId());
-					asnj.put("defSelMod", asn.getDefSelFlag());
-					String selectAllFlag = asn.getSelAllFlag();
-					if(WFConstants.TaskSelectAllFlag.YES.equals(selectAllFlag)){
-						asnj.put("checkFlag", true);
-					}else{
-						asnj.put("checkFlag", false);
-					}
-					asnj.put("exeConn", asn.getExeCondition());
-					assigners.add(asnj);
-				}
-			}
-			record.put("assigners", assigners);
+			record.put("pgId", task.getTaskPgId());
+			record.put(ATTR_TASK_RS_TYPE, WFConstants.TaskTypes.valueOf(task.getTaskType()).getTypeDescp());
+			record.put(ATTR_TASK_DESCP, task.getTaskDescp());
+			record.put(ATTR_TASK_DESCP_DISP, task.getTaskDescpDisp());
 			pos = new JSONObject();
 			pos.put("top", task.getPosTop());
 			pos.put("left", task.getPosLeft());
-			record.put("position", pos);
-			String status = "";
-			if (!StringUtils.isEmpty(task.getCurrTaskId())) {
-				status = "PEND";
-			} else if (!StringUtils.isEmpty(task.getProcessedFlag())) {
-				status = "PROC";
+			record.put(ATTR_TASK_POSITION, pos);
+			
+			if(WFConstants.TaskTypes.C.getTypeCode().equals(task.getTaskType())){
+				record.put("condExp", task.getCondExp());
+			}else{
+				List<WfTaskAssign> assignerList = task.getAssignerList();
+				JSONArray assigners = new JSONArray();
+				if(assignerList!=null){
+					JSONObject asnj = null;
+					for(WfTaskAssign asn:assignerList){
+						asnj = new JSONObject();
+						String assignType = asn.getAssignType();
+						if(assignType==null){
+							assignType = "";
+						}
+						switch(assignType) {
+							case "U": asnj.put("name", asn.getUserName());break;
+							case "G": asnj.put("name", asn.getGroupName());break;
+							default: break;
+						}
+						asnj.put("assignTypeCode", assignType);
+						asnj.put("id", asn.getAssignRelId());
+						asnj.put("defSelMod", asn.getDefSelFlag());
+						String selectAllFlag = asn.getSelAllFlag();
+						if(WFConstants.TaskSelectAllFlag.YES.equals(selectAllFlag)){
+							asnj.put("checkFlag", true);
+						}else{
+							asnj.put("checkFlag", false);
+						}
+						asnj.put("exeConn", asn.getExeCondition());
+						assigners.add(asnj);
+					}
+				}
+				record.put("assigners", assigners);
+				String status = "";
+				if (!StringUtils.isEmpty(task.getCurrTaskId())) {
+					status = "PEND";
+				} else if (!StringUtils.isEmpty(task.getProcessedFlag())) {
+					status = "PROC";
+				}
+				record.put("status", status);
+				record.put("txCode", task.getTxCode());
+				record.put("txType", task.getTxType());
+				record.put("buzStatus", task.getBuzStatus());
+				record.put("timeLimit", task.getTimeLimit());
+				record.put("timeLimitTp", task.getTimeLimitTp());
+				record.put("alarmTime", task.getAlarmTime());
+				record.put("alarmTimeTp", task.getAlarmTimeTp());
+				record.put("moduleId", task.getModuleId());
+				record.put("runParam", task.getRunParam());
+				//json data below
+				record.put("TX_CHOICES", JSONObject.parse(task.getTxChoices()));
+				record.put("TX_PR_CHOICES", JSONObject.parse(task.getTxPrChoices()));
+				record.put("TX_BK_CHOICES", JSONObject.parse(task.getTxBkChoices()));
+				record.put("SIGN_CHOICES", JSONObject.parse(task.getSignChoices()));
 			}
-			record.put("status", status);
-			record.put("txCode", task.getTxCode());
-			record.put("txType", task.getTxType());
-			record.put("buzStatus", task.getBuzStatus());
-			record.put("timeLimit", task.getTimeLimit());
-			record.put("timeLimitTp", task.getTimeLimitTp());
-			record.put("alarmTime", task.getAlarmTime());
-			record.put("alarmTimeTp", task.getAlarmTimeTp());
-			record.put("moduleId", task.getModuleId());
-			record.put("runParam", task.getRunParam());
-			//json data below
-			record.put("TX_CHOICES", JSONObject.parse(task.getTxChoices()));
-			record.put("TX_PR_CHOICES", JSONObject.parse(task.getTxPrChoices()));
-			record.put("TX_BK_CHOICES", JSONObject.parse(task.getTxBkChoices()));
-			record.put("SIGN_CHOICES", JSONObject.parse(task.getSignChoices()));
 			array.add(record);
 		}
 		return array;
@@ -132,16 +140,6 @@ public class WfDataUtil {
 	/***************************
 	 * generate object from json
 	 *******************************/
-	// public static WFDetailVO generateObjectFromJson(JSONObject jsonobj,
-	// String wfId){
-	// JSONArray tasks = jsonobj.getJSONArray("tasks");
-	// JSONArray conns = jsonobj.getJSONArray("conns");
-	// WFDetailVO wfDtl = new WFDetailVO();
-	// wfDtl.setConns(generateTaskConnList(conns, wfId));
-	// wfDtl.setTasks(generateTaskList(tasks, wfId));
-	// return wfDtl;
-	// }
-
 	public static List<WfTask> generateTaskList(JSONArray tasks, String wfId) {
 		if (tasks == null || tasks.isEmpty()) {
 			return null;
@@ -151,50 +149,55 @@ public class WfDataUtil {
 		WfTask task = null;
 		for (int i = 0; i < size; ++i) {
 			JSONObject taskj = (JSONObject) tasks.get(i);
+			String taskType = WFConstants.parse2Code(taskj.getString(ATTR_TASK_RS_TYPE));
 			task = new WfTask();
 			task.setTaskId(UUID.randomUUID().toString().replace("-", ""));
 			task.setWfId(wfId);
 			task.setTaskPgId(taskj.getString("id"));
-			task.setTaskType(WFConstants.parse2Code(taskj.getString("rsType")));
-			task.setTaskDescp(taskj.getString("taskDescp"));
-			JSONObject pos = taskj.getJSONObject("position");
+			task.setTaskType(taskType);
+			task.setTaskDescp(taskj.getString(ATTR_TASK_DESCP));
+			task.setTaskDescpDisp(taskj.getString(ATTR_TASK_DESCP_DISP));
+			JSONObject pos = taskj.getJSONObject(ATTR_TASK_POSITION);
 			task.setPosTop(Double.valueOf(pos.getString("top")));
 			task.setPosLeft(Double.valueOf(pos.getString("left")));
-			if (taskj.containsKey("assigners")) {
-				String assigners = taskj.getString("assigners");
-				JSONArray assignersArray = JSONObject.parseArray(assigners);
-				int assignerSize = assignersArray.size();
-				List<WfTaskAssign> assignerList = new ArrayList<WfTaskAssign>(assignerSize);
-				WfTaskAssign asn = null;
-				for(int j=0;j<assignerSize;++j){
-					JSONObject assigner = assignersArray.getJSONObject(j);
-					asn = new WfTaskAssign();
-					asn.setAssignType(assigner.getString("assignTypeCode"));
-					asn.setAssignRelId(assigner.getString("id"));
-					asn.setDefSelFlag(assigner.getString("defSelMod"));
-					Boolean checkFlag = assigner.getBoolean("checkFlag") ==null ? false:assigner.getBoolean("checkFlag") ;
-					asn.setSelAllFlag(checkFlag?WFConstants.TaskSelectAllFlag.YES:WFConstants.TaskSelectAllFlag.NO);
-					asn.setExeCondition(assigner.getString("exeConn"));
-					asn.setTaskId(task.getTaskId());
-					assignerList.add(asn);
-				}
-				task.setAssignerList(assignerList);
-			}
-			task.setTxCode(taskj.getString("txCode"));
-			task.setTxType(taskj.getString("txType"));
-			task.setBuzStatus(taskj.getString("buzStatus"));
-			task.setTimeLimit(taskj.getInteger("timeLimit"));
-			task.setTimeLimitTp(taskj.getString("timeLimitTp"));
-			task.setAlarmTime(taskj.getInteger("alarmTime"));
-			task.setAlarmTimeTp(taskj.getString("alarmTimeTp"));
-			task.setModuleId(taskj.getString("moduleId"));
-			task.setRunParam(taskj.getString("runParam"));
-			task.setTaskDescpDisp(taskj.getString("taskDescpDisp"));
-			task.setTxChoices(taskj.getString("TX_CHOICES"));
-			task.setTxPrChoices(taskj.getString("TX_PR_CHOICES"));
-			task.setTxBkChoices(taskj.getString("TX_BK_CHOICES"));
-			task.setSignChoices(taskj.getString("SIGN_CHOICES"));
 			
+			if(WFConstants.TaskTypes.C.getTypeCode().equals(taskType)){
+				task.setCondExp(taskj.getString("condExp"));
+			}else{
+				if (taskj.containsKey("assigners")) {
+					String assigners = taskj.getString("assigners");
+					JSONArray assignersArray = JSONObject.parseArray(assigners);
+					int assignerSize = assignersArray.size();
+					List<WfTaskAssign> assignerList = new ArrayList<WfTaskAssign>(assignerSize);
+					WfTaskAssign asn = null;
+					for(int j=0;j<assignerSize;++j){
+						JSONObject assigner = assignersArray.getJSONObject(j);
+						asn = new WfTaskAssign();
+						asn.setAssignType(assigner.getString("assignTypeCode"));
+						asn.setAssignRelId(assigner.getString("id"));
+						asn.setDefSelFlag(assigner.getString("defSelMod"));
+						Boolean checkFlag = assigner.getBoolean("checkFlag") ==null ? false:assigner.getBoolean("checkFlag") ;
+						asn.setSelAllFlag(checkFlag?WFConstants.TaskSelectAllFlag.YES:WFConstants.TaskSelectAllFlag.NO);
+						asn.setExeCondition(assigner.getString("exeConn"));
+						asn.setTaskId(task.getTaskId());
+						assignerList.add(asn);
+					}
+					task.setAssignerList(assignerList);
+				}
+				task.setTxCode(taskj.getString("txCode"));
+				task.setTxType(taskj.getString("txType"));
+				task.setBuzStatus(taskj.getString("buzStatus"));
+				task.setTimeLimit(taskj.getInteger("timeLimit"));
+				task.setTimeLimitTp(taskj.getString("timeLimitTp"));
+				task.setAlarmTime(taskj.getInteger("alarmTime"));
+				task.setAlarmTimeTp(taskj.getString("alarmTimeTp"));
+				task.setModuleId(taskj.getString("moduleId"));
+				task.setRunParam(taskj.getString("runParam"));
+				task.setTxChoices(taskj.getString("TX_CHOICES"));
+				task.setTxPrChoices(taskj.getString("TX_PR_CHOICES"));
+				task.setTxBkChoices(taskj.getString("TX_BK_CHOICES"));
+				task.setSignChoices(taskj.getString("SIGN_CHOICES"));
+			}
 			taskList.add(task);
 		}
 		return taskList;

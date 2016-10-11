@@ -26,13 +26,12 @@ angular.module('conditionApp', [ ])
         $scope.getFuncVars = function(refMkid){
             funcVarService.getFuncVars(refMkid).then(function(records){
                 $scope.custFuncVars =records;
-                if(typeof(taskData.funcVarArray)!='undefined'){
-                    var funcVarArray = taskData.funcVarArray;
+                if(typeof(taskData.custFuncVarArray)!='undefined'){
+                    var funcVarArray = taskData.custFuncVarArray;
                     for(var i=0;i<funcVarArray.length;++i){
-                        if(funcVarArray[i].varType=="U"){
-                            $scope.custUsers[$scope.custUsers.length] = funcVarArray[i];
-                        }else{
-                            $scope.custFuncVars[$scope.custFuncVars.length] = funcVarArray[i];
+                        if(funcVarArray[i].varType=="V"){
+                            $scope.custFuncVars[$scope.custFuncVars.length] = {varCode:funcVarArray[i].varCode,varDescp:funcVarArray[i].varDescp};
+//                            $scope.custFuncVars[$scope.custFuncVars.length] = funcVarArray[i];//error due to $$hashCode
                         }
                     }
                 }
@@ -48,6 +47,16 @@ angular.module('conditionApp', [ ])
             taskData.opt = "U";
             window.parent.postMessage(JSON.stringify(taskData), '*');
             $("#successMsg").css("display","");
+        }
+
+        $scope.selectFuncVar = function(funcVar){
+            if(angular.isUndefined($scope.task.condExp)){
+                $scope.task.condExp = "";
+            }
+            if($scope.task.condExp!=""){
+                $scope.task.condExp += " and ";
+            }
+            $scope.task.condExp += funcVar.varCode+"=";
         }
     }])
    ;

@@ -165,7 +165,6 @@ jsPlumb.ready(function () {
             }
         }
     });
-
     // initialise element as connection targets and source.
     var initNode = function(el,type) {
         // initialise draggable elements.
@@ -188,49 +187,48 @@ jsPlumb.ready(function () {
                 } ]
             ]
         });
-
         instance.makeTarget(el, {
             dropOptions: { hoverClass: "dragHover" },
             anchor: "Continuous",
             allowLoopback: false//Not allow to connect to itself
         });
-
         // this is not part of the core demo functionality; it is a means for the Toolkit edition's wrapped
         // version of this demo to find out about new nodes being added.
         instance.fire("jsPlumbDemoNodeAdded", el);
-
     };
 
     var newNodeById = function(node_) {
         var d = document.createElement("div");
-        d.className = "w "+node_.rsType;
+        var taskType = node_.rsType;
+        d.className = "w "+taskType;
         d.id = node_.pgId;
-        if(node_.rsType==RS_TYPE_CONDITION){
-            d.innerHTML = "<div class='task-descp'>"+node_.taskDescpDisp + "</div><div class=\"ep\"></div>";
-        }else{
-            d.innerHTML = node_.taskDescpDisp + "<div class=\"ep\"></div>";
-        }
         d.style.left = node_.position.left + "px";
         d.style.top = node_.position.top + "px";
-        $(d).attr(RS_ATTR_ASSIGNERS, JSON.stringify(node_.assigners))
-            .attr("rs-data-id", node_.id)
-            .attr(RS_ATTR_TASK_TYPE,node_.rsType)
-            .attr(RS_ATTR_TX_CHOICES,JSON.stringify(node_.TX_CHOICES))
-            .attr(RS_ATTR_TX_PR_CHOICES,JSON.stringify(node_.TX_PR_CHOICES))
-            .attr(RS_ATTR_TX_BK_CHOICES,JSON.stringify(node_.TX_BK_CHOICES))
-            .attr(RS_ATTR_SIGN_CHOICES,JSON.stringify(node_.SIGN_CHOICES))
-            .attr("txCode",node_.txCode)
-            .attr("txType",node_.txType)
-            .attr("buzStatus",node_.buzStatus)
-            .attr("timeLimit",node_.timeLimit)
-            .attr("timeLimitTp",node_.timeLimitTp)
-            .attr("alarmTime",node_.alarmTime)
-            .attr("alarmTimeTp",node_.alarmTimeTp)
-            .attr("moduleId",node_.moduleId)
-            .attr("runParam",node_.runParam)
-            .attr("taskDescp",node_.taskDescp)
-            .attr("taskDescpDisp",node_.taskDescpDisp)
-        ;
+        $(d).attr("rs-data-id", node_.id)
+            .attr(RS_ATTR_TASK_TYPE,taskType)
+            .attr(RS_NODE_ATTR_DESCP, node_.taskDescp)
+            .attr(RS_NODE_ATTR_DESCP_DISP, node_.taskDescpDisp);
+        if(taskType==RS_TYPE_CONDITION){
+            d.innerHTML = "<div class='task-descp'>"+node_.taskDescpDisp + "</div><div class=\"ep\"></div>";
+            $(d).attr(RS_ATTR_COND_EXPRESSION,node_.condExp);
+        }else{
+            d.innerHTML = node_.taskDescpDisp + "<div class=\"ep\"></div>";
+            $(d).attr(RS_ATTR_ASSIGNERS, JSON.stringify(node_.assigners))
+                .attr(RS_ATTR_TX_CHOICES,JSON.stringify(node_.TX_CHOICES))
+                .attr(RS_ATTR_TX_PR_CHOICES,JSON.stringify(node_.TX_PR_CHOICES))
+                .attr(RS_ATTR_TX_BK_CHOICES,JSON.stringify(node_.TX_BK_CHOICES))
+                .attr(RS_ATTR_SIGN_CHOICES,JSON.stringify(node_.SIGN_CHOICES))
+                .attr("txCode",node_.txCode)
+                .attr("txType",node_.txType)
+                .attr("buzStatus",node_.buzStatus)
+                .attr("timeLimit",node_.timeLimit)
+                .attr("timeLimitTp",node_.timeLimitTp)
+                .attr("alarmTime",node_.alarmTime)
+                .attr("alarmTimeTp",node_.alarmTimeTp)
+                .attr("moduleId",node_.moduleId)
+                .attr("runParam",node_.runParam);
+        }
+
         $(d).dblclick(function(){
             editTask($(this).attr("id"));
         });
@@ -290,7 +288,8 @@ jsPlumb.ready(function () {
                         for(var i=0;i<connList.length;++i){
                             var conn_data = connList[i];
                             var conn_ = instance.connect({ source: conn_data.source_id, target: conn_data.target_id });
-                            conn_.getOverlay("label").label = "<i>"+conn_data.con_descp+"</i>"
+                            conn_.getOverlay("label").label = "<i>"+conn_data.con_descp+"</i>";
+                            conn_.setParameter(CONNECTION_CON_VALUE, conn_data.con_value);
                         }
                     }else{
                         initEmptyWF();
@@ -318,8 +317,12 @@ jsPlumb.ready(function () {
             var conn_ = curr_conns[i];
             var conn_json = {};
             conn_json.con_id = conn_.id;
-            conn_json.con_descp = $(conn_.getOverlay("label").label).text();
-            conn_json.con_value = "";//TODO:
+            conn_json.con_descp = conn_.getOverlay("label").getElement().firstChild.innerHTML
+            var connVal = conn_.getParameter(CONNECTION_CON_VALUE);
+            if(typeof(connVal)=="undefined"){
+                connVal = "";
+            }
+            conn_json.con_value = connVal;
             conn_json.source_id = conn_.source.id;
             conn_json.target_id = conn_.target.id;
             save_conns[save_conns.length] = conn_json;
@@ -330,66 +333,64 @@ jsPlumb.ready(function () {
             var pos_ = jqObj.position();
             task_json.id = jqObj.attr("id");
             task_json.rsType = jqObj.attr(RS_ATTR_TASK_TYPE);
+            task_json.taskDescp = jqObj.attr(RS_NODE_ATTR_DESCP);
+            task_json.taskDescpDisp = jqObj.attr(RS_NODE_ATTR_DESCP_DISP);
             if(task_json.rsType ==RS_TYPE_CONDITION){
                 pos_.top = parseInt(pos_.top)+13;// add for rotation divide issue
                 pos_.left = parseInt(pos_.left)+13;
-            }
-            task_json.descpDisp = jqObj.text();
-            var assignerJSONStr = jqObj.attr(RS_ATTR_ASSIGNERS);
-            if(assignerJSONStr==undefined || assignerJSONStr==""){
-                assignerJSONStr = "[]";
-            }
-            task_json.assigners = $.parseJSON(assignerJSONStr);
-            console.log("task_json.assigners="+task_json.assigners)
+                task_json.position = pos_;
+                task_json.condExp = jqObj.attr(RS_ATTR_COND_EXPRESSION);
+            }else{
+                task_json.position = pos_;
+                var assignerJSONStr = jqObj.attr(RS_ATTR_ASSIGNERS);
+                if(assignerJSONStr==undefined || assignerJSONStr==""){
+                    assignerJSONStr = "[]";
+                }
+                task_json.assigners = $.parseJSON(assignerJSONStr);
+                task_json.txCode = jqObj.attr("txCode");
+                task_json.txType = jqObj.attr("txType");
+                task_json.buzStatus = jqObj.attr("buzStatus");
+                var timeLimit = jqObj.attr("timeLimit");
+                if(timeLimit!=""){
+                    timeLimit = parseInt(timeLimit);
+                }
+                task_json.timeLimit = timeLimit;
+                task_json.timeLimitTp = jqObj.attr("timeLimitTp");
+                var alarmTime = jqObj.attr("alarmTime");
+                if(alarmTime!=""){
+                    alarmTime = parseInt(alarmTime);
+                }
+                task_json.alarmTime = alarmTime;
+                task_json.alarmTimeTp = jqObj.attr("alarmTimeTp");
+                task_json.moduleId = jqObj.attr("moduleId");
+                task_json.runParam = jqObj.attr("runParam");
 
-            var task_position = {
-                top:pos_.top,
-                left:pos_.left
-            };
-            task_json.position = pos_;
-            task_json.txCode = jqObj.attr("txCode");
-            task_json.txType = jqObj.attr("txType");
-            task_json.buzStatus = jqObj.attr("buzStatus");
-            var timeLimit = jqObj.attr("timeLimit");
-            if(timeLimit!=""){
-                timeLimit = parseInt(timeLimit);
+                var txChoicesStr = jqObj.attr(RS_ATTR_TX_CHOICES);
+                if(txChoicesStr==undefined || txChoicesStr==""){
+                    txChoicesStr = "{}";
+                }
+                task_json.TX_CHOICES = $.parseJSON(txChoicesStr);
+                var txPrChoicesStr = jqObj.attr(RS_ATTR_TX_PR_CHOICES);
+                if(txPrChoicesStr==undefined || txPrChoicesStr==""){
+                    txPrChoicesStr = "{}";
+                }
+                task_json.TX_PR_CHOICES = $.parseJSON(txPrChoicesStr);
+                var txBkChoicesStr = jqObj.attr(RS_ATTR_TX_BK_CHOICES);
+                if(txBkChoicesStr==undefined || txBkChoicesStr==""){
+                    txBkChoicesStr = "{}";
+                }
+                task_json.TX_BK_CHOICES = $.parseJSON(txBkChoicesStr);
+                var signChoicesStr = jqObj.attr(RS_ATTR_SIGN_CHOICES);
+                if(signChoicesStr==undefined || signChoicesStr==""){
+                    signChoicesStr = "{}";
+                }
+                task_json.SIGN_CHOICES = $.parseJSON(signChoicesStr);
             }
-            task_json.timeLimit = timeLimit;
-            task_json.timeLimitTp = jqObj.attr("timeLimitTp");
-            var alarmTime = jqObj.attr("alarmTime");
-            if(alarmTime!=""){
-                alarmTime = parseInt(alarmTime);
-            }
-            task_json.alarmTime = alarmTime;
-            task_json.alarmTimeTp = jqObj.attr("alarmTimeTp");
-            task_json.moduleId = jqObj.attr("moduleId");
-            task_json.runParam = jqObj.attr("runParam");
-            task_json.taskDescp = jqObj.attr("taskDescp");
-            task_json.taskDescpDisp = jqObj.attr("taskDescpDisp");
-            var txChoicesStr = jqObj.attr(RS_ATTR_TX_CHOICES);
-            if(txChoicesStr==undefined || txChoicesStr==""){
-                txChoicesStr = "{}";
-            }
-            task_json.TX_CHOICES = $.parseJSON(txChoicesStr);
-            var txPrChoicesStr = jqObj.attr(RS_ATTR_TX_PR_CHOICES);
-            if(txPrChoicesStr==undefined || txPrChoicesStr==""){
-                txPrChoicesStr = "{}";
-            }
-            task_json.TX_PR_CHOICES = $.parseJSON(txPrChoicesStr);
-            var txBkChoicesStr = jqObj.attr(RS_ATTR_TX_BK_CHOICES);
-            if(txBkChoicesStr==undefined || txBkChoicesStr==""){
-                txBkChoicesStr = "{}";
-            }
-            task_json.TX_BK_CHOICES = $.parseJSON(txBkChoicesStr);
-            var signChoicesStr = jqObj.attr(RS_ATTR_SIGN_CHOICES);
-            if(signChoicesStr==undefined || signChoicesStr==""){
-                signChoicesStr = "{}";
-            }
-            task_json.SIGN_CHOICES = $.parseJSON(signChoicesStr);
             save_tasks[save_tasks.length] = task_json;
         });
         save_data.tasks = save_tasks;
         save_data.conns = save_conns;
+        save_data.custFuncVarArray = custFuncVarArray;
         var json_str = JSON.stringify(save_data);
         console.log(json_str);
         $.ajax({

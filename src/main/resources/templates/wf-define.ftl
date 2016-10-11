@@ -95,7 +95,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xs-12" id="funcVarEdit" style="padding-top:10px;display:none">
+    <div class="col-xs-12" id="funcVarEdit" style="padding-top:10px;">
         <div class="row">
             <div class="col-xs-3" >
                 <select id="selectVarType" class="selectpicker" ng-model="custVar.varType">
@@ -271,7 +271,7 @@
         var el = $("#"+id_);
         parmJson.taskPgId = el.attr("id");;
         parmJson.taskDescpDisp = el.text();
-        parmJson.taskDescp	=el.attr("taskDescp");
+        parmJson.taskDescp	=el.attr(RS_NODE_ATTR_DESCP);
         parmJson.refMkid = refMkid;
         parmJson.taskType = el.attr(RS_ATTR_TASK_TYPE);
         if(RS_TYPE_CONDITION==parmJson.taskType){
@@ -333,8 +333,8 @@
         var taskData = $.parseJSON(evt.data);
         if(taskData.opt=="U"){
             if(taskData.taskType ==RS_TYPE_CONDITION ){
-                $("#"+taskData.taskPgId).attr("taskDescp",taskData.taskDescp)
-                        .attr("taskDescpDisp",taskData.taskDescpDisp)
+                $("#"+taskData.taskPgId).attr(RS_NODE_ATTR_DESCP,taskData.taskDescp)
+                        .attr(RS_NODE_ATTR_DESCP_DISP,taskData.taskDescpDisp)
                         .attr(RS_ATTR_COND_EXPRESSION,taskData.condExp);
                 $("#"+taskData.taskPgId +" .task-descp").html(taskData.taskDescpDisp);
             }else{
@@ -352,8 +352,8 @@
                         .attr("alarmTimeTp",taskData.alarmTimeTp)
                         .attr("moduleId",taskData.moduleId)
                         .attr("runParam",taskData.runParam)
-                        .attr("taskDescp",taskData.taskDescp)
-                        .attr("taskDescpDisp",taskData.taskDescpDisp)
+                        .attr(RS_NODE_ATTR_DESCP,taskData.taskDescp)
+                        .attr(RS_NODE_ATTR_DESCP_DISP,taskData.taskDescpDisp)
                 ;
                 $("#"+taskData.taskPgId)
                         .html(taskData.taskDescpDisp+"<div class=\"ep\"></div>");

@@ -80,6 +80,7 @@ angular.module('funcVarApp', [ ])
             custFuncVarArray = $scope.funcVarList;
             $scope.addCustVar();
         };
+        $scope.custVar = {varType:"U"};
         $scope.addCustVar = function(){
             $scope.custVar = {varType:"U"};
             $("#funcVarTable tr").removeClass("active");

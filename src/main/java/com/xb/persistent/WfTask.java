@@ -49,8 +49,10 @@ public class WfTask extends CUBaseTO implements Serializable {
 	@TableField(value = "POS_LEFT")
 	private Double posLeft;
 
+	@TableField(value = "cond_exp")
+	private String condExp;
 
-/**  */
+	/**  */
 	@TableField(value = "TX_CODE")
 	private String txCode;
 
@@ -192,6 +194,14 @@ public class WfTask extends CUBaseTO implements Serializable {
 		this.posLeft = posLeft;
 	}
 
+	public String getCondExp() {
+		return condExp;
+	}
+
+	public void setCondExp(String condExp) {
+		this.condExp = condExp;
+	}
+
 	public List<WfTaskAssign> getAssignerList() {
 		return assignerList;
 	}
@@ -311,6 +321,7 @@ public class WfTask extends CUBaseTO implements Serializable {
 	public void setSignChoices(String signChoices) {
 		this.signChoices = signChoices;
 	}
+
 
 	@Override
 	public String toString() {

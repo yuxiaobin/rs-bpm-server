@@ -280,7 +280,9 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		List<WfTask> taskList = this.selectList(parm);
 		if(taskList!=null){
 			for(WfTask task:taskList){
-				task.setAssignerList(taskAssignerService.selectTaskAssignerListWithName(task.getTaskId()));
+				if(!WFConstants.TaskTypes.C.getTypeCode().equals(task.getTaskType())){
+					task.setAssignerList(taskAssignerService.selectTaskAssignerListWithName(task.getTaskId()));
+				}
 			}
 		}
 		return taskList;

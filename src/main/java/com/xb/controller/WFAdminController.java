@@ -229,10 +229,10 @@ public class WFAdminController extends BaseController {
 	
 	private static final String ERROR_MSG_INVALID_VERSION = "getCustVars(): invalid version[%s] with refMikd=%s";
 	
-	private static final String PARM_VAR_TYPE = "varType";
-	private static final String PARM_VAR_CODE = "varCode";
-	private static final String PARM_VAR_DESCP = "varDescp";
-	private static final String PARAM_VAR_EXPRESSION = "varExp";
+	private static final String PARM_VAR_TYPE = WFConstants.FuncVarsParm.PARM_VAR_TYPE;
+	private static final String PARM_VAR_CODE = WFConstants.FuncVarsParm.PARM_VAR_CODE;
+	private static final String PARM_VAR_DESCP = WFConstants.FuncVarsParm.PARM_VAR_DESCP;
+	private static final String PARAM_VAR_EXPRESSION = WFConstants.FuncVarsParm.PARAM_VAR_EXPRESSION;
 	
 	/**
 	 * 获取用户自定义功能变量
