@@ -108,10 +108,12 @@ public class MyAop {
 						CUBaseTO baseArg = (CUBaseTO)args[i];
 						if(isInsert){
 							baseArg.setCreatedBy(baseTO.getCreatedBy());
-							baseArg.setCreatedDt(new Date());
+							if(baseArg.getCreatedDt()==null){
+								baseArg.setCreatedDt(new Date());
+							}
 						}
 						if(isUpdate){
-							baseArg.setUpdatedBy(baseTO.getCreatedBy());
+							baseArg.setUpdatedBy(baseTO.getUpdatedBy());
 							baseArg.setUpdatedDt(new Date());
 						}
 					}

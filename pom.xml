@@ -163,6 +163,14 @@
 			<artifactId>cloudwf</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-expression -->
+		<dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-expression</artifactId>
+		    </dependency>
+				
+		
 	</dependencies>
 
 	<profiles>

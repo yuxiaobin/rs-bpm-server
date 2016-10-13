@@ -207,7 +207,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		connParm.setTargetTaskId(currTaskId);
 		WfTaskConn conn = taskConnService.selectOne(connParm);
 		if(conn!=null){
-			return conn.getSourceTaskId();//TODO: for condition cases, targetTaskId may have multiple connections@0901
+			WfTask preTask = this.selectById(conn.getSourceTaskId());
+			if(WFConstants.TaskTypes.C.getTypeCode().equals(preTask.getTaskType())){
+				return getPrevTaskId(preTask.getTaskId());
+			}
+			return conn.getSourceTaskId();
 		}
 		return null;
 	}
@@ -313,6 +317,12 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		String optCode = optVO.getOptCode();
 		WfAwt awt = getAwtByParm(optVO);
 		if(WFConstants.OptTypes.RECALL.equals(optCode)){
+			if(awt!=null){
+				//TODO
+			}
+			else{
+				//TODO: TASK is end, but can recall
+			}
 			WfInstance instParm = new WfInstance();
 			instParm.setInstNum(optVO.getInstNum());
 			instParm.setRefMkid(optVO.getRefMkid());

@@ -150,6 +150,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					log.error("renewRecall(): prefTaskId is null for instId="+instId+", optUsersPre="+currUserId+", recall is not allowed");
 					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
 				}
+				checkTaskRecallOptions(prevTaskId);
 				if(awt.getTaskIdCurr().equals(awt.getTaskIdPre())){
 					awt.setAssignerId(currUserId);
 					awt.setTaskIdPre(null);
@@ -184,20 +185,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					log.error("renewRecall(): prevTaskId is empty, recall is not allowed");
 					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
 				}
-				WfTask recallTask = taskService.selectById(prevTaskId);
-				if(recallTask==null){
-					log.error("renewRecall(): no wfTask record found for prevTaskId"+prevTaskId+", recall is not allowed");
-					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
-				}
-				JSONObject txChoices = recallTask.getTxChoicesJson();
-				Boolean allowReCall = null;
-				if(txChoices!=null){
-					allowReCall = txChoices.getBoolean("AllowReCall");
-				}
-				if(allowReCall==null || !allowReCall){
-					log.error("renewRecall(): preTask setting AllowReCall is null or false, recall is not allowed");
-					throw new BusinessException("RECALL-ERROR","Recall is not allowed");
-				}
+				checkTaskRecallOptions(prevTaskId);
 				boolean refreshCurrAssigner = false;
 				if(!prevTaskId.equals(currTaskId)){//相等的情况，只有会签撤回
 					awtParm.setOptUsersPre(null);
@@ -221,6 +209,23 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				removeUserFromOptUserPrev(inst, currUserId, prevTaskId, refreshCurrAssigner);
 			}
 			return false;
+		}
+	}
+	
+	private void checkTaskRecallOptions(String recallTaskId) throws BusinessException{
+		WfTask recallTask = taskService.selectById(recallTaskId);
+		if(recallTask==null){
+			log.error("renewRecall(): no wfTask record found for prevTaskId"+recallTaskId+", recall is not allowed");
+			throw new BusinessException("RECALL-ERROR","Recall is not allowed");
+		}
+		JSONObject txChoices = recallTask.getTxChoicesJson();
+		Boolean allowReCall = null;
+		if(txChoices!=null){
+			allowReCall = txChoices.getBoolean("AllowReCall");
+		}
+		if(allowReCall==null || !allowReCall){
+			log.error("renewRecall(): preTask setting AllowReCall is null or false, recall is not allowed");
+			throw new BusinessException("RECALL-ERROR","Recall is not allowed");
 		}
 	}
 	
@@ -372,6 +377,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				wfInst.setOptUsersPre(optdUsers+currUserId+",");
 			}
 		}
+		String nextTaskId = nextTask.getTaskId();
 		String instId = wfInst.getInstId();
 		WfAwt parm = new WfAwt();
 		parm.setInstId(instId);
@@ -402,7 +408,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 					awt.setAwtEnd(limitDate);
 					awt.setAwtAlarm(alarmDate);
 					awt.setInstId(instId);
-					awt.setTaskIdCurr(optVO.getNextTaskId());
+					awt.setTaskIdCurr(nextTaskId);
 					this.insert(awt);
 				}
 			}
@@ -414,7 +420,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		
 		wfInst.setCurrAssigners(nextAssigners);
 		wfInst.setTaskIdPre(wfInst.getTaskIdCurr());
-		wfInst.setTaskIdCurr(nextTask.getTaskId());
+		wfInst.setTaskIdCurr(nextTaskId);
 		if(optVO.isNextEndTaskFlag()){
 			wfInst.setWfStatus(WFConstants.WFStatus.DONE);
 		}

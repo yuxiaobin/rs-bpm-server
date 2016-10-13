@@ -3,6 +3,8 @@ package com.xb.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,7 +70,7 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 				
 				Map<String,Object> parm = new HashMap<String,Object>();
 				parm.put("getBuzDataSql", sb.toString());
-				List<JSONObject> entityDataList = baseMapper.getBuzDataByEntity(parm);//TODO: if need to handle exception
+				List<JSONObject> entityDataList = baseMapper.getBuzDataByEntity(parm);
 				JSONObject entityData = null;
 				if(entityDataList==null || entityDataList.isEmpty()){
 					log.error(String.format(ERROR_MSG_NO_BUZ_DATA_FOUND, refMkid,wfInstNum));
@@ -92,10 +94,15 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 			custVarParm.setWfId(condTask.getWfId());
 			custVarParm.setVarType("V");
 			List<WfCustVars> custVars = custVarsService.selectList(custVarParm);//自定义变量
+			
 			if(custVars!=null && !custVars.isEmpty()){
 				for(WfCustVars var: custVars){
 					String varCode = var.getVarCode();
-					if(condExp.contains(varCode)){
+					Pattern p = Pattern.compile(varCode+"[= ]");
+					Matcher m = p.matcher(condExp);
+//					System.out.println(m.find());
+					if(m.find()){
+//						if(condExp.contains(varCode)){
 						Map<String,Object> parm = new HashMap<String,Object>();
 						parm.put("getBuzDataSql", var.getVarExpression());
 						List<JSONObject> entityDataList = baseMapper.getBuzDataByEntity(parm);
