@@ -21,7 +21,7 @@ public interface IWfTaskAssignService extends ICommonService<WfTaskAssign> {
 	 * @param taskId
 	 * @return
 	 */
-	public JSONObject getUsersGroupsByTaskId(String taskId);
+	public JSONObject getUsersGroupsByTaskId(String refMkid, Integer wfInstNum, String wfId, String taskId);
 	
 	/**
 	 * return a list of userId

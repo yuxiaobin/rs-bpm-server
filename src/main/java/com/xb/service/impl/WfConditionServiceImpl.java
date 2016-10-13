@@ -47,12 +47,24 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 		if(condTask==null){
 			return null;
 		}
-		String condExp = condTask.getCondExp();
+		boolean condResut = evaluateExpression(condTask.getCondExp(), refMkid, wfInstNum, condTask.getWfId());
+		
+		WfTaskConn connParm = new WfTaskConn();
+		connParm.setSourceTaskId(condTask.getTaskId());
+		connParm.setConnVal(String.valueOf(condResut));
+		WfTaskConn conn = taskConnService.selectOne(connParm);
+		if(conn!=null){
+			return conn.getTargetTaskId();
+		}
+		return null;
+	}
+	
+	public boolean evaluateExpression(String expression, String refMkid, int wfInstNum, String wfId){
+		String expressionBefore = expression;
 		ExpressionParser parser = new SpelExpressionParser();
 		StandardEvaluationContext context = new StandardEvaluationContext();
-		boolean condResut = false;
-		if(StringUtils.isEmpty(condExp)){
-			condResut = true;
+		if(StringUtils.isEmpty(expression)){
+			return true;
 		}else{
 			String tableName = entityFactory.getFuncEntityTable(refMkid);
 			JSONArray funcVars = entityFactory.getFuncVariables(refMkid);
@@ -80,8 +92,10 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 						for(int i=0;i<funcVars.size();++i){
 							JSONObject js = funcVars.getJSONObject(i);
 							String varCode = js.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE);//is column name
-							if(condExp.contains(varCode)){
-								condExp = condExp.replace(varCode, "#"+varCode);//replace total_count with #total_count, which can be evaluated by Spring EL
+							Pattern p = Pattern.compile(varCode+"[=><! ]");
+							Matcher m = p.matcher(expression);
+							if(m.find()){
+								expression = expression.replace(varCode, "#"+varCode);//replace total_count with #total_count, which can be evaluated by Spring EL
 								Object val = entityData.get(varCode.toUpperCase());
 								context.setVariable(varCode, val);
 							}
@@ -91,15 +105,15 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 			}
 			
 			WfCustVars custVarParm = new WfCustVars();
-			custVarParm.setWfId(condTask.getWfId());
-			custVarParm.setVarType("V");
+			custVarParm.setWfId(wfId);
+			custVarParm.setVarType(WFConstants.CustVarTypes.VAR_TYPE_VAR);
 			List<WfCustVars> custVars = custVarsService.selectList(custVarParm);//自定义变量
 			
 			if(custVars!=null && !custVars.isEmpty()){
 				for(WfCustVars var: custVars){
 					String varCode = var.getVarCode();
-					Pattern p = Pattern.compile(varCode+"[= ]");
-					Matcher m = p.matcher(condExp);
+					Pattern p = Pattern.compile(varCode+"[=><! ]");
+					Matcher m = p.matcher(expression);
 					if(m.find()){
 						Map<String,Object> parm = new HashMap<String,Object>();
 						parm.put("getBuzDataSql", var.getVarExpression());
@@ -113,24 +127,15 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 							log.warn("query data is empty for custVar.expression="+var.getVarExpression());
 						}else{
 							Object expResult = record.values().iterator().next();
-							condExp = condExp.replace(varCode, "#"+varCode);
+							expression = expression.replace(varCode, "#"+varCode);
 							context.setVariable(varCode, expResult);
 						}
 					}
 				}
 			}
+			log.debug("condExp before is "+expressionBefore+", after is "+ expression);
+			return parser.parseExpression(expression).getValue(context, Boolean.class);
 		}
-		log.debug("condExp before is "+condTask.getCondExp()+", after is "+ condExp);
-		condResut = parser.parseExpression(condExp).getValue(context, Boolean.class);
-		
-		WfTaskConn connParm = new WfTaskConn();
-		connParm.setSourceTaskId(condTask.getTaskId());
-		connParm.setConnVal(String.valueOf(condResut));
-		WfTaskConn conn = taskConnService.selectOne(connParm);
-		if(conn!=null){
-			return conn.getTargetTaskId();
-		}
-		return null;
 	}
 
 }

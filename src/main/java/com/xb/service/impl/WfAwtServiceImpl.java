@@ -396,6 +396,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 			if(optUsersPre!=null && optUsersPre.indexOf(",")==optUsersPre.length()-1){
 				optUsersPre = optUsersPre.substring(0,optUsersPre.length()-1);
 			}
+			//TODO : 自定义人员逻辑是什么？ 选择自定义人员时，就取到userId??
 			for(String assigner : nextAssignersArr){
 				if(!StringUtils.isEmpty(assigner)){
 					awt = new WfAwt();

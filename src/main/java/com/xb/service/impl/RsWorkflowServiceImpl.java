@@ -92,7 +92,7 @@ public class RsWorkflowServiceImpl extends CommonServiceImpl<RsWorkflowMapper, R
 				custVar.setVarDescp(jsn.getString(WFConstants.FuncVarsParm.PARM_VAR_DESCP));
 				custVar.setVarExpression(jsn.getString(WFConstants.FuncVarsParm.PARAM_VAR_EXPRESSION));
 				custVarsService.insert(custVar);
-				if("U".equals(custVar.getVarType())){
+				if(WFConstants.CustVarTypes.VAR_TYPE_USER.equals(custVar.getVarType())){
 					custUserList.add(custVar);
 				}
 			}

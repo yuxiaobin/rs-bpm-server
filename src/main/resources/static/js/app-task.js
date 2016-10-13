@@ -54,7 +54,25 @@ angular.module('taskApp', [ ])
             return delay.promise;
         };
     }])
-    .controller('taskCtrl', ['$scope', '$timeout', 'userGroupService', function ($scope, $timeout, userGroupService) {
+    .service('funcVarService',['$http', '$q', function ($http, $q) {
+        this.getFuncVars = function(refMkid){
+            var delay = $q.defer();
+            var req = {
+                method: 'POST',
+                data:{refMkid:refMkid},
+                url: basePath+'/wfadmin/funcvars'
+            };
+            $http(req)
+                .success(function(data, status, headers, config){
+                    delay.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                    delay.reject(data);
+                });
+            return delay.promise;
+        };
+    }])
+    .controller('taskCtrl', ['$scope', '$timeout', 'userGroupService', 'funcVarService', function ($scope, $timeout, userGroupService, funcVarService) {
         if(angular.isUndefined( $scope.userGroupChoices)){
             $scope.userGroupChoices = {};
         }
@@ -71,8 +89,6 @@ angular.module('taskApp', [ ])
                                 item.assignTypeDesc = assignTypeDescps.USER;
                             }else if(item.assignTypeCode==addUserGroupTypes.ADD_GROUP.CODE){
                                 item.assignTypeDesc =  assignTypeDescps.GROUP;
-//                            } else if(item.assignTypeCode==addUserGroupTypes.ADD_POST.CODE){
-//                                item.assignTypeDesc =  assignTypeDescps.POST;
                             }else{
                                 item.assignTypeDesc = assignTypeDescps.OTHER;
                             }
@@ -84,7 +100,6 @@ angular.module('taskApp', [ ])
                                 item.defSelModTxt = selectModeTypes.NOT_SELECTED;
                             }
                         });
-
                     },500);
                 }
             })
@@ -150,6 +165,32 @@ angular.module('taskApp', [ ])
                     $scope.custUsers[$scope.custUsers.length] = {varCode:funcVarArray[i].varCode,varDescp:funcVarArray[i].varDescp};
                 }
             }
+        }
+
+        $scope.custFuncVars = [];
+        $scope.getFuncVars = function(refMkid){
+            funcVarService.getFuncVars(refMkid).then(function(records){
+                $scope.custFuncVars =records;
+                if(typeof(taskData.custFuncVarArray)!='undefined'){
+                    var funcVarArray = taskData.custFuncVarArray;
+                    for(var i=0;i<funcVarArray.length;++i){
+                        if(funcVarArray[i].varType=="V"){
+                            $scope.custFuncVars[$scope.custFuncVars.length] = {varCode:funcVarArray[i].varCode,varDescp:funcVarArray[i].varDescp};
+//                            $scope.custFuncVars[$scope.custFuncVars.length] = funcVarArray[i];//error due to $$hashCode
+                        }
+                    }
+                }
+            })
+        };
+        $scope.getFuncVars(taskData.refMkid);
+        $scope.selectFuncVar = function(funcVar){
+            if(angular.isUndefined($scope.userGroupChoices.exeConn)){
+                $scope.userGroupChoices.exeConn = "";
+            }
+            if($scope.userGroupChoices.exeConn!=""){
+                $scope.userGroupChoices.exeConn += " and ";
+            }
+            $scope.userGroupChoices.exeConn += funcVar.varCode+"==";
         }
 
         if($scope.task.TX_PR_CHOICES.NoticeNextAfterGo || $scope.task.TX_PR_CHOICES.NoticeFirstAfterGo || $scope.task.TX_PR_CHOICES.NoticePreviousAfterGo || $scope.task.TX_PR_CHOICES.NoticeElseAfterGo){

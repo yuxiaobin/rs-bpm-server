@@ -280,6 +280,9 @@
                         <textarea class="form-control" id="exeConn" ng-model="userGroupChoices.exeConn"></textarea>
                     </div>
                 </div>
+                <div class="col-xs-12">
+                    <div class="btn btn-info" style="margin-left: 20px;" ng-repeat="funcVar in custFuncVars" ng-click="selectFuncVar(funcVar)">{{funcVar.varDescp}} - {{funcVar.varCode}}</div>
+                </div>
             </div>
         </div>
     </form>

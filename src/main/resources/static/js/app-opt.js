@@ -83,6 +83,7 @@ angular.module('taskApp', [ ])
             var result = succ.result;
             $scope.userList = result.users;
             $scope.groupList = result.groups;
+            $scope.custUserList = result.custUsers;
             if(!angular.isUndefined(result.prevProcessers) && result.prevProcessers.length!=0 ){
                 $scope.actExecLabelFlag = true;
                 $scope.actExecFlag = true;

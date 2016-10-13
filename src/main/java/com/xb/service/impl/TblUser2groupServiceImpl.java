@@ -13,6 +13,7 @@ import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.persistent.TblGroup;
 import com.xb.persistent.TblUser;
 import com.xb.persistent.TblUser2group;
+import com.xb.persistent.WfCustVars;
 import com.xb.persistent.mapper.TblUser2groupMapper;
 import com.xb.service.ITblUser2groupService;
 import com.xb.service.ITblUserService;
@@ -29,10 +30,11 @@ public class TblUser2groupServiceImpl extends CommonServiceImpl<TblUser2groupMap
 	@Autowired
 	ITblUserService userService;
 	
-	public UsersGroupsVO4Task getUsersGroupsDtlList(List<String> userIdList, List<String> groupIdList){
+	public UsersGroupsVO4Task getUsersGroupsDtlList(List<String> userIdList, List<String> groupIdList, List<WfCustVars> custUserList){
 		UsersGroupsVO4Task result = new UsersGroupsVO4Task();
 		List<TblUser> userList = null;
 		List<TblUser> groupUserList = null;
+		//TODO:
 		if((userIdList==null || userIdList.isEmpty()) && (groupIdList==null || groupIdList.isEmpty())){//select all users
 			userList = userService.selectList(new TblUser());
 			groupUserList = baseMapper.getGroupListWithUsersAll();
@@ -47,6 +49,7 @@ public class TblUser2groupServiceImpl extends CommonServiceImpl<TblUser2groupMap
 		}
 		result.setUserList(userList);
 		result.setGroupList(processUsers2Group(groupUserList));
+		result.setCustUserList(custUserList);
 		return result;
 	}
 	

@@ -6,6 +6,7 @@ import com.baomidou.framework.service.ICommonService;
 import com.xb.persistent.TblGroup;
 import com.xb.persistent.TblUser;
 import com.xb.persistent.TblUser2group;
+import com.xb.persistent.WfCustVars;
 import com.xb.vo.UsersGroupsVO4Task;
 
 /**
@@ -20,7 +21,7 @@ public interface ITblUser2groupService extends ICommonService<TblUser2group> {
 	 * @param userIdList
 	 * @return
 	 */
-	public UsersGroupsVO4Task getUsersGroupsDtlList(List<String> userIdList, List<String> groupIdList);
+	public UsersGroupsVO4Task getUsersGroupsDtlList(List<String> userIdList, List<String> groupIdList, List<WfCustVars> custUserList);
 	
 	public List<TblGroup> getAllGroupsWithUsers();
 	

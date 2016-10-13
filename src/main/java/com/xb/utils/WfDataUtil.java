@@ -70,13 +70,13 @@ public class WfDataUtil {
 							assignType = "";
 						}
 						switch(assignType) {
-							case "U": asnj.put("name", asn.getUserName());
+							case WFConstants.AssignType.USER: asnj.put("name", asn.getUserName());
 							asnj.put("id", asn.getAssignRelId());
 							break;
-							case "G": asnj.put("name", asn.getGroupName());
+							case WFConstants.AssignType.GROUP: asnj.put("name", asn.getGroupName());
 							asnj.put("id", asn.getAssignRelId());
 							break;
-							case "C": asnj.put("name", asn.getVarDescp());
+							case WFConstants.AssignType.CUST: asnj.put("name", asn.getVarDescp());
 							asnj.put("id", asn.getVarCode());
 							break;
 							default: break;

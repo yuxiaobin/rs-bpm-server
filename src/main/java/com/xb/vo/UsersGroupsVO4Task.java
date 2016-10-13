@@ -10,12 +10,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.xb.common.WFConstants;
 import com.xb.persistent.TblGroup;
 import com.xb.persistent.TblUser;
+import com.xb.persistent.WfCustVars;
 import com.xb.persistent.WfTaskAssign;
 
 public class UsersGroupsVO4Task {
 	
 	private List<TblUser> userList;
 	private List<TblGroup> groupList;
+	private List<WfCustVars> custUserList;
+	
+	public List<WfCustVars> getCustUserList() {
+		return custUserList;
+	}
+	public void setCustUserList(List<WfCustVars> custUserList) {
+		this.custUserList = custUserList;
+	}
 	public List<TblUser> getUserList() {
 		return userList;
 	}
@@ -65,7 +74,7 @@ public class UsersGroupsVO4Task {
 				userJson = new JSONObject();
 				userJson.put("id", user.getId());
 				userJson.put("name", user.getName());
-				tmpAssign = assignMap.get(user.getId()+"U");
+				tmpAssign = assignMap.get(user.getId()+WFConstants.AssignType.USER);
 				if(tmpAssign!=null){
 					userJson.put("defSelMod", tmpAssign.getDefSelFlag());
 					userJson.put("checkFlag", WFConstants.TaskSelectAllFlag.YES.equals(tmpAssign.getSelAllFlag())?true:false);
@@ -84,7 +93,7 @@ public class UsersGroupsVO4Task {
 				groupJson = new JSONObject();
 				groupJson.put("id", group.getGroupId());
 				groupJson.put("name", group.getGroupName());
-				tmpAssign = assignMap.get(group.getGroupId()+"G");
+				tmpAssign = assignMap.get(group.getGroupId()+WFConstants.AssignType.GROUP);
 				if(tmpAssign!=null){
 					groupJson.put("defSelMod", tmpAssign.getDefSelFlag());
 					groupJson.put("checkFlag", WFConstants.TaskSelectAllFlag.YES.equals(tmpAssign.getSelAllFlag())?true:false);
@@ -107,6 +116,25 @@ public class UsersGroupsVO4Task {
 				groupArray.add(groupJson);
 			}
 			result.put("groups", groupArray);
+		}
+		if(custUserList!=null && !custUserList.isEmpty()){
+			JSONArray custArray = new JSONArray(custUserList.size());
+			JSONObject custJson = null;
+			for(WfCustVars custU : custUserList){
+				custJson = new JSONObject();
+				custJson.put("id", custU.getCustVarsId());
+				custJson.put("name", custU.getVarDescp());
+				tmpAssign = assignMap.get(custU.getCustVarsId()+WFConstants.AssignType.CUST);
+				if(tmpAssign!=null){
+					custJson.put("defSelMod", tmpAssign.getDefSelFlag());
+					custJson.put("checkFlag", WFConstants.TaskSelectAllFlag.YES.equals(tmpAssign.getSelAllFlag())?true:false);
+				}else{
+					custJson.put("defSelMod", "");
+					custJson.put("checkFlag", false);
+				}
+				custArray.add(custJson);
+			}
+			result.put("custUsers", custArray);
 		}
 		return result;
 	}

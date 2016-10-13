@@ -9,6 +9,10 @@ public class WFConstants {
 		public static final String PARAM_VAR_EXPRESSION = "varExpression";
 	}
 	
+	public static class CustVarTypes{
+		public static final String VAR_TYPE_USER = "U";
+		public static final String VAR_TYPE_VAR = "V";
+	}
 	public static final String ASSIGNER_TYPE_CUST = "C";//定义工作流人员>选择“自定义人员”
 	
 	public static class OptTypes{
@@ -76,6 +80,7 @@ public class WFConstants {
 	public static class AssignType{
 		public static final String USER = "U";
 		public static final String GROUP = "G";
+		public static final String CUST = "C";
 	}
 	
 	public static class TaskSelectAllFlag{

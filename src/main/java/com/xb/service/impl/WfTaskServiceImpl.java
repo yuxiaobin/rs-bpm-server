@@ -485,7 +485,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			log.debug("getNextAssignersByOptCode(): Currently not support other option code:"+optCode);
 			return null;
 		}
-		JSONObject result = taskAssignerService.getUsersGroupsByTaskId(nextTaskId);
+		String wfId = this.selectById(currTaskId).getWfId();
+		JSONObject result = taskAssignerService.getUsersGroupsByTaskId(optVO.getRefMkid(), optVO.getInstNum(), wfId, nextTaskId);
 		if(WFConstants.OptTypes.REJECT.equals(optCode)){
 			//get prev node execution members
 			WfInstHist parmHist = new WfInstHist();
@@ -524,13 +525,9 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 						}
 					}
 				}
-				result.put("prevProcessers", prevProcessers);
+				result.put("prevProcessers", prevProcessers);//TODO for custUserList
 			}
 		}
-		//TODO:自定义用户
-		//TODO:
-		//TODO:
-		//TODO:
 		return result;
 	}
 	

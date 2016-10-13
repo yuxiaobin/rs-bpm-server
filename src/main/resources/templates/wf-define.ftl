@@ -280,9 +280,10 @@
             });
             parmJson.condExp = el.attr(RS_ATTR_COND_EXPRESSION);
         }else{
-            parmJson.custFuncVarArray = $.grep(custFuncVarArray,function(value){
-                return value.varType=="U";
-            });
+//            parmJson.custFuncVarArray = $.grep(custFuncVarArray,function(value){
+//                return value.varType=="U";//update@1013: custVar is also used in execution condition of assigner
+//            });
+            parmJson.custFuncVarArray = custFuncVarArray;
             var assignersStr = el.attr(RS_ATTR_ASSIGNERS);
             if(assignersStr==undefined || assignersStr==""){
                 assignersStr = "[]";

@@ -98,7 +98,7 @@
                             <input type="checkbox" ng-switch-when="2" ng-checked="true" ng-disabled="true" value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
                             <input type="checkbox" ng-switch-default value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
                         </td>
-                        <td>{{user.id}}</td>
+                        <!--<td>{{user.id}}</td>-->
                         <td>{{user.name}}</td>
                     </tr>
                 </table>
@@ -112,8 +112,22 @@
                             <input type="checkbox" ng-switch-when="2" ng-checked="true" ng-disabled="true"  value="{{group.id}}" rs-attr-name="{{group.usersInGroup}}" ng-click="selectGroups($event)">
                             <input type="checkbox" ng-switch-default value="{{group.id}}" rs-attr-name="{{group.usersInGroup}}" ng-click="selectGroups($event)">
                         </td>
-                        <td>{{group.id}}</td>
+                        <!--<td>{{group.id}}</td>-->
                         <td>{{group.name}}</td>
+                    </tr>
+                </table>
+                <div class="panel-body" ng-hide="actExecFlag">
+                    <span class="glyphicon glyphicon-minus" style="cursor: pointer;" aria-hidden="true" onclick="expandClick(this)">类型：自定义</span>
+                </div>
+                <table class="table" id="custUserTable" ng-hide="actExecFlag">
+                    <tr ng-repeat="user in custUserList">
+                        <td ng-switch="user.defSelMod">
+                            <input type="checkbox" ng-switch-when="1" ng-checked="true"  value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
+                            <input type="checkbox" ng-switch-when="2" ng-checked="true" ng-disabled="true" value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
+                            <input type="checkbox" ng-switch-default value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
+                        </td>
+                        <!--<td>{{user.id}}</td>-->
+                        <td>{{user.name}}</td>
                     </tr>
                 </table>
             </div>
