@@ -13,5 +13,7 @@ public interface ITblUserService extends ICommonService<TblUser> {
 	public void deleteJunitData(String refMkid);
 	
 	public String getCurrentAssigner4Instance(String refMkid, int instNum);
+	
+	public String getUsernameByUserId(String userId);
 
 }

@@ -100,9 +100,7 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 					String varCode = var.getVarCode();
 					Pattern p = Pattern.compile(varCode+"[= ]");
 					Matcher m = p.matcher(condExp);
-//					System.out.println(m.find());
 					if(m.find()){
-//						if(condExp.contains(varCode)){
 						Map<String,Object> parm = new HashMap<String,Object>();
 						parm.put("getBuzDataSql", var.getVarExpression());
 						List<JSONObject> entityDataList = baseMapper.getBuzDataByEntity(parm);

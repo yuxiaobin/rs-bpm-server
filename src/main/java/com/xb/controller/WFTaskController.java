@@ -101,7 +101,7 @@ public class WFTaskController extends BaseController {
 	
 	@RequestMapping(value="/options",method=RequestMethod.GET )
 	@ResponseBody
-	public Object getTaskOptions(HttpServletRequest req	){
+	public Object getTaskOptions(HttpServletRequest req, HttpSession session){
 		TaskOptVO optVO = new TaskOptVO();
 		String refMkid = req.getParameter(PARM_REF_MKID);
 		String instNum = req.getParameter("instNum");
@@ -113,12 +113,13 @@ public class WFTaskController extends BaseController {
 			return new JSONArray();
 		}
 		optVO.setRefMkid(refMkid);
+		optVO.setCurrUserId(getCurrUserId(session));
 		return taskService.getTaskOptions(optVO, true);
 	}
 	
 	@RequestMapping(value="/options/nogroup",method=RequestMethod.GET )
 	@ResponseBody
-	public Object getTaskOptionsNoGroup(HttpServletRequest req	){
+	public Object getTaskOptionsNoGroup(HttpServletRequest req, HttpSession session){
 		TaskOptVO optVO = new TaskOptVO();
 		String refMkid = req.getParameter(PARM_REF_MKID);
 		String instNum = req.getParameter("instNum");
@@ -130,6 +131,7 @@ public class WFTaskController extends BaseController {
 			return new JSONArray();
 		}
 		optVO.setRefMkid(refMkid);
+		optVO.setCurrUserId(getCurrUserId(session));
 		return taskService.getTaskOptions(optVO, false);
 	}
 	

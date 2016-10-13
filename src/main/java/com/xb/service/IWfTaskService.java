@@ -8,6 +8,7 @@ import com.baomidou.framework.service.ICommonService;
 import com.xb.common.BusinessException;
 import com.xb.persistent.WfAwt;
 import com.xb.persistent.WfCustVars;
+import com.xb.persistent.WfInstance;
 import com.xb.persistent.WfTask;
 import com.xb.vo.TaskOptVO;
 import com.xb.vo.TaskVO;
@@ -85,4 +86,20 @@ public interface IWfTaskService extends ICommonService<WfTask> {
 	 * @return
 	 */
 	public JSONArray getTaskOptions(TaskOptVO optVO, boolean needGroup);
+	
+	/**
+	 * 撤回操作：优先取awt.optUserPrev=currUserId, 
+	 * 		如果存在：																						//简单事物，上一步就是该用户做的操作
+	 * 				判断awt.taskIdPrev是否为null：
+	 * 						为null表示已经撤回过，无法再执行撤回操作<END>；
+	 * 						不为null，判断awt.taskIdPrev->task.recallOption 是否允许撤回<END>
+	 * 		如果不存在：
+	 * 				查看wf_inst.optdUsersPrev是否包含currUserId：
+	 * 						如果没有：无法撤回<END>;
+	 * 						如果有：判断prevTask是否可撤回<END>; 
+	 * @param instance
+	 * @param optUserId
+	 * @return
+	 */
+	public boolean checkAllowRecall(WfInstance instance, String optUserId);
 }

@@ -42,5 +42,7 @@ public class TblUserServiceImpl extends CommonServiceImpl<TblUserMapper, TblUser
 		return instList.get(0).getCurrAssigners();
 	}
 	
-
+	public String getUsernameByUserId(String userId){
+		return this.selectById(userId).getName();
+	}
 }

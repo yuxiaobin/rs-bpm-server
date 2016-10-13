@@ -32,6 +32,7 @@ import com.xb.persistent.WfTaskConn;
 import com.xb.persistent.WfVersion;
 import com.xb.persistent.mapper.WfTaskMapper;
 import com.xb.service.IRsWorkflowService;
+import com.xb.service.ITblUserService;
 import com.xb.service.IWfAwtService;
 import com.xb.service.IWfConditionService;
 import com.xb.service.IWfInstHistService;
@@ -72,6 +73,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	IWfAwtService awtService;
 	@Autowired
 	IWfConditionService condService;
+	@Autowired
+	ITblUserService userService;
 	
 	/**
 	 * 获取待办事宜
@@ -258,7 +261,10 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		
 		if(WFConstants.WFStatus.DONE.equals(instance.getWfStatus())){
 			for(WfTask task:taskList){
-				task.setProcessedFlag("Y");
+				if(WFConstants.TaskTypes.E.getTypeCode().equals(task.getTaskType())){
+					task.setProcessedFlag("Y");
+					break;
+				}
 			}
 		}
 		result.setTasks(taskList);
@@ -313,16 +319,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return taskList;
 	}
 	
+	
 	public List<TaskVO> getNextTasksByOptCode(TaskOptVO optVO){
 		String optCode = optVO.getOptCode();
 		WfAwt awt = getAwtByParm(optVO);
 		if(WFConstants.OptTypes.RECALL.equals(optCode)){
-			if(awt!=null){
-				//TODO
-			}
-			else{
-				//TODO: TASK is end, but can recall
-			}
 			WfInstance instParm = new WfInstance();
 			instParm.setInstNum(optVO.getInstNum());
 			instParm.setRefMkid(optVO.getRefMkid());
@@ -458,11 +459,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	 */
 	public JSONObject getNextAssignersByOptCode(TaskOptVO optVO){
 		String optCode = optVO.getOptCode();
+		if(WFConstants.OptTypes.RECALL.equals(optCode)){
+			return getNextAssigner4Recall(optVO.getCurrUserId());
+		}
 		WfAwt awt = getAwtByParm(optVO);
 		if(awt==null){
-			if(WFConstants.OptTypes.RECALL.equals(optCode)){
-				return getNextAssigner4Recall(optVO.getCurrUserId());
-			}
 			return null;
 		}
 		String currTaskId = awt.getTaskIdCurr();
@@ -477,10 +478,10 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		case WFConstants.OptTypes.FORWARD:
 			nextTaskId = currTaskId;
 			break;
-		case WFConstants.OptTypes.RECALL:
-			return getNextAssigner4Recall(optVO.getCurrUserId());
+//		case WFConstants.OptTypes.RECALL:
+//			return getNextAssigner4Recall(optVO.getCurrUserId());
 		default:
-			System.out.println("Currently not support other option code:"+optCode);//TODO: other OptCode , get assigners
+			System.out.println("Currently not support other option code:"+optCode);
 			log.debug("getNextAssignersByOptCode(): Currently not support other option code:"+optCode);
 			return null;
 		}
@@ -500,7 +501,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 							startPrevStepHist=true;
 							JSONObject processer = new JSONObject();
 							processer.put("id", hist.getOptUser());
-							processer.put("name", hist.getOptUser());//TODO: get username
+							processer.put("name", userService.getUsernameByUserId(hist.getOptUser()));
 							processer.put("checkFlag", true);
 							prevProcessers.add(processer);
 						}else{
@@ -515,7 +516,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 							idSet.add(userId);
 							JSONObject processer = new JSONObject();
 							processer.put("id", userId);
-							processer.put("name", hist.getOptUser());//TODO: get username
+							processer.put("name", userService.getUsernameByUserId(hist.getOptUser()));
 							processer.put("checkFlag", true);
 							prevProcessers.add(processer);
 						}else{
@@ -537,7 +538,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		JSONObject result = new JSONObject();
 		JSONObject userJson = new JSONObject();
 		userJson.put("id", userId);
-		userJson.put("name", userId);//TODO: get username
+		userJson.put("name", userService.getUsernameByUserId(userId));
 		userJson.put("defSelMod", 1);
 		userJson.put("checkFlag",false);
 		JSONArray userArray = new JSONArray();
@@ -605,33 +606,98 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		parm.setInstNum(optVO.getInstNum());
 		parm.setRefMkid(optVO.getRefMkid());
 		WfInstance instance = instService.selectOne(parm);
-		return generateOptions(instance, needGroup);
+		return generateOptions(instance, optVO.getCurrUserId(), needGroup);
 	}
 	
-	private JSONArray generateOptions( WfInstance instance, boolean needGroup){
+	/**
+	 * 撤回操作：优先取awt.optUserPrev=currUserId, 
+	 * 		如果存在：																						//简单事物，上一步就是该用户做的操作
+	 * 				判断awt.taskIdPrev是否为null：
+	 * 						为null表示已经撤回过，无法再执行撤回操作<END>；
+	 * 						不为null，判断awt.taskIdPrev->task.recallOption 是否允许撤回<END>
+	 * 		如果不存在：
+	 * 				查看wf_inst.optdUsersPrev是否包含currUserId：
+	 * 						如果没有：无法撤回<END>;
+	 * 						如果有：判断prevTask是否可撤回<END>; 
+	 * @param instance
+	 * @param optUserId
+	 * @return
+	 */
+	public boolean checkAllowRecall(WfInstance instance, String optUserId){
+		WfAwt awtParm = new WfAwt();
+		awtParm.setInstId(instance.getInstId());
+		awtParm.setOptUsersPre(optUserId);
+		WfAwt awt = awtService.selectOne(awtParm);
+		if(awt!=null){
+			if(awt.getTaskIdPre()==null){
+				return false;
+			}
+			return checkTaskRecallOptions(awt.getTaskIdPre());
+		}
+		else{
+			String optdUserPre = instance.getOptUsersPre();
+			if(optdUserPre==null || !optdUserPre.contains(optUserId)){
+				log.info("renewRecall(): optUsersPre="+optdUserPre+", not contains currUserId="+optUserId+", recall is not allowed");
+				return false;
+			}
+			return checkTaskRecallOptions(instance.getTaskIdPre());
+		}
+	}
+	
+	private boolean checkTaskRecallOptions(String recallTaskId){
+		WfTask recallTask = this.selectById(recallTaskId);
+		if(recallTask==null){
+			log.info("renewRecall(): no wfTask record found for prevTaskId"+recallTaskId+", recall is not allowed");
+			return false;
+		}
+		JSONObject txChoices = recallTask.getTxChoicesJson();
+		Boolean allowReCall = null;
+		if(txChoices!=null){
+			allowReCall = txChoices.getBoolean("AllowReCall");
+		}
+		if(allowReCall==null || !allowReCall){
+			log.info("renewRecall(): preTask setting AllowReCall is null or false, recall is not allowed");
+			return false;
+		}
+		return true;
+	}
+	
+	private JSONArray generateOptions(WfInstance instance, String currUserId, boolean needGroup){
 		WfTask task = this.selectById(instance.getTaskIdCurr());
 		JSONArray result = genOptionArray();//[C, RJ, RC, V, F, LMD, D, TK]
 		if(task==null){
 			return result;
 		}
 		JSONObject choices = JSONObject.parseObject(task.getTxChoices());
+		//Commit[0]
 		if(WFConstants.TaskTypes.E.getTypeCode().equals(task.getTaskType())){//current is End task, means wf is closed.
-			Boolean allowReCall = choices.getBoolean("AllowReCall");
+			/*Boolean allowReCall = choices.getBoolean("AllowReCall");
 			if(allowReCall!=null &&allowReCall){
 				result.getJSONObject(2).put("disflag", false);
-			}
+			}*/
 			result.getJSONObject(0).put("disflag", true);
-			return filterDisabledOptions(result);
+//			return filterDisabledOptions(result);
+		}else{
+			result.getJSONObject(0).put("disflag", false);
 		}
-		result.getJSONObject(0).put("disflag", false);
-		//Forward:
+		//reject[1]
+		if(choices!=null){
+			Boolean allowGoBack = choices.getBoolean("AllowGoBack");
+			if(allowGoBack!=null && allowGoBack){
+				result.getJSONObject(1).put("disflag", false);
+			}
+		}
+		//Recall[2]
+		result.getJSONObject(2).put("disflag", !checkAllowRecall(instance, currUserId));
+		
+		//Forward[4]:
 		WfTaskAssign assignParm = new WfTaskAssign();
 		assignParm.setTaskId(task.getTaskId());
 		int assignerCount = taskAssignerService.selectCount(assignParm);
 		if(assignerCount>1){
 			result.getJSONObject(4).put("disflag", false);
 		}
-		//Let Me Do
+		//Let Me Do[5]
 		if(WFConstants.TxTypes.NORMAL.equals(task.getTxType())){
 			WfAwt awtParm = new WfAwt();
 			awtParm.setInstId(instance.getInstId());
@@ -641,13 +707,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				result.getJSONObject(5).put("disflag", false);
 			}
 		}
-		if(choices!=null){
-			Boolean allowGoBack = choices.getBoolean("AllowGoBack");
-			if(allowGoBack!=null && allowGoBack){
-				result.getJSONObject(1).put("disflag", false);
-			}
-		}
-		if(!StringUtils.isEmpty(instance.getTaskIdPre())){
+		
+/*		if(!StringUtils.isEmpty(instance.getTaskIdPre())){
 			WfTask prevTask = this.selectById(instance.getTaskIdPre());
 			JSONObject choicesPrev = JSONObject.parseObject(prevTask.getTxChoices());
 			Boolean allowReCall = choicesPrev.getBoolean("AllowReCall");
@@ -655,7 +716,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				result.getJSONObject(2).put("disflag", false);
 			}
 		}
-		return filterDisabledOptions(result);
+*/		return filterDisabledOptions(result);
 	}
 	
 	private JSONArray filterDisabledOptions(JSONArray result){

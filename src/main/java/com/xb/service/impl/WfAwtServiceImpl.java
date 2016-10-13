@@ -187,7 +187,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 				}
 				checkTaskRecallOptions(prevTaskId);
 				boolean refreshCurrAssigner = false;
-				if(!prevTaskId.equals(currTaskId)){//相等的情况，只有会签撤回
+				if(!prevTaskId.equals(currTaskId)){//相等的情况，只有会签撤回(且已经有人撤回了); 不相等，说明第一个撤回，删除当前任务相关的awt
 					awtParm.setOptUsersPre(null);
 					awtParm.setTaskIdCurr(currTaskId);
 					this.deleteSelective(awtParm);
@@ -328,6 +328,7 @@ public class WfAwtServiceImpl extends CommonServiceImpl<WfAwtMapper, WfAwt> impl
 		}
 		wfInst.setCurrAssigners(currAssigners);
 		wfInst.setTaskIdCurr(currTaskId);
+		wfInst.setWfStatus(WFConstants.WFStatus.IN_PROCESS);
 		instService.updateById(wfInst);
 	}
 	
