@@ -1,7 +1,11 @@
 package com.xb.persistent.mapper;
 
-import com.xb.persistent.WfCustVars;
+import java.util.List;
+import java.util.Map;
+
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.mapper.CommonMapper;
+import com.xb.persistent.WfCustVars;
 
 /**
  *
@@ -10,5 +14,5 @@ import com.baomidou.mybatisplus.mapper.CommonMapper;
  */
 public interface WfCustVarsMapper extends CommonMapper<WfCustVars> {
 
-
+	public List<JSONObject> getBuzDataByEntity(Map<String,Object> parm);
 }

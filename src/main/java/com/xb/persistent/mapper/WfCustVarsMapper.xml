@@ -7,4 +7,8 @@
 		 CUST_VARS_ID AS custVarsId, WF_ID AS wfId, VAR_TYPE AS varType, var_code AS varCode, var_descp AS varDescp, var_expression AS varExpression, CREATED_BY AS createdBy, CREATED_DT AS createdDt, UPDATED_BY AS updatedBy, UPDATED_DT AS updatedDt
 	</sql>
 
+
+<select id="getBuzDataByEntity" parameterType="java.util.Map"  resultType="com.alibaba.fastjson.JSONObject">
+${getBuzDataSql}
+</select>
 </mapper>

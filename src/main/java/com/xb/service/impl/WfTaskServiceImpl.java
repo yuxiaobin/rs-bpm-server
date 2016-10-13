@@ -33,6 +33,7 @@ import com.xb.persistent.WfVersion;
 import com.xb.persistent.mapper.WfTaskMapper;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfAwtService;
+import com.xb.service.IWfConditionService;
 import com.xb.service.IWfInstHistService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskAssignService;
@@ -69,6 +70,8 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 	IWfTaskAssignService taskAssignerService;
 	@Autowired
 	IWfAwtService awtService;
+	@Autowired
+	IWfConditionService condService;
 	
 	/**
 	 * 获取待办事宜
@@ -120,7 +123,6 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			awt.setInstId(wfInst.getInstId());
 			awt.setTaskIdCurr(taskId);
 			awt.setAwtBegin(new Date());
-			
 			awtService.insert(awt);
 			
 			JSONObject result = new JSONObject();
@@ -160,6 +162,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		WfTask currtask = this.selectById(awt.getTaskIdCurr());
 		WfTask nextTask = null;
 		String optCode = optVO.getOptCode();
+		optVO.setWfId(currtask.getWfId());//wfId used in custFuncVars
 		switch (optCode) {
 		case WFConstants.OptTypes.COMMIT:
 			if(optVO.getNextTaskId()==null){
@@ -209,12 +212,17 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return null;
 	}
 	
-	private String getNextTaskId(String currTaskId){
+	private String getNextTaskId(String currTaskId, String refMkid, Integer wfInstNum){
 		WfTaskConn connParm = new WfTaskConn();
 		connParm.setSourceTaskId(currTaskId);
 		WfTaskConn conn = taskConnService.selectOne(connParm);
 		if(conn!=null){
-			return conn.getTargetTaskId();
+			WfTask nextTask = this.selectById(conn.getTargetTaskId());
+			if(WFConstants.TaskTypes.C.getTypeCode().equals(nextTask.getTaskType())){
+				return condService.getNextTaskIdByCondResult(nextTask, refMkid, wfInstNum);
+			}else{
+				return nextTask.getTaskId();
+			}
 		}
 		return null;
 	}
@@ -342,7 +350,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		List<TaskVO> nextTaskList = null;
 		if(WFConstants.OptTypes.COMMIT.equals(optCode)){
 			nextTaskList = new ArrayList<TaskVO>(1);
-			String nextTaskId = getNextTaskId(awt.getTaskIdCurr());
+			String nextTaskId = getNextTaskId(awt.getTaskIdCurr(), optVO.getRefMkid(), optVO.getInstNum());
 			if(nextTaskId==null){
 				return null;
 			}
@@ -414,15 +422,30 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		return null;
 	}
 	
+	/**
+	 * If next taskId is Conditional Node: need to get Conn_Expression, and calculate the result, then get corresponding next taskId
+	 * 
+	 * @param optVO
+	 * @return
+	 */
 	private String getNextTaskIdByOptCodeAsDefault(TaskOptVO optVO){
 		List<TaskVO> nextTasks = getNextTasksByOptCode(optVO);
 		if(nextTasks==null || nextTasks.isEmpty()){
 			return null;
 		}
-		return nextTasks.get(0).getTaskId();
+		TaskVO nextTask =  nextTasks.get(0);
+		if(WFConstants.TaskTypes.C.getTypeCode().equals(nextTask.getTaskTypeCode())){
+			return condService.getNextTaskIdByCondResult(this.selectById(nextTask.getTaskId()), optVO.getRefMkid(), optVO.getInstNum());
+		}else{
+			return nextTask.getTaskId();
+		}
 	}
 	
-	
+	/**
+	 * 
+	 * @param optVO
+	 * @return
+	 */
 	public JSONObject getNextAssignersByOptCode(TaskOptVO optVO){
 		String optCode = optVO.getOptCode();
 		WfAwt awt = getAwtByParm(optVO);
@@ -439,7 +462,7 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			nextTaskId = getPrevTaskId(currTaskId);
 			break;
 		case WFConstants.OptTypes.COMMIT:
-			nextTaskId = getNextTaskId(currTaskId);
+			nextTaskId = getNextTaskId(currTaskId, optVO.getRefMkid(), optVO.getInstNum());
 			break;
 		case WFConstants.OptTypes.FORWARD:
 			nextTaskId = currTaskId;
@@ -493,6 +516,10 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 				result.put("prevProcessers", prevProcessers);
 			}
 		}
+		//TODO:自定义用户
+		//TODO:
+		//TODO:
+		//TODO:
 		return result;
 	}
 	

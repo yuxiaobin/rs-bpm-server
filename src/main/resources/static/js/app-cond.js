@@ -55,7 +55,7 @@ angular.module('conditionApp', [ ])
             if($scope.task.condExp!=""){
                 $scope.task.condExp += " and ";
             }
-            $scope.task.condExp += funcVar.varCode+"=";
+            $scope.task.condExp += funcVar.varCode+"==";
         }
     }])
    ;
