@@ -18,10 +18,10 @@ import com.xb.vo.WFDetailVO;
 
 public class WfDataUtil {
 	
-	private static final String ATTR_TASK_DESCP = "taskDescp";
-	private static final String ATTR_TASK_DESCP_DISP = "taskDescpDisp";
-	private static final String ATTR_TASK_RS_TYPE = "rsType";
-	private static final String ATTR_TASK_POSITION= "position";
+	public static final String ATTR_TASK_DESCP = "taskDescp";
+	public static final String ATTR_TASK_DESCP_DISP = "taskDescpDisp";
+	public static final String ATTR_TASK_RS_TYPE = "rsType";
+	public static final String ATTR_TASK_POSITION= "position";
 
 	/****************************
 	 * generate json from object

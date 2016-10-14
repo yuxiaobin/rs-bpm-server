@@ -399,8 +399,14 @@ jsPlumb.ready(function () {
                 data:json_str,
                 headers: { 'Content-Type': "application/json" },
                 success: function (msg) {
-                    console.log("save wf successfully");
-                    alert("Save successfully");
+                    if(msg.return_code==-1){
+                        alert("存在非法的变量："+msg.invalidVarCode);
+                    }else{
+                        alert("Save successfully");
+                    }
+                },
+                error:function(err){
+                    alert(err.message);
                 }
             }
         );

@@ -1,11 +1,19 @@
 package com.xb.controller;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +26,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rshare.service.wf.annotations.WfEntityBeanFactory;
 import com.xb.base.BaseController;
+import com.xb.common.BusinessException;
 import com.xb.common.WFConstants;
 import com.xb.persistent.RsWorkflow;
 import com.xb.persistent.WfCustVars;
@@ -100,17 +109,88 @@ public class WFAdminController extends BaseController {
 	
 	@RequestMapping(value="/module/{refMkid}/wf",method=RequestMethod.POST )
 	@ResponseBody
-	public Object createWF(@PathVariable String refMkid, @RequestBody JSONObject wfData){
-		ModuleVO module = new ModuleVO();
-		module.setRefMkid(refMkid);
-		WFDetailVO wfDetail = new WFDetailVO();
-		wfDetail.setWfData(wfData);
-		wfService.createWF4Module(module, wfDetail);
+	public Object createWF(@PathVariable String refMkid, @RequestBody JSONObject wfData) throws BusinessException{
 		JSONObject result = new JSONObject();
-		result.put("return_code", 0);
+		String invalidVarCode = validateExpression(refMkid, wfData);
+		if(invalidVarCode==null){
+			ModuleVO module = new ModuleVO();
+			module.setRefMkid(refMkid);
+			WFDetailVO wfDetail = new WFDetailVO();
+			wfDetail.setWfData(wfData);
+			wfService.createWF4Module(module, wfDetail);
+			result.put("return_code", 0);
+		}else{
+			result.put("return_code", -1);
+			result.put("invalidVarCode", invalidVarCode);
+		}
 		return result;
 	}
 	
+	private String validateExpression(String refMkid, JSONObject wfData){
+		JSONArray funcVars = entityFactory.getFuncVariables(refMkid);
+		List<String> expressionList = new ArrayList<String>();
+		Set<String> funcVarNames = new HashSet<String>();
+		if(funcVarNames!=null){
+			for(int i=0;i<funcVars.size();++i){
+				funcVarNames.add(funcVars.getJSONObject(i).getString(WFConstants.FuncVarsParm.PARM_VAR_CODE));
+			}
+		}
+		JSONArray custFuncVarArray = wfData.getJSONArray("custFuncVarArray");
+		if(custFuncVarArray!=null){
+			for(int i=0;i<custFuncVarArray.size();++i){
+				funcVarNames.add(custFuncVarArray.getJSONObject(i).getString(WFConstants.FuncVarsParm.PARM_VAR_CODE));
+			}
+		}
+		
+		JSONArray taskArray = wfData.getJSONArray("tasks");
+		for(int i=0;i<taskArray.size();++i){
+			JSONObject taskj = taskArray.getJSONObject(i);
+			if(WFConstants.TaskTypes.C.getTypeDescp().equals(taskj.getString(WfDataUtil.ATTR_TASK_RS_TYPE))){
+				expressionList.add(taskj.getString("condExp"));
+			}else{
+				if (taskj.containsKey("assigners")) {
+					String assigners = taskj.getString("assigners");
+					JSONArray assignersArray = JSONObject.parseArray(assigners);
+					if(assignersArray==null || assignersArray.isEmpty()){
+						continue;
+					}
+					for(int j=0;j<assignersArray.size();++j){
+						JSONObject assigner = assignersArray.getJSONObject(j);
+						String exeConn = assigner.getString("exeConn");
+						if(!StringUtils.isEmpty(exeConn)){
+							expressionList.add(exeConn);
+						}
+					}
+				}
+			}
+		}
+		StandardEvaluationContext context = null;
+		ExpressionParser parser = new SpelExpressionParser();
+		try{
+			for (int i = 0; i < expressionList.size(); ++i) {
+				context = new StandardEvaluationContext();
+				String expression = expressionList.get(i);
+				String[] expArray = expression.split(" and | or ");
+				for (String exp : expArray) {
+					for (String varCode : funcVarNames) {
+						Pattern p = Pattern.compile(varCode + "[=><! ]");
+						Matcher m = p.matcher(exp);
+						if (m.find()) {
+							exp = exp.replace(varCode, "#" + varCode);
+							context.setVariable(varCode, 1);
+						}
+					}
+					parser.parseExpression(exp).getValue(context);
+				}
+			}
+		}catch(Exception e){
+			String message = e.getMessage();
+			String invalidVarCodeName = message.substring(message.indexOf("'")+1,message.lastIndexOf("'"));
+			log.error("invalid varCode="+invalidVarCodeName);
+			return invalidVarCodeName;
+		}
+		return null;
+	}
 
 	@RequestMapping(value="/task", method=RequestMethod.GET )
 	public Object viewTaskDtlPopup(HttpServletRequest req){
