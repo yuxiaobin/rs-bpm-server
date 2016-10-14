@@ -39,7 +39,15 @@
                     </div>
                 </div>
                 <div class="col-xs-12">
-                    <div class="btn btn-info" style="margin-left: 20px;" ng-repeat="funcVar in custFuncVars" ng-click="selectFuncVar(funcVar)">{{funcVar.varDescp}} - {{funcVar.varCode}}</div>
+                    点击标签配置条件<span class="glyphicon glyphicon-hand-right"></span>
+                    <div ng-repeat="funcVar in custFuncVars" ng-click="selectFuncVar(funcVar)" class="btn btn-info" style="margin-left: 20px;margin-top:5px">
+                        <span class="glyphicon glyphicon-pushpin">{{funcVar.varDescp}} - {{funcVar.varCode}}</span>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="margin-top:10px">
+                    <p style="font-size: small">判断条件示例： user_name<b>==</b>'abc' and user_age<b>>=</b>18 <br>
+                        表达式支持: <b>==,!=, >, >=, <, <=</b>,可以用<b>()</b>和 <b>and/or</b> 自由组合
+                    </p>
                 </div>
             </div>
             <div class="row" style="margin-top:10px">

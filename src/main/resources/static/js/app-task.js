@@ -328,6 +328,16 @@ angular.module('taskApp', [ ])
                 alert("请选择需要添加的用户或用户组");
                 return;
             }
+            if(!angular.isUndefined($scope.userGroupChoices.exeConn)){
+                if(EXPRESSION_REG_EQUAL.exec($scope.userGroupChoices.exeConn)!=null){
+                    alert("执行条件表达式不正确，判断相等请用==");
+                    return;
+                }
+                if(EXPRESSION_REG_CN.exec($scope.userGroupChoices.exeConn)!=null){
+                    alert("执行条件表达式不正确，请使用英文标点符号");
+                    return;
+                }
+            }
             var userGroupIdsArray = $scope.userGroupChoices.userGroupIds.toString().split(",");
             var selectedOptList = $.grep($scope.userGroupOptList,function(value){
                 for(var i=0;i<userGroupIdsArray.length;++i){

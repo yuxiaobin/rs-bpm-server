@@ -40,6 +40,16 @@ angular.module('conditionApp', [ ])
         $scope.task = taskData;
 
         $scope.updateTaskProperties = function(){
+            if(!angular.isUndefined($scope.task.condExp)){
+                if(EXPRESSION_REG_EQUAL.exec($scope.task.condExp)!=null){
+                    alert("执行条件表达式不正确，判断相等请用==");
+                    return;
+                }
+                if(EXPRESSION_REG_CN.exec($scope.task.condExp)!=null){
+                    alert("执行条件表达式不正确，请使用英文标点符号");
+                    return;
+                }
+            }
             taskData.taskDescp = $scope.task.taskDescp;
             taskData.taskDescpDisp = $scope.task.taskDescpDisp;
             taskData.condExp = $scope.task.condExp;
@@ -57,6 +67,7 @@ angular.module('conditionApp', [ ])
             }
             $scope.task.condExp += funcVar.varCode+"==";
         }
+
     }])
    ;
 

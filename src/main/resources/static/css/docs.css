@@ -35,7 +35,7 @@ h4 code {
   background-color: inherit;
 }
 
-/* added by xiaobin*/
+/* added by xiaobin
 .table > thead > tr > td.active,
 .table > tbody > tr > td.active,
 .table > tfoot > tr > td.active,
@@ -49,7 +49,7 @@ h4 code {
 .table > tbody > tr.active > th,
 .table > tfoot > tr.active > th {
     background-color: #337ab7;
-}
+}*/
 
 /* Outline button for use within the docs */
 .btn-outline {

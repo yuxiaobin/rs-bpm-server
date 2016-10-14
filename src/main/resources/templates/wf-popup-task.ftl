@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="${base.contextPath}/static/css/plugin/bootstrap-select.css">
     <style>
         .form-wrapper {
-            padding: 40px 30px;
+            padding: 10px 30px;
         }
 
     </style>
@@ -196,7 +196,7 @@
     </form>
     <form id="updateTaskPropertiesForm2" style="display: none" ng-show="showAssignerEdit">
         <div class="col-xs-12">
-            <table class="table table-striped" id="selectedAssignersTable">
+            <table class="table" id="selectedAssignersTable">
                 <thead><tr>
                     <th>人员类型</th>
                     <th>名称</th>
@@ -281,7 +281,15 @@
                     </div>
                 </div>
                 <div class="col-xs-12">
-                    <div class="btn btn-info" style="margin-left: 20px;" ng-repeat="funcVar in custFuncVars" ng-click="selectFuncVar(funcVar)">{{funcVar.varDescp}} - {{funcVar.varCode}}</div>
+                    点击标签配置条件<span class="glyphicon glyphicon-hand-right"></span>
+                    <div ng-repeat="funcVar in custFuncVars" ng-click="selectFuncVar(funcVar)" class="btn btn-info" style="margin-left: 20px;">
+                        <span class="glyphicon glyphicon-pushpin">{{funcVar.varDescp}} - {{funcVar.varCode}}</span>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="margin-top:10px">
+                    <p style="font-size: small">判断条件示例： user_name<b>==</b>'abc' and user_age<b>>=</b>18 <br>
+                        表达式支持: <b>==,!=, >, >=, <, <=</b>,可以用<b>()</b>和 <b>and/or</b> 自由组合
+                    </p>
                 </div>
             </div>
         </div>

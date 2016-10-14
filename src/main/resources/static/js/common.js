@@ -17,3 +17,6 @@ var CONNECTION_LABEL_NORMAL = "Next";
 var CONNECTION_LABEL_TRUE = "Yes";
 var CONNECTION_LABEL_FALSE = "No";
 var CONNECTION_CON_VALUE = "con_value";
+
+var EXPRESSION_REG_EQUAL = /\b\s?=\s?\b/;//验证是否含有单个=号的表达式: a=1, 这种赋值的表达式是非法的，判断是否相等需要a==1
+var EXPRESSION_REG_CN = /[》《！＝]+/;
