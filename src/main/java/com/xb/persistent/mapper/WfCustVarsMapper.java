@@ -1,5 +1,6 @@
 package com.xb.persistent.mapper;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,4 +16,8 @@ import com.xb.persistent.WfCustVars;
 public interface WfCustVarsMapper extends CommonMapper<WfCustVars> {
 
 	public List<JSONObject> getBuzDataByEntity(Map<String,Object> parm);
+//	public List<JSONObject> getBuzDataByEntityWithCond(Map<String,Object> parm);
+	
+	@SuppressWarnings("rawtypes")
+	public List<LinkedHashMap> getBuzDataByEntityWithOrder(Map<String, Object> parm);
 }

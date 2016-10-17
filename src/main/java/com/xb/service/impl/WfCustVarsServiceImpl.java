@@ -5,8 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
 import com.xb.persistent.WfCustVars;
 import com.xb.persistent.WfVersion;
@@ -36,7 +34,7 @@ public class WfCustVarsServiceImpl extends CommonServiceImpl<WfCustVarsMapper, W
 		}
 		WfCustVars custVarParm = new WfCustVars();
 		custVarParm.setWfId(wfList.get(0).getWfId());
-		return this.selectList(custVarParm, "VAR_TYPE,var_code");
+		return this.selectList(custVarParm, "VAR_TYPE,VAR_CODE");
 	}
 
 }

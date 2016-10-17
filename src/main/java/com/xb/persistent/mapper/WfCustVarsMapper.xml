@@ -11,4 +11,8 @@
 <select id="getBuzDataByEntity" parameterType="java.util.Map"  resultType="com.alibaba.fastjson.JSONObject">
 ${getBuzDataSql}
 </select>
+<select id="getBuzDataByEntityWithOrder" parameterType="java.util.Map"  resultType="java.util.LinkedHashMap">
+${getBuzDataSql}
+</select>
+
 </mapper>

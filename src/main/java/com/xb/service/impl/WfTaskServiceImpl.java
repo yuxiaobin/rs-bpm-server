@@ -624,7 +624,11 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 		WfAwt awtParm = new WfAwt();
 		awtParm.setInstId(instance.getInstId());
 		awtParm.setOptUsersPre(optUserId);
-		WfAwt awt = awtService.selectOne(awtParm);
+		List<WfAwt> awtList = awtService.selectList(awtParm);
+		WfAwt awt = null;
+		if(awtList!=null && !awtList.isEmpty()){
+			awt = awtList.get(0);
+		}
 		if(awt!=null){
 			if(awt.getTaskIdPre()==null){
 				return false;

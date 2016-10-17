@@ -2,6 +2,7 @@ package com.xb.persistent;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotations.IdType;
 import com.baomidou.mybatisplus.annotations.TableField;
@@ -58,6 +59,18 @@ public class WfCustVars implements Serializable {
 	/**  */
 	@TableField(value = "UPDATED_DT")
 	private Date updatedDt;
+	
+	
+	@TableField(exist = false)
+	private List<TblUser> userlist;
+	
+	public List<TblUser> getUserlist() {
+		return userlist;
+	}
+
+	public void setUserlist(List<TblUser> userlist) {
+		this.userlist = userlist;
+	}
 
 	public String getCustVarsId() {
 		return this.custVarsId;

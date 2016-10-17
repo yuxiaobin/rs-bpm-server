@@ -123,6 +123,15 @@
                     <textarea class="form-control" id="varExpression" ng-model="custVar.varExpression"></textarea>
                 </div>
             </div>
+            <div class="col-xs-12">
+                点击标签配置条件<span class="glyphicon glyphicon-hand-right"></span>
+                <div ng-repeat="funcVar in funcVars" ng-click="selectFuncVar(funcVar)" class="btn btn-info" style="margin-left: 20px;">
+                    <span class="glyphicon glyphicon-pushpin">{{funcVar.varDescp}} - {{funcVar.varCode}}</span>
+                </div>
+            </div>
+            <div class="col-xs-12" style="margin-top:10px">
+                <p style="font-size: small">自定义人员：SQL查询默认第一个字段为user_id,第二个字段为user_name</p>
+            </div>
         </div>
     </div>
     <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

@@ -3,21 +3,24 @@ package com.xb.service.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.framework.service.impl.CommonServiceImpl;
-import com.mysql.jdbc.StringUtils;
 import com.rshare.service.wf.annotations.WfEntityBeanFactory;
 import com.xb.common.WFConstants;
+import com.xb.persistent.TblUser;
 import com.xb.persistent.TblUser2group;
 import com.xb.persistent.WfCustVars;
 import com.xb.persistent.WfTaskAssign;
@@ -36,6 +39,8 @@ import com.xb.service.IWfTaskService;
 @Service
 public class WfTaskAssignServiceImpl extends CommonServiceImpl<WfTaskAssignMapper, WfTaskAssign> implements IWfTaskAssignService {
 
+	private static Logger log = LogManager.getLogger(WfTaskAssignServiceImpl.class);
+	
 	@Autowired
 	ITblUser2groupService userGroupService;
 	@Autowired
@@ -47,8 +52,10 @@ public class WfTaskAssignServiceImpl extends CommonServiceImpl<WfTaskAssignMappe
 	@Autowired
 	IWfConditionService condService;
 	
+	private static final String WARN_MSG_CUST_VAR_NO_EXP = "No var expression defined for refMkid=[%s], varCode=[%s], varDescp=[%s]";
+	
 	public List<WfTaskAssign> selectTaskAssignerListWithName(String taskId){
-		if(StringUtils.isNullOrEmpty(taskId)){
+		if(StringUtils.isEmpty(taskId)){
 			return null;
 		}
 		return baseMapper.getTaskAssignerListWithName(taskId);
@@ -63,6 +70,41 @@ public class WfTaskAssignServiceImpl extends CommonServiceImpl<WfTaskAssignMappe
 		custUserParm.setWfId(wfId);
 		custUserParm.setVarType(WFConstants.CustVarTypes.VAR_TYPE_USER);
 		List<WfCustVars> custUserList = custVarsService.selectList(custUserParm);
+		if(custUserList!=null){
+			JSONArray funcVars = entityFactory.getFuncVariables(refMkid);
+			JSONObject funcVarValues = condService.getFuncVarValues(refMkid, wfInstNum);
+			for(WfCustVars custUser:custUserList){
+				String custUserSqlExp = custUser.getVarExpression();
+				if(StringUtils.isEmpty(custUserSqlExp)){
+					log.warn(String.format(WARN_MSG_CUST_VAR_NO_EXP, refMkid, custUser.getVarCode(), custUser.getVarDescp()));
+					continue;
+				}
+				for(int i=0;i<funcVars.size();++i){
+					String varCode = funcVars.getJSONObject(i).getString(WFConstants.FuncVarsParm.PARM_VAR_CODE);
+					String key = ":"+varCode;
+					if(custUserSqlExp.contains(key)){
+						Object varVal = funcVarValues.get(varCode.toUpperCase());
+						if(varVal instanceof String){
+							custUserSqlExp = custUserSqlExp.replace(key, "'"+varVal+"'");
+						}else{
+							custUserSqlExp = custUserSqlExp.replace(key, ""+varVal);
+						}
+					}
+				}
+				List<JSONObject> custUserResults = condService.getEntityDataListBySql(custUserSqlExp, true);
+				if(custUserResults!=null && !custUserResults.isEmpty()){
+					List<TblUser> usersInCust = new ArrayList<TblUser>(custUserResults.size());
+					for(JSONObject userJs : custUserResults){
+						TblUser user = new TblUser();
+						Iterator<Entry<String, Object>> it = userJs.entrySet().iterator();
+						user.setId((String)(it.next()).getValue());
+						user.setName((String)(it.next()).getValue());
+						usersInCust.add(user);
+					}
+					custUser.setUserlist(usersInCust);
+				}
+			}
+		}
 		
 		if(assignerList==null || assignerList.isEmpty()){
 			return userGroupService.getUsersGroupsDtlList(null, null, custUserList).toJSONObject(assignerList);

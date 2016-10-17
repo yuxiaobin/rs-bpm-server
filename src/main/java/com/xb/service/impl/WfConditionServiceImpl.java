@@ -1,6 +1,8 @@
 package com.xb.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -34,6 +36,7 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 	private static Logger log = LogManager.getLogger(WfConditionServiceImpl.class);
 	
 	private static final String ERROR_MSG_NO_BUZ_DATA_FOUND = "FATAL ERROR====no buz data found for [refMkid=%s],[wfInstNum=%s]";
+	private static final String INFO_MSG_NO_BUZ_DATA_DEFINED = "No func vars defined for [refMkid=%s]";
 
 	@Autowired
 	WfEntityBeanFactory entityFactory;
@@ -59,6 +62,12 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 		return null;
 	}
 	
+	/**
+	 * 条件节点表达式：
+	 * custVar1==1 and test_amount==1 and test_age==1
+	 * 
+	 * custVar1:自定义变量，表达式为：select count(1) from aaa where aaa.stes=:test_amount
+	 */
 	public boolean evaluateExpression(String expression, String refMkid, int wfInstNum, String wfId){
 		String expressionBefore = expression;
 		ExpressionParser parser = new SpelExpressionParser();
@@ -66,39 +75,19 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 		if(StringUtils.isEmpty(expression)){
 			return true;
 		}else{
-			String tableName = entityFactory.getFuncEntityTable(refMkid);
 			JSONArray funcVars = entityFactory.getFuncVariables(refMkid);
-			if(funcVars!=null && !funcVars.isEmpty()){
-				StringBuilder sb = new StringBuilder();
-				sb.append("select ");
-				for(int i=0;i<funcVars.size();++i){
-					JSONObject funcVar = funcVars.getJSONObject(i);
-					String columnName = funcVar.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE);
-					sb.append(columnName.toUpperCase()).append(",");
-				}
-				sb.deleteCharAt(sb.length()-1);
-				sb.append(" from ").append(tableName);
-				sb.append(" where ").append(tableName).append("_WF_INST_NUM=").append(wfInstNum);
-				
-				Map<String,Object> parm = new HashMap<String,Object>();
-				parm.put("getBuzDataSql", sb.toString());
-				List<JSONObject> entityDataList = baseMapper.getBuzDataByEntity(parm);
-				JSONObject entityData = null;
-				if(entityDataList==null || entityDataList.isEmpty()){
-					log.error(String.format(ERROR_MSG_NO_BUZ_DATA_FOUND, refMkid,wfInstNum));
-				}else{
-					entityData = entityDataList.get(0);
-					if(!funcVars.isEmpty()){
-						for(int i=0;i<funcVars.size();++i){
-							JSONObject js = funcVars.getJSONObject(i);
-							String varCode = js.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE);//is column name
-							Pattern p = Pattern.compile(varCode+"[=><! ]");
-							Matcher m = p.matcher(expression);
-							if(m.find()){
-								expression = expression.replace(varCode, "#"+varCode);//replace total_count with #total_count, which can be evaluated by Spring EL
-								Object val = entityData.get(varCode.toUpperCase());
-								context.setVariable(varCode, val);
-							}
+			JSONObject entityData = getFuncVarValues(refMkid, wfInstNum);
+			if(entityData!=null){
+				if(!funcVars.isEmpty()){
+					for(int i=0;i<funcVars.size();++i){
+						JSONObject js = funcVars.getJSONObject(i);
+						String varCode = js.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE);//is column name
+						Pattern p = Pattern.compile(varCode+"[=><! ]");
+						Matcher m = p.matcher(expression);
+						if(m.find()){
+							expression = expression.replace(varCode, "#"+varCode);//replace total_count with #total_count, which can be evaluated by Spring EL
+							Object val = entityData.get(varCode.toUpperCase());
+							context.setVariable(varCode, val);
 						}
 					}
 				}
@@ -108,25 +97,45 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 			custVarParm.setWfId(wfId);
 			custVarParm.setVarType(WFConstants.CustVarTypes.VAR_TYPE_VAR);
 			List<WfCustVars> custVars = custVarsService.selectList(custVarParm);//自定义变量
-			
+			/*
+			 * 如果自定义变量中使用了预定义变量(:test_amount, 以:开头的变量)
+			 * 需要将预定义变量（也就是实体中定义的功能变量）替换成值。
+			 */
 			if(custVars!=null && !custVars.isEmpty()){
 				for(WfCustVars var: custVars){
 					String varCode = var.getVarCode();
 					Pattern p = Pattern.compile(varCode+"[=><! ]");
 					Matcher m = p.matcher(expression);
 					if(m.find()){
-						Map<String,Object> parm = new HashMap<String,Object>();
-						parm.put("getBuzDataSql", var.getVarExpression());
-						List<JSONObject> entityDataList = baseMapper.getBuzDataByEntity(parm);
-						if(entityDataList==null || entityDataList.isEmpty()){
+						String custVarExp = var.getVarExpression();
+						if(custVarExp==null){
+							//TODO: need test if the expression can always be true @1017
+							continue;
+						}
+						custVarExp = custVarExp.toUpperCase();
+						if(entityData!=null && !entityData.isEmpty()){
+							for(Map.Entry<String, Object> ety : entityData.entrySet()){
+								String key = ":"+ety.getKey();
+								if(custVarExp.contains(key)){
+									Object val = ety.getValue();
+									if(val instanceof String){
+										custVarExp = custVarExp.replace(key, "'"+ety.getValue()+"'");
+									}else{
+										custVarExp = custVarExp.replace(key, ""+ety.getValue());
+									}
+								}
+							}
+						}
+						List<JSONObject> custVarDataList = getEntityDataListBySql(custVarExp,false);
+						if(custVarDataList==null || custVarDataList.isEmpty()){
 							log.warn("no data found for custVar.expression="+var.getVarExpression());
 							continue;
 						}
-						JSONObject record = entityDataList.get(0);
-						if(record.isEmpty()){
-							log.warn("query data is empty for custVar.expression="+var.getVarExpression());
+						JSONObject custVarData = custVarDataList.get(0);
+						if(custVarData.isEmpty()){
+							log.warn("query data is empty for custVar.expression="+var.getVarExpression()+", after transfered custVarExp="+custVarExp);
 						}else{
-							Object expResult = record.values().iterator().next();
+							Object expResult = custVarData.values().iterator().next();
 							expression = expression.replace(varCode, "#"+varCode);
 							context.setVariable(varCode, expResult);
 						}
@@ -138,4 +147,52 @@ public class WfConditionServiceImpl extends CommonServiceImpl<WfCustVarsMapper, 
 		}
 	}
 
+	public JSONObject getFuncVarValues(String refMkid, Integer wfInstNum){
+		String tableName = entityFactory.getFuncEntityTable(refMkid);
+		JSONArray funcVars = entityFactory.getFuncVariables(refMkid);
+		if(funcVars!=null && !funcVars.isEmpty()){
+			StringBuilder sb = new StringBuilder();
+			sb.append("select ");
+			for(int i=0;i<funcVars.size();++i){
+				JSONObject funcVar = funcVars.getJSONObject(i);
+				String columnName = funcVar.getString(WFConstants.FuncVarsParm.PARM_VAR_CODE);
+				sb.append(columnName.toUpperCase()).append(",");
+			}
+			sb.deleteCharAt(sb.length()-1);
+			sb.append(" from ").append(tableName);
+			sb.append(" where ").append(tableName).append("_WF_INST_NUM=").append(wfInstNum);
+			
+			List<JSONObject> entityDataList = getEntityDataListBySql(sb.toString(), false);
+			if(entityDataList==null || entityDataList.isEmpty()){
+				log.error(String.format(ERROR_MSG_NO_BUZ_DATA_FOUND, refMkid,wfInstNum));
+				return null;
+			}else{
+				return entityDataList.get(0);
+			}
+		}
+		log.info(String.format(INFO_MSG_NO_BUZ_DATA_DEFINED, refMkid));
+		return null;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<JSONObject> getEntityDataListBySql(String sql, boolean withOrder){
+		Map<String,Object> parm = new HashMap<String,Object>();
+		parm.put("getBuzDataSql", sql);
+		if(withOrder){
+			List<LinkedHashMap> result =  baseMapper.getBuzDataByEntityWithOrder(parm);
+			if(result!=null){
+				List<JSONObject> returnList = new ArrayList<JSONObject>(result.size());
+				for(LinkedHashMap record:result){
+					JSONObject json = new JSONObject(true);
+					json.putAll(record);
+					returnList.add(json);
+				}
+				return returnList;
+			}
+			return null;
+		}else{
+			return baseMapper.getBuzDataByEntity(parm);
+		}
+	}
+	
 }

@@ -132,6 +132,18 @@ public class UsersGroupsVO4Task {
 					custJson.put("defSelMod", "");
 					custJson.put("checkFlag", false);
 				}
+				List<TblUser> userlist = custU.getUserlist();
+				if(userlist!=null){
+					JSONArray usersInCust = new JSONArray();
+					JSONObject usrJs = null;
+					for(TblUser usr : userlist){
+						usrJs = new JSONObject();
+						usrJs.put("id", usr.getId());
+						usrJs.put("name", usr.getName());
+						usersInCust.add(usrJs);
+					}
+					custJson.put("usersInCust", usersInCust);
+				}
 				custArray.add(custJson);
 			}
 			result.put("custUsers", custArray);

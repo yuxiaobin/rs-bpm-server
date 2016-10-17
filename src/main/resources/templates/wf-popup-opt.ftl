@@ -122,9 +122,9 @@
                 <table class="table" id="custUserTable" ng-hide="actExecFlag">
                     <tr ng-repeat="user in custUserList">
                         <td ng-switch="user.defSelMod">
-                            <input type="checkbox" ng-switch-when="1" ng-checked="true"  value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
-                            <input type="checkbox" ng-switch-when="2" ng-checked="true" ng-disabled="true" value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
-                            <input type="checkbox" ng-switch-default value="{{user.id}}" rs-attr-name="{{user.name}}" ng-click="selectAssigner($event)">
+                            <input type="checkbox" ng-switch-when="1" ng-checked="true"  value="{{user.id}}" rs-attr-name="{{user.usersInCust}}" ng-click="selectGroups($event)">
+                            <input type="checkbox" ng-switch-when="2" ng-checked="true" ng-disabled="true" value="{{user.id}}" rs-attr-name="{{user.usersInCust}}" ng-click="selectGroups($event)">
+                            <input type="checkbox" ng-switch-default value="{{user.id}}" rs-attr-name="{{user.usersInCust}}" ng-click="selectGroups($event)">
                         </td>
                         <!--<td>{{user.id}}</td>-->
                         <td>{{user.name}}</td>

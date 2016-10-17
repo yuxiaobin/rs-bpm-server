@@ -3,7 +3,7 @@
  */
 angular.module('funcVarApp', [ ])
     .service('wfService', ['$http', '$q', function ($http, $q) {
-        this.getFuncVars = function(refMkid,version){
+        this.getCustFuncVars = function(refMkid,version){
             var delay = $q.defer();
             var data = {refMkid:refMkid};
             if(typeof(version)!='undefined'){
@@ -24,17 +24,49 @@ angular.module('funcVarApp', [ ])
             return delay.promise;
         };
 
+        this.getFuncVars = function(refMkid){
+            var delay = $q.defer();
+            var req = {
+                method: 'POST',
+                data:{refMkid:refMkid},
+                url: basePath+'/wfadmin/funcvars'
+            };
+            $http(req)
+                .success(function(data, status, headers, config){
+                    delay.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                    delay.reject(data);
+                });
+            return delay.promise;
+        };
     }])
     .controller('ctrl', ['$scope','$window','$timeout', 'wfService', function ($scope,$window,$timeout, wfService) {
-        $scope.getFuncVars = function(refMkid){
-            wfService.getFuncVars(refMkid).then(function(success){
+        $scope.getCustFuncVars = function(refMkid){
+            wfService.getCustFuncVars(refMkid).then(function(success){
                 $scope.funcVarList = success;
                 custFuncVarArray = $scope.funcVarList;
             },function(fail){
                 console.error("getTaskInbox failed"+fail);
             });
         };
+        $scope.getCustFuncVars(refMkid);
+        $scope.getFuncVars = function(refMkid){
+            wfService.getFuncVars(refMkid).then(function(succ){
+                $scope.funcVars = succ;
+            })
+        };
         $scope.getFuncVars(refMkid);
+        $scope.selectFuncVar = function(funcVar){
+            if(angular.isUndefined($scope.custVar.varExpression)){
+                $scope.custVar.varExpression = "";
+            }
+            if($scope.custVar.varExpression!=""){
+                $scope.custVar.varExpression += " and ";
+            }
+            $scope.custVar.varExpression += ":"+funcVar.varCode+"=";
+        }
+
         $scope.saveCustVar = function(){
             if(angular.isUndefined($scope.custVar.varCode)||$scope.custVar.varCode==""
                 ||angular.isUndefined($scope.custVar.varDescp)|| $scope.custVar.varDescp==""){
@@ -64,6 +96,7 @@ angular.module('funcVarApp', [ ])
                     $scope.funcVarList[$scope.funcVarList.length] = $scope.custVar;
                 }
             }else{//edit
+                var varCodePrev = $scope.funcVarList[edit_index].varCode;
                 for(var i=0;i<$scope.funcVarList.length;++i){
                     if(i!=edit_index && $scope.funcVarList[i].varCode==$scope.custVar.varCode){
                         $scope.funcVarError = "相同的编码已存在";
@@ -71,6 +104,31 @@ angular.module('funcVarApp', [ ])
                         $timeout(function(){
                             $("#messageModal").modal("hide");
                         },2000);
+                        return;
+                    }
+                }
+                if(varCodePrev!=$scope.custVar.varCode){
+                    //check if varCodePrev is used
+                    var isValidVarCode = true;
+                    $("#canvas .w").each(function(){
+                        var jqObj = $(this);
+                        var assignerJSONStr = jqObj.attr(RS_ATTR_ASSIGNERS);
+                        if(assignerJSONStr==undefined || assignerJSONStr==""){
+                            assignerJSONStr = "[]";
+                        }
+                        var assignersJSON = $.parseJSON(assignerJSONStr);
+                        var existingUsingOldCode = $.grep(assignersJSON,function(value){
+                            if(value.id==varCodePrev){
+                                return true;
+                            }
+                            return false;
+                        })
+                        if(existingUsingOldCode.length!=0){
+                            alert("该编码已经被使用，无法修改");
+                            isValidVarCode = false;
+                        }
+                    });
+                    if(!isValidVarCode){
                         return;
                     }
                 }
