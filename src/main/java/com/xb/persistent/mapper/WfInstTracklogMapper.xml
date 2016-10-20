@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfInstTracklogMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 TRACKLOG_ID AS tracklogId, TRACK_ID AS trackId, DATA_OPTION AS dataOption, ENTITY_CLASS_TYPE AS entityClassType, DATA_BEFORE AS dataBefore, DATA_AFTER AS dataAfter
+	</sql>
+
+</mapper>

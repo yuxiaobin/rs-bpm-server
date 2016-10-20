@@ -31,6 +31,8 @@ public class TblUserServiceImpl extends CommonServiceImpl<TblUserMapper, TblUser
 			baseMapper.deleteUnitResult4WfConn(refMkid);
 			baseMapper.deleteUnitResult4WfDef(refMkid);
 			baseMapper.deleteUnitResult4RsWorkflow(refMkid);
+			baseMapper.deleteUnitResult4Track();
+			baseMapper.deleteUnitResult4Tracklog();
 		}
 	}
 

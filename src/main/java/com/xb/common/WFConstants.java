@@ -15,6 +15,8 @@ public class WFConstants {
 	}
 	public static final String ASSIGNER_TYPE_CUST = "C";//定义工作流人员>选择“自定义人员”
 	
+	public static final String API_PARM_TRACK_ID = "trackId";
+	
 	public static class OptTypes{
 //		public static final String REQUEST = "RQ";
 //		public static final String APPROVE = "AP";

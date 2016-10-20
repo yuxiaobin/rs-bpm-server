@@ -54,6 +54,16 @@ public interface TblUserMapper extends CommonMapper<TblUser> {
 	})
 	public void deleteUnitResult4RsWorkflow(@Param("refMkid") String refMkid);
 	
+	@Delete({
+		"delete from wf_inst_track where TRACK_ID like 'ju_%' "
+	})
+	public void deleteUnitResult4Track();
+	
+	@Delete({
+		"delete from wf_inst_tracklog where TRACK_ID like 'ju_%' "
+	})
+	public void deleteUnitResult4Tracklog();
+	
 	@Select(" select * from wf_instance where REF_MKID=#{refMkid} and inst_num=#{instNum}")
 	@Results({
         @Result(id=true,property="instId",column="INST_ID",javaType=String.class),

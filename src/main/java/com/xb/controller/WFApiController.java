@@ -23,6 +23,7 @@ import com.xb.persistent.WfInstance;
 import com.xb.service.IRsWorkflowService;
 import com.xb.service.IWfApiService;
 import com.xb.service.IWfInstHistService;
+import com.xb.service.IWfInstTrackService;
 import com.xb.service.IWfInstanceService;
 import com.xb.service.IWfTaskService;
 import com.xb.vo.TaskOptVO;
@@ -58,6 +59,7 @@ public class WFApiController extends BaseController {
 	private static final String PARM_REFMK_ID = WFConstants.ApiParams.PARM_REFMK_ID;
 	private static final String PARM_OPT_CODE = WFConstants.ApiParams.PARM_OPT_CODE;
 	private static final String PARM_CALLBACK_URL = WFConstants.ApiParams.PARM_CALLBACK_URL;
+	private static final String PARM_TRACK_ID = WFConstants.API_PARM_TRACK_ID;
 	
 	
 	
@@ -71,6 +73,8 @@ public class WFApiController extends BaseController {
 	IWfInstHistService histService;
 	@Autowired
 	IWfInstanceService instService;
+	@Autowired
+	IWfInstTrackService trackService;
 	
 	@RequestMapping(value="/awt",method=RequestMethod.POST )
 	@ResponseBody
@@ -127,7 +131,11 @@ public class WFApiController extends BaseController {
 	
 	@RequestMapping(value="/start",method=RequestMethod.POST )
 	@ResponseBody
-	public Object startWf(@RequestBody JSONObject parm){
+	public Object startWf(@RequestBody JSONObject parm, HttpServletRequest request){
+		setCurrentUser(parm);
+		if(request.getHeader(PARM_TRACK_ID)==null){
+			log.warn("no track ID in request header for parm="+parm.toString());
+		}
 		String userId = parm.getString(PARM_USER_ID);
 		String refMkid = parm.getString(PARM_REFMK_ID);
 		JSONObject result = new JSONObject();
@@ -360,7 +368,11 @@ public class WFApiController extends BaseController {
 	 */
 	@RequestMapping(value="/operate",method=RequestMethod.POST )
 	@ResponseBody
-	public Object doOperate(@RequestBody JSONObject parm){
+	public Object doOperate(@RequestBody JSONObject parm, HttpServletRequest request){
+		setCurrentUser(parm);
+		if(request.getHeader(PARM_TRACK_ID)==null){
+			log.warn("no track ID in request header for parm="+parm.toString());
+		}
 		String userId = parm.getString(PARM_USER_ID);
 		String refMkid = parm.getString(PARM_REFMK_ID);
 		String wfInstNumStr = parm.getString(PARM_WF_INST_NUM);
@@ -410,6 +422,38 @@ public class WFApiController extends BaseController {
 		return result;
 	}
 	
+	/**
+	 * API for Operate Task
+	 * @param parm
+	 * @return
+	 */
+	@RequestMapping(value="/rollback",method=RequestMethod.POST )
+	@ResponseBody
+	public Object doRollback(@RequestBody JSONObject parm,HttpServletRequest request){
+		setCurrentUser(parm);
+		JSONObject result = new JSONObject();
+		String trackId = parm.getString(PARM_TRACK_ID);
+		if(trackId==null){
+			log.warn("no track ID in request header for parm="+parm.toString());
+			result.put(RETURN_CODE, STATUS_CODE_INVALID);
+			result.put(RETURN_MSG, "no trackID passed in request header");
+			return result;
+		}
+		try{
+			if(trackService.doRollback(trackId)){
+				result.put(RETURN_CODE, STATUS_CODE_SUCC);
+				result.put(RETURN_MSG, "rollback success");
+			}else{
+				result.put(RETURN_CODE, STATUS_CODE_OPT_NOT_ALLOW);
+				result.put(RETURN_MSG, "already rollbacked before");
+			}
+		}catch(Exception e){
+			log.error("rollback failed for trackId="+trackId, e);
+			result.put(RETURN_CODE, STATUS_CODE_FAIL);
+			result.put(RETURN_MSG, "rollback failed");
+		}
+		return result;
+	}
 	
 	private boolean validateInstNumAndOptCode(JSONObject result, String instNumStr, String optCode){
 		try{

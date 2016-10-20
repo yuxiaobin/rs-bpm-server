@@ -2,6 +2,8 @@ package com.xb.test.controller;
 
 import static com.jayway.restassured.RestAssured.given;
 
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -25,11 +27,18 @@ public abstract class TestBase {
 	org.apache.logging.log4j.Logger log = LogManager.getLogger(TestBase.class);
 	
 	protected static final String PARM_REF_MKID = WFConstants.ApiParams.PARM_REFMK_ID;
+	protected static final String PARM_TRACK_ID = WFConstants.API_PARM_TRACK_ID;
 	
 	@Autowired
 	ITblUserService userService;
 	@Autowired
 	IWfInstanceService instService;
+	
+	String trackId;
+	
+	public static String generateTrackID(){
+		return "ju_track_"+UUID.randomUUID().toString().replace("-", "");
+	}
 	
 	@Value("${local.server.port}")   // 6
     int port;
@@ -59,10 +68,11 @@ public abstract class TestBase {
 	}
 	
 	public void startWf(String starterId, String nextTaskAssigners){
+		trackId = generateTrackID();
 		JSONObject parm = new JSONObject();
 		parm.put("userId", starterId);
 		parm.put(PARM_REF_MKID, getRefMkid());
-		ValidatableResponse response = given().contentType("application/json")
+		ValidatableResponse response = given().contentType("application/json").header(PARM_TRACK_ID, trackId)
         .request().body(parm.toJSONString())
         .when().post("/wfapi/start")
         .then()
@@ -81,6 +91,7 @@ public abstract class TestBase {
 		});
 		JSONObject json = JSONObject.parseObject(response.extract().asString());
 		instNum = json.getInteger(WFConstants.ApiParams.RETURN_WF_INST_NUM);
+		
 //		getNextTask4Commit();
 		commitTask(starterId, nextTaskAssigners);//From start task committed to first task.
 	}
@@ -139,32 +150,57 @@ public abstract class TestBase {
 	}
 	
 	public void commitTask(String committer, String nextAssignerIds, boolean needGetNextTaskFlag){
-		if(needGetNextTaskFlag){
-//			getNextTask4Commit();
-		}
 		JSONObject parm = new JSONObject();
 		parm.put("userId", committer);
 		parm.put(PARM_REF_MKID, getRefMkid());
 		parm.put("comments", "junitTest: "+committer+" commit");
-//		parm.put("nextTaskId", nextTaskId4Commit);
 		parm.put("nextUserIds", nextAssignerIds);
 		parm.put("optCode", "C");
 		parm.put("wfInstNum", instNum);
-		given().contentType("application/json")
+		
+		trackId = generateTrackID();
+		
+		given().contentType("application/json").header(PARM_TRACK_ID, trackId)
         .request().body(parm.toJSONString())
         .when().post("/wfapi/operate")
         .then()
         .body("return_code", new ResponseAwareMatcher<Response>() {
 			@Override
 			public Matcher<?> matcher(Response response) throws Exception {
-//				currTaskId = nextTaskId4Commit;
 				return new Equals(0);
+			}
+		});
+	}
+	
+	public void doRollback(String userId){
+		JSONObject parm = new JSONObject();
+		parm.put("userId", userId);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/rollback")
+        .then()
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				return new Equals(WFConstants.ApiParams.STATUS_CODE_INVALID);
+			}
+		});
+		parm.put(WFConstants.API_PARM_TRACK_ID, trackId);
+		given().contentType("application/json")
+        .request().body(parm.toJSONString())
+        .when().post("/wfapi/rollback")
+        .then()
+        .body("return_code", new ResponseAwareMatcher<Response>() {
+			@Override
+			public Matcher<?> matcher(Response response) throws Exception {
+				return new Equals(WFConstants.ApiParams.STATUS_CODE_SUCC);
 			}
 		});
 	}
 	
 	public void rejectTask(String rejector, String nextAssignerIds){
 		getNextTask4Reject();
+		trackId = generateTrackID();
 		
 		JSONObject parm = new JSONObject();
 		parm.put("userId", rejector);
@@ -174,7 +210,7 @@ public abstract class TestBase {
 		parm.put("nextUserIds", nextAssignerIds);
 		parm.put("optCode", "RJ");
 		parm.put("wfInstNum", instNum);
-		given().contentType("application/json")
+		given().contentType("application/json").header(PARM_TRACK_ID, trackId)
 		.request().body(parm.toJSONString())
 		.when().post("/wfapi/operate")
 		.then()
@@ -188,6 +224,7 @@ public abstract class TestBase {
 	}
 	
 	public void forwardTask(String fromUser, String toUser){
+		trackId =generateTrackID();
 		JSONObject parm = new JSONObject();
 		parm.put("userId", fromUser);
 		parm.put(PARM_REF_MKID, getRefMkid());
@@ -195,7 +232,7 @@ public abstract class TestBase {
 		parm.put("nextUserIds", toUser);
 		parm.put("optCode", "F");
 		parm.put("wfInstNum", instNum);
-		given().contentType("application/json")
+		given().contentType("application/json").header(PARM_TRACK_ID, trackId )
         .request().body(parm.toJSONString())
         .when().post("/wfapi/operate")
         .then()
@@ -208,13 +245,14 @@ public abstract class TestBase {
 	}
 	
 	public void recallSuccess(String recaller){
+		trackId = generateTrackID();
 		JSONObject parm = new JSONObject();
 		parm.put("userId", recaller);
 		parm.put(PARM_REF_MKID, getRefMkid());
 		parm.put("wfInstNum", instNum);
 		parm.put("optCode", "RC");
 		parm.put("comments", "junitTest: "+recaller+" recall");
-		given().contentType("application/json")
+		given().contentType("application/json").header(PARM_TRACK_ID, trackId)
         .request().body(parm.toJSONString())
         .when().post("/wfapi/operate")
         .then()

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xb.persistent.mapper.WfInstTrackMapper">
+
+	<!-- 通用查询结果列-->
+	<sql id="Base_Column_List">
+		 TRACK_ID AS trackId, ROLLBACK_FLAG AS rollbackFlag, CREATED_BY AS createdBy, UPDATED_BY AS updatedBy, CREATED_DT AS createdDt, UPDATED_DT AS updatedDt
+	</sql>
+
+</mapper>

@@ -130,7 +130,7 @@ public class WFAdminController extends BaseController {
 		JSONArray funcVars = entityFactory.getFuncVariables(refMkid);
 		List<String> expressionList = new ArrayList<String>();
 		Set<String> funcVarNames = new HashSet<String>();
-		if(funcVarNames!=null){
+		if(funcVars!=null){
 			for(int i=0;i<funcVars.size();++i){
 				funcVarNames.add(funcVars.getJSONObject(i).getString(WFConstants.FuncVarsParm.PARM_VAR_CODE));
 			}

@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xb.common.WFConstants;
+import com.xb.utils.UserSessionUtil;
 
 
 public class BaseController {
@@ -35,6 +37,17 @@ public class BaseController {
 			return (String) userInfo.get("userId");
 		}
 		return null;
+	}
+	
+	/**
+	 * For API to set current user
+	 * @param parm
+	 */
+	public void setCurrentUser(JSONObject parm){
+		CUBaseTO baseTO = new CUBaseTO();
+		baseTO.setCreatedBy(parm.getString(WFConstants.ApiParams.PARM_USER_ID));
+		baseTO.setUpdatedBy(baseTO.getCreatedBy());
+		UserSessionUtil.setUserSession(baseTO);
 	}
 	/*
 	 * @ExceptionHandler({MyException.class})
