@@ -45,7 +45,7 @@ public class WFApiController extends BaseController {
 	private static final String RETURN_CODE = WFConstants.ApiParams.RETURN_CODE;
 	private static final String RETURN_MSG = WFConstants.ApiParams.RETURN_MSG;
 	private static final String RETURN_WF_INST_NUM = WFConstants.ApiParams.RETURN_WF_INST_NUM;
-	private static final String RETURN_CURR_TASK_ID = WFConstants.ApiParams.RETURN_CURR_TASK_ID;
+//	private static final String RETURN_CURR_TASK_ID = WFConstants.ApiParams.RETURN_CURR_TASK_ID;
 	private static final String RETURN_RECORDS = WFConstants.ApiParams.RETURN_RECORDS;
 	private static final String RETURN_RECORDS_COUNT = WFConstants.ApiParams.RETURN_RECORDS_COUNT;
 
@@ -149,7 +149,7 @@ public class WFApiController extends BaseController {
 			if(startResult!=null){
 				result.put(RETURN_CODE, STATUS_CODE_SUCC);
 				result.put(RETURN_WF_INST_NUM, startResult.getInteger(RETURN_WF_INST_NUM));
-				result.put(RETURN_CURR_TASK_ID, startResult.getString(RETURN_CURR_TASK_ID));
+//				result.put(RETURN_CURR_TASK_ID, startResult.getString(RETURN_CURR_TASK_ID));
 				result.put(RETURN_MSG, "succ");
 			}else{
 				result.put(RETURN_CODE, STATUS_CODE_WF_NOT_DEFINED);

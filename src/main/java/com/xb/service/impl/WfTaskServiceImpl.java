@@ -129,8 +129,10 @@ public class WfTaskServiceImpl extends CommonServiceImpl<WfTaskMapper, WfTask> i
 			awtService.insert(awt);
 			
 			JSONObject result = new JSONObject();
+			result.put("buzStatusBefore", "");
+			result.put("buzStatusAfter", startTask.getBuzStatus());
 			result.put(WFConstants.ApiParams.RETURN_WF_INST_NUM, instNumCurr);
-			result.put(WFConstants.ApiParams.RETURN_CURR_TASK_ID, taskId);
+//			result.put(WFConstants.ApiParams.RETURN_CURR_TASK_ID, taskId);
 			return result;
 		}
 	}

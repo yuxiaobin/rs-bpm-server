@@ -67,7 +67,7 @@ public class WFConstants {
 		public static final String RETURN_CODE = "return_code";
 		public static final String RETURN_MSG = "return_msg";
 		public static final String RETURN_WF_INST_NUM = "wfInstNum";
-		public static final String RETURN_CURR_TASK_ID = "currTaskId";
+//		public static final String RETURN_CURR_TASK_ID = "currTaskId";
 		public static final String RETURN_TASK_OPTIONS = "taskOptions";
 		public static final String RETURN_RECORDS = "records";
 		public static final String RETURN_RECORDS_COUNT = "count";
