@@ -14,13 +14,13 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 import com.baomidou.mybatisplus.MybatisConfiguration;
+import com.baomidou.mybatisplus.MybatisXMLLanguageDriver;
 import com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean;
 
 @Configuration
 public class DBConfig {
 
 	@Bean
-	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public SqlSessionFactory getMybatisSqlSessionFactoryBean(DataSource dataSource) throws Exception {
 		MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
 		factoryBean.setDataSource(dataSource);
@@ -35,6 +35,7 @@ public class DBConfig {
 //		pageHelper.setProperties(p);
 //		factoryBean.setPlugins(new Interceptor[]{pageHelper});
 		MybatisConfiguration configuration = new MybatisConfiguration();
+		configuration.setDefaultScriptingLanguage(MybatisXMLLanguageDriver.class);
 		configuration.setJdbcTypeForNull(JdbcType.NULL);
 		factoryBean.setConfiguration(configuration);
 		return factoryBean.getObject();
