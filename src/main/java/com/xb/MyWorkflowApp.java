@@ -19,7 +19,7 @@ import com.xb.conf.ServletConfig;
 
 @RestController
 @EnableAutoConfiguration
-@Import(value = {AppConfig.class, DBConfig.class, DatasourceConfig.class, FilterConfig.class, InterceptorConfig.class,ServletConfig.class })
+@Import(value = {AppConfig.class, DatasourceConfig.class, DBConfig.class, FilterConfig.class, InterceptorConfig.class,ServletConfig.class })
 @ComponentScan(basePackages={"com.rshare.service.wf.annotations"})
 public class MyWorkflowApp extends BaseController implements EmbeddedServletContainerCustomizer {
 
