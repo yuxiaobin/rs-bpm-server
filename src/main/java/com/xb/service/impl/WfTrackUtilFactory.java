@@ -118,6 +118,9 @@ public class WfTrackUtilFactory implements BeanFactoryAware{
 	 * @param operation
 	 */
 	public void createTrack(String trackId, String userId, String entityClassName, List<Object> beforeList, List<Object> afterList, String operation){
+		if(trackId==null){
+			return;
+		}
 		if(trackIdCache.getIfPresent(trackId)==null){
 			executor.execute(new WfTrackJob(trackId, trackService, userId));
 			trackIdCache.put(trackId, trackId);

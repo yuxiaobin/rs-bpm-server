@@ -21,30 +21,6 @@ public class AppConfig {
 		this.env = env;
 	}
 
-
-	/*@Bean
-	public FreeMarkerViewResolver freemarkerViewResolver() {
-		FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
-		resolver.setPrefix("/public/templates");
-		resolver.setSuffix(".ftl");
-		resolver.setContentType("text/html;charset=UTF-8");
-		resolver.setViewClass(FreeMarkerView.class);
-		resolver.setExposeSpringMacroHelpers(true);
-		resolver.setExposeRequestAttributes(true);
-		return resolver;
-	}*/
-	/*
-	 * @Bean public FreeMarkerConfigurer freeMarkerConfig() {
-	 * FreeMarkerConfigurer configurer = new FreeMarkerConfigurer(); return
-	 * configurer; }
-	 * 
-	 * protected void setFreemarkerSettings(Properties settings) {
-	 * settings.setProperty("default_encoding", "UTF-8");
-	 * settings.setProperty("url_escaping_charset", "UTF-8");
-	 * settings.setProperty("number_format", "0.##"); }
-	 * 
-	 */
-	
 	@Bean
     public FreeMarkerViewResolver freeMarkerViewResolver() {
         FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
